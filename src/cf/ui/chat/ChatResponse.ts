@@ -1,11 +1,11 @@
-/// <reference path="../BasicElement.ts"/>
-/// <reference path="../../logic/Helpers.ts"/>
-/// <reference path="../../ConversationalForm.ts"/>
-/// <reference path="../../interfaces/IUserInterfaceOptions.ts"/>
+import { ConversationalForm } from "@/cf/ConversationalForm";
+import { ITag } from "@/cf/form-tags/Tag";
+import { IUserInterfaceOptions } from "@/cf/interfaces/IUserInterfaceOptions";
+import { FlowDTO } from "@/cf/logic/FlowManager";
+import { Helpers } from "@/cf/logic/Helpers";
+import { IBasicElementOptions, BasicElement } from "../BasicElement";
+import { ChatList } from "./ChatList";
 
-// namespace
-namespace cf {
-	// interface
 	export interface IChatResponseOptions extends IBasicElementOptions{
 		response: string;
 		image: string;
@@ -465,4 +465,3 @@ namespace cf {
 			</cf-chat-response>`;
 		}
 	}
-}

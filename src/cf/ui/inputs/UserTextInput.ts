@@ -1,13 +1,16 @@
-/// <reference path="../BasicElement.ts"/>
-/// <reference path="../control-elements/ControlElements.ts"/>
-/// <reference path="../../logic/FlowManager.ts"/>
-/// <reference path="../../interfaces/IUserInputElement.ts"/>
-/// <reference path="UserInputElement.ts"/>
-/// <reference path="UserInputSubmitButton.ts"/>
-
-// namespace
-namespace cf {
-	// interface
+import { ConversationalForm } from "@/cf/ConversationalForm";
+import { Dictionary } from "@/cf/data/Dictionary";
+import { InputTag } from "@/cf/form-tags/InputTag";
+import { SelectTag } from "@/cf/form-tags/SelectTag";
+import { TagEvents, ITag } from "@/cf/form-tags/Tag";
+import { ITagGroup, TagGroup } from "@/cf/form-tags/TagGroup";
+import { IUserInput } from "@/cf/interfaces/IUserInput";
+import { IUserInputElement } from "@/cf/interfaces/IUserInputElement";
+import { FlowDTO } from "@/cf/logic/FlowManager";
+import { ControlElements } from "../control-elements/ControlElements";
+import { UploadFileUI } from "../control-elements/UploadFileUI";
+import { UserInputElement, IUserInputOptions, UserInputEvents } from "./UserInputElement";
+import { UserInputSubmitButton, UserInputSubmitButtonEvents } from "./UserInputSubmitButton";
 
 	export interface InputKeyChangeDTO{
 		dto: FlowDTO,
@@ -723,4 +726,3 @@ namespace cf {
 			`;
 		}
 	}
-}

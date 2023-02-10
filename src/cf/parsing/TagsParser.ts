@@ -1,8 +1,4 @@
-// namespace
-namespace cf {
-	// interface
 
-	// class
 	export interface DataTag extends Object{
 		tag: string; // input, select etc.
 		type: string; // "password", "text" etc.
@@ -64,4 +60,3 @@ namespace cf {
 			return false;
 		}
 	}
-}

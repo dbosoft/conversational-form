@@ -1,9 +1,6 @@
-/// <reference path="Tag.ts"/>
-/// <reference path="../parsing/TagsParser.ts"/>
-
-// namespace
-namespace cf {
-	// interface
+import { FlowDTO } from "../logic/FlowManager";
+import { Helpers } from "../logic/Helpers";
+import { Tag } from "./Tag";
 
 	// class
 	export class OptionTag extends Tag {
@@ -42,5 +39,4 @@ namespace cf {
 			return isValid;
 		}
 	}
-}
 

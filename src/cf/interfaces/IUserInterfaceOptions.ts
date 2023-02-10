@@ -1,5 +1,3 @@
-// namespace
-namespace cf {
 	// default options interface for optional parameters for the UI of Conversational Form
 	export const UserInterfaceDefaultOptions: IUserInterfaceOptions = {
 		controlElementsInAnimationDelay: 250,
@@ -41,4 +39,3 @@ namespace cf {
 
 		}
 	}
-}

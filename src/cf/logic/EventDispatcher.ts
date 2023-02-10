@@ -1,7 +1,4 @@
-/// <reference path="../ConversationalForm.ts"/>
-
-namespace cf {
-	// interface
+import { ConversationalForm } from "../ConversationalForm";
 
 	export class EventDispatcher implements EventTarget{
 		private target: DocumentFragment;
@@ -33,4 +30,3 @@ namespace cf {
 			this.target.removeEventListener(type, listener, useCapture);
 		}
 	}
-}

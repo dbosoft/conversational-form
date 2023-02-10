@@ -1,12 +1,13 @@
-/// <reference path="../BasicElement.ts"/>
-/// <reference path="../control-elements/ControlElements.ts"/>
-/// <reference path="../../logic/FlowManager.ts"/>
-/// <reference path="../../interfaces/IUserInput.ts"/>
+import { ConversationalForm } from "@/cf/ConversationalForm";
+import { ITag } from "@/cf/form-tags/Tag";
+import { ITagGroup } from "@/cf/form-tags/TagGroup";
+import { IUserInput } from "@/cf/interfaces/IUserInput";
+import { IUserInputElement } from "@/cf/interfaces/IUserInputElement";
+import { FlowEvents, FlowDTO } from "@/cf/logic/FlowManager";
+import { Helpers } from "@/cf/logic/Helpers";
+import { BasicElement, IBasicElementOptions } from "../BasicElement";
+import { ChatListEvents } from "../chat/ChatList";
 
-// Abstract UserInpt element, should be extended when adding a new UI for user input
-
-// namespace
-namespace cf {
 	// interface
 	export class UserInputElement extends BasicElement implements IUserInputElement {
 		public static ERROR_TIME: number = 2000;
@@ -171,4 +172,3 @@ namespace cf {
 		FOCUS: "cf-input-focus",
 		BLUR: "cf-input-blur",
 	}
-}

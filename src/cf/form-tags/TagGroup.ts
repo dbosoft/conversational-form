@@ -1,16 +1,12 @@
-/// <reference path="ButtonTag.ts"/>
-/// <reference path="InputTag.ts"/>
-/// <reference path="SelectTag.ts"/>
-/// <reference path="../ui/inputs/UserTextInput.ts"/>
+import { ConversationalForm } from "../ConversationalForm";
+import { Dictionary } from "../data/Dictionary";
+import { EventDispatcher } from "../logic/EventDispatcher";
+import { FlowManager, FlowDTO } from "../logic/FlowManager";
+import { Helpers } from "../logic/Helpers";
+import { CheckboxButton } from "../ui/control-elements/CheckboxButton";
+import { RadioButton } from "../ui/control-elements/RadioButton";
+import { ITag } from "./Tag";
 
-// group tags together, this is done automatically by looking through InputTags with type radio or checkbox and same name attribute.
-// single choice logic for Radio Button, <input type="radio", where name is the same
-// multi choice logic for Checkboxes, <input type="checkbox", where name is the same
-
-
-// namespace
-namespace cf {
-	// interface
 	export interface ITagGroupOptions{
 		elements: Array <ITag>;
 		fieldset?: HTMLFieldSetElement;
@@ -303,4 +299,3 @@ namespace cf {
 			return isValid;
 		}
 	}
-}

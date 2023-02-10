@@ -1,24 +1,20 @@
-/// <reference path="ui/inputs/UserTextInput.ts"/>
-/// <reference path="ui/chat/ChatList.ts"/>
-/// <reference path="logic/FlowManager.ts"/>
-/// <reference path="ui/ProgressBar.ts"/>
-/// <reference path="logic/EventDispatcher.ts"/>
-/// <reference path="form-tags/Tag.ts"/>
-/// <reference path="form-tags/CfRobotMessageTag.ts"/>
-/// <reference path="form-tags/TagGroup.ts"/>
-/// <reference path="form-tags/InputTag.ts"/>
-/// <reference path="form-tags/SelectTag.ts"/>
-/// <reference path="form-tags/ButtonTag.ts"/>
-/// <reference path="data/Dictionary.ts"/>
-/// <reference path="parsing/TagsParser.ts"/>
-/// <reference path="interfaces/IUserInput.ts"/>
-/// <reference path="interfaces/IUserInterfaceOptions.ts"/>
+import { Dictionary } from "./data/Dictionary";
+import { InputTag } from "./form-tags/InputTag";
+import { ITag, Tag } from "./form-tags/Tag";
+import { ITagGroup, TagGroup } from "./form-tags/TagGroup";
+import { IUserInput } from "./interfaces/IUserInput";
+import { IUserInterfaceOptions, UserInterfaceDefaultOptions } from "./interfaces/IUserInterfaceOptions";
+import { EventDispatcher } from "./logic/EventDispatcher";
+import { FlowDTO, FlowManager } from "./logic/FlowManager";
+import { Helpers } from "./logic/Helpers";
+import { DataTag, TagsParser } from "./parsing/TagsParser";
+import { ChatList } from "./ui/chat/ChatList";
+import { ChatResponseEvents } from "./ui/chat/ChatResponse";
+import { UserInputElement } from "./ui/inputs/UserInputElement";
+import { UserTextInput } from "./ui/inputs/UserTextInput";
+import { ProgressBar } from "./ui/ProgressBar";
+import { ScrollController } from "./ui/ScrollController";
 
-interface Window { ConversationalForm: any; }
-
-namespace cf {
-
-	// CUI options
 	export interface ConversationalFormOptions{
 		// HTMLFormElement
 		formEl: HTMLFormElement;
@@ -768,14 +764,3 @@ namespace cf {
 			}
 		}
 	}
-}
-
-if(document.readyState == "complete"){
-	// if document alread instantiated, usually this happens if Conversational Form is injected through JS
-	setTimeout(() => cf.ConversationalForm.autoStartTheConversation(), 0);
-}else{
-	// await for when document is ready
-	window.addEventListener("load", () =>{
-		cf.ConversationalForm.autoStartTheConversation();
-	}, false);
-}

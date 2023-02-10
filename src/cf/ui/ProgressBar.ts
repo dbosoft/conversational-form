@@ -1,9 +1,7 @@
-/// <reference path="../logic/FlowManager.ts"/>
+import { EventDispatcher } from "../logic/EventDispatcher";
+import { FlowEvents } from "../logic/FlowManager";
+import { IBasicElementOptions } from "./BasicElement";
 
-// namespace
-namespace cf {
-	// interface
-	
 	// class
 	export class ProgressBar {
 		private flowUpdateCallback: () => void;
@@ -44,5 +42,5 @@ namespace cf {
 			this.flowUpdateCallback = null;
 		}
 	}
-}
+
 

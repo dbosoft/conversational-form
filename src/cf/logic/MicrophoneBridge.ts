@@ -1,9 +1,10 @@
-/// <reference path="../ui/BasicElement.ts"/>
-/// <reference path="../ui//control-elements/ControlElements.ts"/>
-/// <reference path="../logic/FlowManager.ts"/>
-/// <reference path="../interfaces/IUserInputElement.ts"/>
-/// <reference path="../ui/inputs/UserInputElement.ts"/>
-/// <reference path="../interfaces/IUserInputElement.ts"/>
+import { ConversationalForm } from "../ConversationalForm";
+import { Dictionary } from "../data/Dictionary";
+import { IUserInput } from "../interfaces/IUserInput";
+import { UserInputEvents } from "../ui/inputs/UserInputElement";
+import { UserInputSubmitButton } from "../ui/inputs/UserInputSubmitButton";
+import { EventDispatcher } from "./EventDispatcher";
+import { FlowEvents, FlowDTO } from "./FlowManager";
 
 // namespace
 namespace cf {
@@ -366,4 +367,3 @@ namespace cf {
 			}
 		}
 	}
-}

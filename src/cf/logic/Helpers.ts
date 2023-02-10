@@ -1,7 +1,3 @@
-// namespace
-namespace cf {
-	// interface
-
 	export interface TouchVector2d{
 		x: number,
 		y: number,
@@ -101,4 +97,4 @@ namespace cf {
 			return destination;
 		};
 	}
-}
+

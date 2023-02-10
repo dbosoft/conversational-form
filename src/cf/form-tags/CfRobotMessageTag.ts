@@ -1,19 +1,15 @@
-/// <reference path="Tag.ts"/>
+import { Tag, ITagOptions } from "./Tag";
 
-// namespace
-namespace cf {
-	// interface
+// class
+export class CfRobotMessageTag extends Tag {
+	constructor(options: ITagOptions){
+		super(options);
+		this.skipUserInput = true;
+	}
 
-	// class
-	export class CfRobotMessageTag extends Tag {
-		constructor(options: ITagOptions){
-			super(options);
-			this.skipUserInput = true;
-		}
-
-		public dealloc(){
-			super.dealloc();
-		}
+	public dealloc(){
+		super.dealloc();
 	}
 }
+
 

@@ -1,6 +1,4 @@
-// namespace
-namespace cf {
-	// interface
+import { FlowDTO } from "../logic/FlowManager";
 
 	// general interface for user input, like the default UserTextInput
 	export interface IUserInputElement{
@@ -13,4 +11,3 @@ namespace cf {
 		disabled:boolean;
 		el: HTMLElement;
 	}
-}

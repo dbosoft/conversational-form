@@ -1,10 +1,5 @@
-/// <reference path="ControlElement.ts"/>
+import { Tag } from "@/cf/form-tags/Tag";
 
-// namespace
-namespace cf {
-	// interface
-
-	// class
 	export class Button extends ControlElement {
 		private imgEl: HTMLImageElement;
 		private clickCallback: () => void;
@@ -86,5 +81,5 @@ namespace cf {
 			`;
 		}
 	}
-}
+
 

@@ -1,10 +1,8 @@
-/// <reference path="Tag.ts"/>
+import { FlowDTO } from "../logic/FlowManager";
+import { OptionButton } from "../ui/control-elements/OptionButton";
+import { OptionTag } from "./OptionTag";
+import { Tag, ITagOptions, ITag } from "./Tag";
 
-// namespace
-namespace cf {
-	// interface
-
-	// class
 	export class SelectTag extends Tag {
 
 		public optionTags: Array<OptionTag>;
@@ -108,5 +106,5 @@ namespace cf {
 			return isValid;
 		}
 	}
-}
+
 

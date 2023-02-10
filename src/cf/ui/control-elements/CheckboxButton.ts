@@ -1,10 +1,5 @@
-/// <reference path="Button.ts"/>
+import { Button } from "./Button";
 
-// namespace
-namespace cf {
-	// interface
-
-	// class
 	export class CheckboxButton extends Button {
 
 		public get type():string{
@@ -43,5 +38,5 @@ namespace cf {
 			`;
 		}
 	}
-}
+
 

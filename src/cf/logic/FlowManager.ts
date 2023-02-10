@@ -1,8 +1,8 @@
-/// <reference path="../form-tags/Tag.ts"/>
-/// <reference path="../ConversationalForm.ts"/>
-
-namespace cf {
-	// interface
+import { ConversationalForm } from "../ConversationalForm";
+import { ITag, ConditionalValue, Tag } from "../form-tags/Tag";
+import { ITagGroup } from "../form-tags/TagGroup";
+import { UserInputElement, UserInputEvents } from "../ui/inputs/UserInputElement";
+import { EventDispatcher } from "./EventDispatcher";
 
 	export interface FlowDTO{
 		tag?: ITag | ITagGroup,
@@ -357,4 +357,3 @@ namespace cf {
 			}, 0);
 		}
 	}
-}

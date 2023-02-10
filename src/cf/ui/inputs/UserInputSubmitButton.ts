@@ -1,13 +1,6 @@
-/// <reference path="../BasicElement.ts"/>
-/// <reference path="../control-elements/ControlElements.ts"/>
-/// <reference path="../../logic/FlowManager.ts"/>
-/// <reference path="../../logic/MicrophoneBridge.ts"/>
-/// <reference path="../../interfaces/IUserInputElement.ts"/>
-/// <reference path="UserInputElement.ts"/>
-
-// namespace
-namespace cf {
-	// interface
+import { IUserInput } from "@/cf/interfaces/IUserInput";
+import { EventDispatcher } from "@/cf/logic/EventDispatcher";
+import { FlowEvents, FlowDTO } from "@/cf/logic/FlowManager";
 
 	export interface UserInputSubmitButtonOptions{
 		eventTarget: EventDispatcher;
@@ -175,4 +168,3 @@ namespace cf {
 			this.eventTarget = null;
 		}
 	}
-}

@@ -1,9 +1,8 @@
-/// <reference path="Button.ts"/>
-/// <reference path="../../logic/Helpers.ts"/>
-
-// namespace
-namespace cf {
-	// interface
+import { ConversationalForm } from "@/cf/ConversationalForm";
+import { Dictionary } from "@/cf/data/Dictionary";
+import { FlowDTO, FlowEvents } from "@/cf/logic/FlowManager";
+import { Helpers } from "@/cf/logic/Helpers";
+import { Button } from "./Button";
 
 	// class
 	export class UploadFileUI extends Button {
@@ -167,4 +166,3 @@ namespace cf {
 			`;
 		}
 	}
-}

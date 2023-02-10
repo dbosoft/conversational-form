@@ -1,8 +1,5 @@
-/// <reference path="Button.ts"/>
-
-// namespace
-namespace cf {
-	// interface
+import { ConversationalForm } from "@/cf/ConversationalForm";
+import { Button } from "./Button";
 
 	export interface IOptionButtonOptions extends IControlElementOptions{
 		isMultiChoice: boolean;
@@ -61,4 +58,3 @@ namespace cf {
 			return tmpl;
 		}
 	} 
-}

@@ -1,9 +1,3 @@
-/// <reference path="../logic/FlowManager.ts"/>
-
-// namespace
-namespace cf {
-	// interface
-
 	export const UserInputTypes = {
 		VOICE: "voice",
 		VR_GESTURE: "vr-gesture", // <-- future..
@@ -24,4 +18,3 @@ namespace cf {
 		init?():void;
 		input?(resolve: any, reject: any, mediaStream: MediaStream):void;
 	}
-}

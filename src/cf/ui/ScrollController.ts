@@ -1,8 +1,6 @@
-/// <reference path="../logic/Helpers.ts"/>
-/// <reference path="../logic/EventDispatcher.ts"/>
+import { EventDispatcher } from "../logic/EventDispatcher";
+import { Helpers, TouchVector2d } from "../logic/Helpers";
 
-// namespace
-namespace cf {
 	export interface IScrollControllerOptions{
 		interactionListener: HTMLElement;
 		eventTarget: EventDispatcher;
@@ -224,4 +222,3 @@ namespace cf {
 			this.render();
 		}
 	}
-} 

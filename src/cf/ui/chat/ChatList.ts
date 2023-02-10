@@ -1,10 +1,14 @@
-/// <reference path="ChatResponse.ts"/>
-/// <reference path="../BasicElement.ts"/>
-/// <reference path="../../logic/FlowManager.ts"/>
+import { ConversationalForm } from "@/cf/ConversationalForm";
+import { Dictionary } from "@/cf/data/Dictionary";
+import { ITag } from "@/cf/form-tags/Tag";
+import { ITagGroup } from "@/cf/form-tags/TagGroup";
+import { FlowDTO, FlowEvents } from "@/cf/logic/FlowManager";
+import { BasicElement, IBasicElementOptions } from "../BasicElement";
+import { ControlElementsEvents } from "../control-elements/ControlElements";
+import { UserInputElement, UserInputEvents } from "../inputs/UserInputElement";
+import { InputKeyChangeDTO } from "../inputs/UserTextInput";
+import { ChatResponse } from "./ChatResponse";
 
-// namespace
-namespace cf {
-	// interface
 	export const ChatListEvents = {
 		CHATLIST_UPDATED: "cf-chatlist-updated"
 	}
@@ -318,5 +322,5 @@ namespace cf {
 			super.dealloc();
 		}
 	}
-}
+
 

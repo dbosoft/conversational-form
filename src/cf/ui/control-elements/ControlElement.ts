@@ -1,8 +1,8 @@
-/// <reference path="../../ConversationalForm.ts"/>
-/// <reference path="../BasicElement.ts"/>
-/// <reference path="../../form-tags/Tag.ts"/>
+import { ConversationalForm } from "@/cf/ConversationalForm";
+import { ITag, Tag } from "@/cf/form-tags/Tag";
+import { Helpers } from "@/cf/logic/Helpers";
+import { IBasicElementOptions, IBasicElement, BasicElement } from "../BasicElement";
 
-// namespace
 namespace cf {
 	// interface
 	export interface ControlElementVector{
@@ -215,4 +215,3 @@ namespace cf {
 			super.dealloc();
 		}
 	}
-}

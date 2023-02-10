@@ -1,7 +1,10 @@
-/// <reference path="ControlElement.ts"/>
-/// <reference path="OptionButton.ts"/>
+import { ConversationalForm } from "@/cf/ConversationalForm";
+import { OptionTag } from "@/cf/form-tags/OptionTag";
+import { SelectTag } from "@/cf/form-tags/SelectTag";
+import { ITag } from "@/cf/form-tags/Tag";
+import { EventDispatcher } from "@/cf/logic/EventDispatcher";
+import { OptionButton, OptionButtonEvents, IOptionButtonOptions } from "./OptionButton";
 
-// namespace
 namespace cf {
 	// interface
 
@@ -104,5 +107,5 @@ namespace cf {
 			this.elements = null;
 		}
 	}
-}
+
 

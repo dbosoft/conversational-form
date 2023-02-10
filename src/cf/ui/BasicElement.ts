@@ -1,8 +1,6 @@
-/// <reference path="../logic/EventDispatcher.ts"/>
+import { ConversationalForm } from "../ConversationalForm";
+import { EventDispatcher } from "../logic/EventDispatcher";
 
-// namespace
-namespace cf {
-	// interface
 	export interface IBasicElementOptions{
 		eventTarget: EventDispatcher;
 		cfReference?: ConversationalForm,
@@ -63,4 +61,3 @@ namespace cf {
 			this.el.parentNode.removeChild(this.el);
 		}
 	}
-}

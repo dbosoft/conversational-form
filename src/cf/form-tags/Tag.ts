@@ -1,29 +1,15 @@
-/// <reference path="../data/Dictionary.ts"/>
-/// <reference path="InputTag.ts"/>
-/// <reference path="ButtonTag.ts"/>
-/// <reference path="SelectTag.ts"/>
-/// <reference path="OptionTag.ts"/>
-/// <reference path="CfRobotMessageTag.ts"/>
-/// <reference path="../ConversationalForm.ts"/>
-/// <reference path="../logic/EventDispatcher.ts"/>
-/// <reference path="../parsing/TagsParser.ts"/>
+import { ConversationalForm } from "../ConversationalForm";
+import { Dictionary } from "../data/Dictionary";
+import { EventDispatcher } from "../logic/EventDispatcher";
+import { FlowDTO, FlowManager } from "../logic/FlowManager";
+import { Helpers } from "../logic/Helpers";
+import { TagsParser } from "../parsing/TagsParser";
+import { ButtonTag } from "./ButtonTag";
+import { CfRobotMessageTag } from "./CfRobotMessageTag";
+import { InputTag } from "./InputTag";
+import { OptionTag } from "./OptionTag";
+import { SelectTag } from "./SelectTag";
 
-// basic tag from form logic
-// types:
-// radio
-// text
-// email
-// tel
-// password
-// checkbox
-// radio
-// select
-// button
-
-
-// namespace
-namespace cf {
-	// interface
 	export interface ITag{
 		domElement?: HTMLInputElement | HTMLSelectElement | HTMLButtonElement | HTMLOptionElement,
 		type: string,
@@ -604,5 +590,5 @@ namespace cf {
 			}));
 		}
 	}
-}
+
 

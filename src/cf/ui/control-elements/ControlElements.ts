@@ -1,16 +1,16 @@
-/// <reference path="Button.ts"/>
-/// <reference path="ControlElement.ts"/>
-/// <reference path="RadioButton.ts"/>
-/// <reference path="CheckboxButton.ts"/>
-/// <reference path="OptionsList.ts"/>
-/// <reference path="UploadFileUI.ts"/>
-/// <reference path="../../logic/EventDispatcher.ts"/>
-/// <reference path="../ScrollController.ts"/>
-/// <reference path="../chat/ChatResponse.ts"/>
-/// <reference path="../../../typings/globals/es6-promise/index.d.ts"/>
+import { ConversationalForm } from "@/cf/ConversationalForm";
+import { Dictionary } from "@/cf/data/Dictionary";
+import { ITag } from "@/cf/form-tags/Tag";
+import { EventDispatcher } from "@/cf/logic/EventDispatcher";
+import { FlowEvents, FlowDTO } from "@/cf/logic/FlowManager";
+import { ChatListEvents } from "../chat/ChatList";
+import { UserInputEvents } from "../inputs/UserInputElement";
+import { InputKeyChangeDTO, UserTextInput } from "../inputs/UserTextInput";
+import { ScrollController } from "../ScrollController";
+import { CheckboxButton } from "./CheckboxButton";
+import { RadioButton } from "./RadioButton";
+import { UploadFileUI } from "./UploadFileUI";
 
-// namespace
-namespace cf {
 	export const ControlElementsEvents = {
 		ON_RESIZE: "cf-on-control-elements-resize",
 		CHANGED: "cf-on-control-elements-changed"
@@ -815,4 +815,3 @@ namespace cf {
 			this.listScrollController.dealloc();
 		}
 	}
-}

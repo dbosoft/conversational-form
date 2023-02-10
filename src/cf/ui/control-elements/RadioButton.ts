@@ -1,8 +1,4 @@
-/// <reference path="Button.ts"/>
-
-// namespace
-namespace cf {
-	// interface
+import { Button } from "./Button";
 
 	// class
 	export class RadioButton extends Button {
@@ -45,5 +41,5 @@ namespace cf {
 			`;
 		}
 	}
-}
+
 
