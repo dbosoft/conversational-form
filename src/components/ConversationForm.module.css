@@ -1,0 +1,9 @@
+
+.myCF { 
+ 
+  position: relative ;
+  height: calc(100vh - 96px);
+  
+  max-height: 500px;
+}
+
