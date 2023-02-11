@@ -1,12 +1,12 @@
-import { CFGlobals } from "@/cf/CFGlobal";
-import { ITag } from "@/cf/form-tags/ITag";
-import { OptionTag } from "@/cf/form-tags/OptionTag";
-import { SelectTag } from "@/cf/form-tags/SelectTag";
-import { EventDispatcher } from "@/cf/logic/EventDispatcher";
+import { CFGlobals } from "../../CFGlobal";
+import { ITag } from "../../form-tags/ITag";
+import { OptionTag } from "../../form-tags/OptionTag";
+import { SelectTag } from "../../form-tags/SelectTag";
+import { EventDispatcher } from "../../logic/EventDispatcher";
 import { ControlElementEvents } from "./IControlElement";
 import { OptionButton, OptionButtonEvents, IOptionButtonOptions } from "./OptionButton";
 
-export interface IOptionsListOptions{
+export interface IOptionsListOptions {
 	context: HTMLElement;
 	eventTarget: EventDispatcher;
 	referenceTag: ITag;
@@ -23,18 +23,18 @@ export class OptionsList {
 	private referenceTag: ITag;
 	private onOptionButtonClickCallback: () => void;
 
-	public get type():string{
+	public get type(): string {
 		return "OptionsList";
 	}
 
-	constructor(options: IOptionsListOptions){
+	constructor(options: IOptionsListOptions) {
 		this.context = options.context;
 		this.eventTarget = options.eventTarget;
 		this.referenceTag = options.referenceTag;
 
 		// check for multi choice select tag
 		this.multiChoice = this.referenceTag.domElement.hasAttribute("multiple");
-		
+
 		this.onOptionButtonClickCallback = this.onOptionButtonClick.bind(this);
 		this.eventTarget.addEventListener(OptionButtonEvents.CLICK, this.onOptionButtonClickCallback, false);
 
@@ -45,46 +45,46 @@ export class OptionsList {
 		let arr: Array<OptionButton> = [];
 		for (let i = 0; i < this.elements.length; i++) {
 			let element: OptionButton = <OptionButton>this.elements[i];
-			if(!this.multiChoice && element.selected){
+			if (!this.multiChoice && element.selected) {
 				arr.push(element);
 				return arr;
-			}else if(this.multiChoice && element.selected){
+			} else if (this.multiChoice && element.selected) {
 				arr.push(element);
 			}
 		}
 		return arr;
 	}
 
-	private onOptionButtonClick(event: CustomEvent){
+	private onOptionButtonClick(event: CustomEvent) {
 		// if mutiple... then dont remove selection on other buttons
-		if(!this.multiChoice){
+		if (!this.multiChoice) {
 			// only one is selectable at the time.
 
 			for (let i = 0; i < this.elements.length; i++) {
 				let element: OptionButton = <OptionButton>this.elements[i];
-				if(element != event.detail){
+				if (element != event.detail) {
 					element.selected = false;
-				}else{
+				} else {
 					element.selected = true;
 				}
 			}
 
 			CFGlobals.illustrateFlow(this, "dispatch", ControlElementEvents.SUBMIT_VALUE, this.referenceTag);
 			this.eventTarget.dispatchEvent(new CustomEvent(ControlElementEvents.SUBMIT_VALUE, {
-				detail: <OptionButton> event.detail
+				detail: <OptionButton>event.detail
 			}));
-		}else{
-			(<OptionButton> event.detail).selected = !(<OptionButton> event.detail).selected;
+		} else {
+			(<OptionButton>event.detail).selected = !(<OptionButton>event.detail).selected;
 		}
 	}
 
-	private createElements(){
+	private createElements() {
 		this.elements = [];
 		var optionTags: Array<OptionTag> = (<SelectTag>this.referenceTag).optionTags;
 		for (let i = 0; i < optionTags.length; i++) {
 			let tag: OptionTag = optionTags[i];
 
-			const btn: OptionButton = new OptionButton(<IOptionButtonOptions> {
+			const btn: OptionButton = new OptionButton(<IOptionButtonOptions>{
 				referenceTag: tag,
 				isMultiChoice: (<SelectTag>this.referenceTag).multipleChoice,
 				eventTarget: this.eventTarget
@@ -96,11 +96,11 @@ export class OptionsList {
 		}
 	}
 
-	public dealloc(){
+	public dealloc() {
 		this.eventTarget.removeEventListener(OptionButtonEvents.CLICK, this.onOptionButtonClickCallback, false);
 		this.onOptionButtonClickCallback = null;
 
-		while(this.elements.length > 0)
+		while (this.elements.length > 0)
 			this.elements.pop().dealloc();
 		this.elements = null;
 	}

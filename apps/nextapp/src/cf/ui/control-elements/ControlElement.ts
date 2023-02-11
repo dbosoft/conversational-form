@@ -1,13 +1,13 @@
-import { CFGlobals } from "@/cf/CFGlobal";
-import { ITag } from "@/cf/form-tags/ITag";
-import { Tag } from "@/cf/form-tags/Tag";
-import { Helpers } from "@/cf/logic/Helpers";
+import { CFGlobals } from "../../CFGlobal";
+import { ITag } from "../../form-tags/ITag";
+import { Tag } from "../../form-tags/Tag";
+import { Helpers } from "../../logic/Helpers";
 import { IBasicElementOptions, BasicElement } from "../BasicElement";
 import { ControlElementEvents, ControlElementVector, IControlElement, IControlElementOptions } from "./IControlElement";
 
 
 // class
-export class ControlElement extends BasicElement implements IControlElement{
+export class ControlElement extends BasicElement implements IControlElement {
 	public el: HTMLElement;
 	public referenceTag: ITag;
 
@@ -18,7 +18,7 @@ export class ControlElement extends BasicElement implements IControlElement{
 	private onFocusCallback: () => void;
 	private onBlurCallback: () => void;
 
-	public get type():string{
+	public get type(): string {
 		return "ControlElement";
 	}
 
@@ -26,15 +26,15 @@ export class ControlElement extends BasicElement implements IControlElement{
 		this._partOfSeveralChoices = value;
 	}
 
-	public get partOfSeveralChoices() : boolean {
+	public get partOfSeveralChoices(): boolean {
 		return this._partOfSeveralChoices;
 	}
 
-	public get value():string{
+	public get value(): string {
 		// value is for the chat response -->
-		const hasTagImage: boolean = (<Tag> this.referenceTag).hasImage;
+		const hasTagImage: boolean = (<Tag>this.referenceTag).hasImage;
 		let str: string;
-		if(hasTagImage && !this.partOfSeveralChoices){
+		if (hasTagImage && !this.partOfSeveralChoices) {
 			// const image: string = hasTagImage ? "<img src='" + this.referenceTag.domElement.getAttribute("cf-image") + "'/>" : "";
 			const image = hasTagImage ? "<img src=\"" + this.referenceTag.domElement.getAttribute("cf-image") + "\"/>" : "";
 			// str = "<div class='contains-image'>"
@@ -42,60 +42,60 @@ export class ControlElement extends BasicElement implements IControlElement{
 			// str += "<span>" + Helpers.getInnerTextOfElement(this.el) + "</span>";
 			// str += "</div>";
 			str = image + Helpers.getInnerTextOfElement(this.el);
-		}else{
+		} else {
 			// str = "<div><span>" + Helpers.getInnerTextOfElement(this.el) + "</span></div>";
 			str = Helpers.getInnerTextOfElement(this.el);
 		}
-		
+
 		return str;
 	}
 
-	public get positionVector():ControlElementVector{
+	public get positionVector(): ControlElementVector {
 		return this._positionVector;
 	}
 
-	public set tabIndex(value: number){
+	public set tabIndex(value: number) {
 		this.el.tabIndex = value;
 	}
 
-	public get highlight(): boolean{
+	public get highlight(): boolean {
 		return this.el.classList.contains("highlight");
 	}
 
-	public set highlight(value: boolean){
-		if(value)
+	public set highlight(value: boolean) {
+		if (value)
 			this.el.classList.add("highlight");
 		else
 			this.el.classList.remove("highlight");
 	}
 
-	public get focus(): boolean{
+	public get focus(): boolean {
 		return this._focus;
 	}
 
-	public set focus(value: boolean){
+	public set focus(value: boolean) {
 		this._focus = value;
-		if(this._focus)
+		if (this._focus)
 			this.el.focus();
 		else
 			this.el.blur();
 	}
 
-	public get visible(): boolean{
+	public get visible(): boolean {
 		return !this.el.classList.contains("hide");
 	}
 
-	public set visible(value: boolean){
-		if(value){
+	public set visible(value: boolean) {
+		if (value) {
 			this.el.classList.remove("hide");
-		}else{
+		} else {
 			this.el.classList.add("hide");
 			this.tabIndex = -1;
 			this.highlight = false;
 		}
 	}
 
-	constructor(options: IBasicElementOptions){
+	constructor(options: IBasicElementOptions) {
 		super(options);
 
 		this.onFocusCallback = this.onFocus.bind(this);
@@ -103,16 +103,16 @@ export class ControlElement extends BasicElement implements IControlElement{
 		this.onBlurCallback = this.onBlur.bind(this);
 		this.el.addEventListener('blur', this.onBlurCallback, false);
 
-		if(this.referenceTag.disabled){
+		if (this.referenceTag.disabled) {
 			this.el.setAttribute("disabled", "disabled");
 		}
 	}
 
-	private onBlur(event: Event){
+	private onBlur(event: Event) {
 		this._focus = false;
 	}
 
-	private onFocus(event: Event){
+	private onFocus(event: Event) {
 		this._focus = true;
 		CFGlobals.illustrateFlow(this, "dispatch", ControlElementEvents.ON_FOCUS, this.referenceTag);
 		this.eventTarget.dispatchEvent(new CustomEvent(ControlElementEvents.ON_FOCUS, {
@@ -128,10 +128,10 @@ export class ControlElement extends BasicElement implements IControlElement{
 		return false;
 	}
 
-	public calcPosition(){
+	public calcPosition() {
 		const mr: number = parseInt(window.getComputedStyle(this.el).getPropertyValue("margin-right"), 10);
 		// try not to do this to often, re-paint whammy!
-		this._positionVector = <ControlElementVector> {
+		this._positionVector = <ControlElementVector>{
 			height: this.el.offsetHeight,
 			width: this.el.offsetWidth + mr,
 			x: this.el.offsetLeft,
@@ -143,28 +143,28 @@ export class ControlElement extends BasicElement implements IControlElement{
 		this._positionVector.centerY = this._positionVector.y + (this._positionVector.height * 0.5);
 	}
 
-	protected setData(options: IControlElementOptions){
+	protected setData(options: IControlElementOptions) {
 		this.referenceTag = options.referenceTag;
 		super.setData(options);
 	}
 
-	public animateIn(){
+	public animateIn() {
 		clearTimeout(this.animateInTimer);
 		this.el.classList.add("animate-in");
 	}
 
-	public animateOut(){
+	public animateOut() {
 		this.el.classList.add("animate-out");
 	}
 
-	public onChoose(){
+	public onChoose() {
 		CFGlobals.illustrateFlow(this, "dispatch", ControlElementEvents.SUBMIT_VALUE, this.referenceTag);
 		this.eventTarget.dispatchEvent(new CustomEvent(ControlElementEvents.SUBMIT_VALUE, {
 			detail: this
 		}));
 	}
 
-	public dealloc(){
+	public dealloc() {
 		this.el.removeEventListener('blur', this.onBlurCallback, false);
 		this.onBlurCallback = null;
 

@@ -1,7 +1,7 @@
-import { ITag } from "@/cf/form-tags/ITag"
+import { ITag } from "../../form-tags/ITag"
 import { IBasicElementOptions, IBasicElement } from "../BasicElement"
 
-export interface ControlElementVector{
+export interface ControlElementVector {
     height: number,
     width: number,
     x: number,
@@ -11,11 +11,11 @@ export interface ControlElementVector{
     el: IControlElement
 }
 
-export interface IControlElementOptions extends IBasicElementOptions{
+export interface IControlElementOptions extends IBasicElementOptions {
     referenceTag: ITag;
 }
 
-export interface IControlElement extends IBasicElement{
+export interface IControlElement extends IBasicElement {
     el: HTMLElement;
     referenceTag: ITag;
     type: string;

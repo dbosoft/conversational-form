@@ -1,7 +1,7 @@
-import { CFGlobals } from "@/cf/CFGlobal";
-import { Dictionary } from "@/cf/data/Dictionary";
-import { FlowDTO, ITag, ITagGroup } from "@/cf/form-tags/ITag";
-import { FlowEvents } from "@/cf/logic/FlowManager";
+import { CFGlobals } from "../../CFGlobal";
+import { Dictionary } from "../../data/Dictionary";
+import { FlowDTO, ITag, ITagGroup } from "../../form-tags/ITag";
+import { FlowEvents } from "../../logic/FlowManager";
 import { BasicElement, IBasicElementOptions } from "../BasicElement";
 import { ControlElementsEvents } from "../control-elements/ControlElements";
 import { InputKeyChangeDTO } from "../inputs/IUserTextInput";
