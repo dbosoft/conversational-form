@@ -74,7 +74,7 @@ export class ConversationalForm implements IConversationalForm {
 	private tagBuilder: ITagBuilder;
 
 	constructor(options: ConversationalFormOptions) {
-		window.ConversationalForm = this;
+		(<any>window).ConversationalForm = this;
 
 		this.cdnPath = this.cdnPath.split("{version}").join(this.version);
 
@@ -90,7 +90,7 @@ export class ConversationalForm implements IConversationalForm {
 		if (!CFGlobals.suppressLog) console.log('Conversational Form > version:', this.version);
 		if (!CFGlobals.suppressLog) console.log('Conversational Form > options:', options);
 
-		window.ConversationalForm[this.createId] = this;
+		(<any>window).ConversationalForm[this.createId] = this;
 
 		// possible to create your own event dispatcher, so you can tap into the events of the app
 		if (options.eventDispatcher)
@@ -608,7 +608,7 @@ export class ConversationalForm implements IConversationalForm {
 		this.el.parentNode.removeChild(this.el);
 		this.el = null;
 
-		window.ConversationalForm[this.createId] = null;
+		(<any>window).ConversationalForm[this.createId] = null;
 	}
 
 	private static hasAutoInstantiated: boolean = false;

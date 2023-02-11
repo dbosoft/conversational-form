@@ -8,7 +8,6 @@ import { ControlElementEvents, ControlElementVector, IControlElement, IControlEl
 
 // class
 export class ControlElement extends BasicElement implements IControlElement {
-	public el: HTMLElement;
 	public referenceTag: ITag;
 
 	private animateInTimer: number = 0;

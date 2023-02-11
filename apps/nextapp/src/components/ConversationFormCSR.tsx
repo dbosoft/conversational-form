@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import style from './ConversationForm.module.css';
 
 import { ConversationFormProps } from './ConversationForm';
-import { ConversationalForm } from '../cf/ConversationalForm';
+//import { ConversationalForm } from '../cf/ConversationalForm';
 
 export default function ConversationFormCSR(props: ConversationFormProps) {
     const cfRef = useRef<any>(null);;
@@ -17,6 +17,7 @@ export default function ConversationFormCSR(props: ConversationFormProps) {
 
     useEffect(function mount() {
 
+        /*
         cfRef.current = ConversationalForm.startTheConversation({
             options: {
                 robotImage: `/images/chatbot.svg`,
@@ -28,7 +29,7 @@ export default function ConversationFormCSR(props: ConversationFormProps) {
             },
             tags: props.formFields.tags,
         });
-
+*/
 
         ref.current?.appendChild(cfRef.current.el);
 

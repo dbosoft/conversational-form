@@ -14,9 +14,6 @@ export class UserInputElement extends BasicElement implements IUserInputElement 
 	public static preventAutoFocus: boolean = false;
 	public static hideUserInputOnNoneTextInput: boolean = false;
 
-	public el: HTMLElement;
-
-	protected cfReference: IConversationalForm;
 	private onChatReponsesUpdatedCallback: () => void;
 	private windowFocusCallback: () => void;
 	private inputInvalidCallback: () => void;

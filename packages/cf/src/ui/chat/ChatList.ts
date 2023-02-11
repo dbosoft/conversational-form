@@ -212,7 +212,7 @@ export class ChatList extends BasicElement implements IChatList {
 		}
 	}
 
-	private updateTimer: NodeJS.Timeout;
+	private updateTimer: number;
 	private onListUpdate(chatResponse: ChatResponse) {
 		clearTimeout(this.updateTimer);
 

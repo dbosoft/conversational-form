@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimal-ui" />
+
+
+	<style>
+		form {
+			height: 0;
+		}
+
+		body {
+			height: 100%;
+			background: white;
+			padding-top: 110px
+		}
+
+		#cf-context {
+			height: 620px;
+			width: 480px;
+			margin: auto;
+			border: 1px solid #999;
+			box-sizing: border-box;
+		}
+	</style>
+</head>
+
+
+<body>
+
+	<form id="cf-form" style="visibility: hidden;">
+
+		<input type="text" cf-questions="Hi there&&What is your name?" name="name" cf-placeholder="Your name"
+			value="Filippa">
+		<input type="text" cf-questions="Awesome, {name}. Would you mind telling me where you live?" name="country"
+			value="United States" cf-placeholder="Country of residence">
+		<fieldset>
+			<label for="tmnj">Thank you. Are you ready to learn more about Conversational Form?</label>
+			<select cf-questions="Thank you. Are you ready to learn more about Conversational Form?" name="tmnj"
+				class="form-control">
+				<option>Yes</option>
+				<option>No</option>
+			</select>
+		</fieldset>
+		<input type="text" cf-questions="Perfect, let's get started." name="getstarted">
+
+	</form>
+
+	<div id="cf-context" role="cf-context" cf-context>
+
+	</div>
+
+	<script type="module">
+		import { ConversationalForm } from '../dist/ConversationalForm.js';
+
+		window.onload = function () {
+			var conversationalForm = ConversationalForm.startTheConversation({
+				formEl: document.getElementById("cf-form"),
+				context: document.getElementById("cf-context"),
+				showProgressBar: false,
+				submitCallback: function () {
+					conversationalForm.addRobotChatResponse(
+						"Check the dev console for FormatData output."
+					);
+				},
+				theme: 'green'
+			});
+		};
+	</script>
+</body>
+
+</html>
