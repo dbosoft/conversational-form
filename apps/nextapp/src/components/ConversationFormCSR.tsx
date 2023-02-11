@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import style from './ConversationForm.module.css';
 
 import { ConversationFormProps } from './ConversationForm';
-import { ConversationalForm } from '@/cf/ConversationalForm';
+import { ConversationalForm } from '../cf/ConversationalForm';
 
 export default function ConversationFormCSR(props: ConversationFormProps) {
     const cfRef = useRef<any>(null);;

@@ -14,7 +14,7 @@ export default function ConversationForm(props: ConversationFormProps) {
         setIsSSR(false);
     }, []);
 
-    const ConversationFormCSR = dynamic(import(`@/components/ConversationFormCSR`), { ssr: false });
+    const ConversationFormCSR = dynamic(import(`../components/ConversationFormCSR`), { ssr: false });
 
     return <>{!isSSR &&
         <React.Suspense fallback={<div />}>
