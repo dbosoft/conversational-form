@@ -1,12 +1,12 @@
-import { ConversationalForm } from "@/cf/ConversationalForm";
-import { ITag } from "@/cf/form-tags/Tag";
-import { ITagGroup } from "@/cf/form-tags/TagGroup";
-import { IUserInput } from "@/cf/interfaces/IUserInput";
+import { CFGlobals } from "@/cf/CFGlobal";
+import { FlowDTO, ITag, ITagGroup } from "@/cf/form-tags/ITag";
+import { IConversationalForm } from "@/cf/interfaces/IConversationalForm";
 import { IUserInputElement } from "@/cf/interfaces/IUserInputElement";
-import { FlowEvents, FlowDTO } from "@/cf/logic/FlowManager";
+import { FlowEvents } from "@/cf/logic/FlowManager";
 import { Helpers } from "@/cf/logic/Helpers";
-import { BasicElement, IBasicElementOptions } from "../BasicElement";
-import { ChatListEvents } from "../chat/ChatList";
+import { BasicElement } from "../BasicElement";
+import { ChatListEvents } from "../chat/ChatListEvents";
+import { IUserInputOptions } from "./IUserInputOptions";
 
 	// interface
 	export class UserInputElement extends BasicElement implements IUserInputElement {
@@ -16,7 +16,7 @@ import { ChatListEvents } from "../chat/ChatList";
 
 		public el: HTMLElement;
 
-		protected cfReference: ConversationalForm;
+		protected cfReference: IConversationalForm;
 		private onChatReponsesUpdatedCallback: () => void;
 		private windowFocusCallback: () => void;
 		private inputInvalidCallback: () => void;
@@ -141,7 +141,7 @@ import { ChatListEvents } from "../chat/ChatList";
 		}
 
 		protected onFlowUpdate(event: CustomEvent){
-			ConversationalForm.illustrateFlow(this, "receive", event.type, event.detail);
+			CFGlobals.illustrateFlow(this, "receive", event.type, event.detail);
 			this._currentTag = <ITag | ITagGroup> event.detail.tag;
 		}
 
@@ -159,16 +159,3 @@ import { ChatListEvents } from "../chat/ChatList";
 		}
 	}
 
-	export interface IUserInputOptions extends IBasicElementOptions{
-		cfReference: ConversationalForm;
-		microphoneInputObj: IUserInput;
-	}
-
-	export const UserInputEvents = {
-		SUBMIT: "cf-input-user-input-submit",
-		KEY_CHANGE: "cf-input-key-change",
-		CONTROL_ELEMENTS_ADDED: "cf-input-control-elements-added",
-		HEIGHT_CHANGE: "cf-input-height-change",
-		FOCUS: "cf-input-focus",
-		BLUR: "cf-input-blur",
-	}

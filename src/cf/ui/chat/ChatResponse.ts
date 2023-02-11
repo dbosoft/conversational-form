@@ -1,27 +1,20 @@
-import { ConversationalForm } from "@/cf/ConversationalForm";
-import { ITag } from "@/cf/form-tags/Tag";
-import { IUserInterfaceOptions } from "@/cf/interfaces/IUserInterfaceOptions";
-import { FlowDTO } from "@/cf/logic/FlowManager";
-import { Helpers } from "@/cf/logic/Helpers";
-import { IBasicElementOptions, BasicElement } from "../BasicElement";
-import { ChatList } from "./ChatList";
+import { CFGlobals } from "@/cf/CFGlobal";
+import { ITag, FlowDTO } from "@/cf/form-tags/ITag";
 
-	export interface IChatResponseOptions extends IBasicElementOptions{
-		response: string;
-		image: string;
-		list: ChatList;
-		isRobotResponse: boolean;
-		tag: ITag;
-		container: HTMLElement;
-	}
+import { IUserInterfaceOptions } from "@/cf/interfaces/IUserInterfaceOptions";
+import { Helpers } from "@/cf/logic/Helpers";
+import { IChatResponseOptions } from "@/cf/options/IChatResponseOptions";
+import { BasicElement } from "../BasicElement";
+import { IChatList } from "./IChatList";
+import { IChatResponse } from "./IChatResponse";
 
 	export const ChatResponseEvents = {
 		USER_ANSWER_CLICKED: "cf-on-user-answer-clicked"
 	}
 
 	// class
-	export class ChatResponse extends BasicElement {
-		public static list: ChatList;
+	export class ChatResponse extends BasicElement implements IChatResponse {
+		public static list: IChatList;
 		private static THINKING_MARKUP: string = "<p class='show'><thinking><span>.</span><span>.</span><span>.</span></thinking></p>";
 
 		public isRobotResponse: boolean;
@@ -220,7 +213,8 @@ import { ChatList } from "./ChatList";
 
 			if(this.isRobotResponse){
 				// Piping, look through IDs, and map values to dynamics
-				const reponses: Array<ChatResponse> = ChatResponse.list.getResponses();
+				//TODO: to resolve circular references, chat response and chatlist have to be splitted further
+				const reponses: Array<ChatResponse> = ChatResponse.list.getResponses() as ChatResponse[];
 				for (var i = 0; i < reponses.length; i++) {
 					var response: ChatResponse = reponses[i];
 					if(response !== this){
@@ -265,7 +259,7 @@ import { ChatList } from "./ChatList";
 						for (let i = 0; i < chainedResponses.length; i++) {
 							setTimeout(() =>{
 								this.tryClearThinking();
-								const p: NodeListOf<HTMLElement> = this.textEl.getElementsByTagName("p");
+								const p = this.textEl.getElementsByTagName("p");
 								p[i].classList.add("show");
 								this.scrollTo();
 
@@ -278,7 +272,7 @@ import { ChatList } from "./ChatList";
 							setTimeout(() =>{
 								this.tryClearThinking();
 								this.textEl.innerHTML += "<p>" + str + "</p>";
-								const p: NodeListOf<HTMLElement> = this.textEl.getElementsByTagName("p");
+								const p = this.textEl.getElementsByTagName("p");
 								p[i].classList.add("show");
 								this.scrollTo();
 							}, revealAfter);
@@ -315,7 +309,7 @@ import { ChatList } from "./ChatList";
 						this.textEl.innerHTML = `<p>${innerResponse}</p>`;
 					}
 
-					const p: NodeListOf<HTMLElement> = this.textEl.getElementsByTagName("p");
+					const p = this.textEl.getElementsByTagName("p");
 					p[p.length - 1].offsetWidth;
 					p[p.length - 1].classList.add("show");
 					this.scrollTo();
@@ -412,7 +406,7 @@ import { ChatList } from "./ChatList";
 		private onClick(event: MouseEvent): void {
 			this.setToThinking();
 
-			ConversationalForm.illustrateFlow(this, "dispatch", ChatResponseEvents.USER_ANSWER_CLICKED, event);
+			CFGlobals.illustrateFlow(this, "dispatch", ChatResponseEvents.USER_ANSWER_CLICKED, event);
 			this.eventTarget.dispatchEvent(new CustomEvent(ChatResponseEvents.USER_ANSWER_CLICKED, {
 				detail: this._tag
 			}));

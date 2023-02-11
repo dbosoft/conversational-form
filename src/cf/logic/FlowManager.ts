@@ -1,19 +1,15 @@
-import { ConversationalForm } from "../ConversationalForm";
-import { ITag, ConditionalValue, Tag } from "../form-tags/Tag";
-import { ITagGroup } from "../form-tags/TagGroup";
-import { UserInputElement, UserInputEvents } from "../ui/inputs/UserInputElement";
+import { CFGlobals } from "../CFGlobal";
+import { ConditionalValue } from "../form-tags/ConditionalValue";
+import { FlowDTO, ITag, ITagGroup } from "../form-tags/ITag";
+import { TagHelper } from "../form-tags/TagHelper";
+import { IConversationalForm } from "../interfaces/IConversationalForm";
+import { UserInputEvents } from "../ui/inputs/UserInputEvents";
 import { EventDispatcher } from "./EventDispatcher";
+import { IFlowManager } from "./IFlowManager";
 
-	export interface FlowDTO{
-		tag?: ITag | ITagGroup,
-		text?: string;
-		errorText?: string;
-		input?: UserInputElement,
-		controlElements?: Array <IControlElement>;
-	}
 
 	export interface FlowManagerOptions{
-		cfReference: ConversationalForm;
+		cfReference: IConversationalForm;
 		eventTarget: EventDispatcher;
 		tags: Array<ITag>;
 		flowStepCallback?: (dto: FlowDTO, success: () => void, error: (optionalErrorMessage?: string) => void) => void;
@@ -29,13 +25,13 @@ import { EventDispatcher } from "./EventDispatcher";
 	}
 
 	// class
-	export class FlowManager {
+	export class FlowManager implements IFlowManager {
 		private static STEP_TIME: number = 1000;
 
 		private flowStepCallback: (dto: FlowDTO, success: () => void, error: (optionalErrorMessage?: string) => void) => void;
 		private eventTarget: EventDispatcher;
 
-		private cfReference: ConversationalForm;
+		private cfReference: IConversationalForm;
 		private tags: Array<ITag | ITagGroup>;
 
 		private stopped: boolean = false;
@@ -67,7 +63,7 @@ import { EventDispatcher } from "./EventDispatcher";
 		}
 
 		public userInputSubmit(event: CustomEvent){
-			ConversationalForm.illustrateFlow(this, "receive", event.type, event.detail);
+			CFGlobals.illustrateFlow(this, "receive", event.type, event.detail);
 
 			let appDTO: FlowDTO = event.detail;
 			if(!appDTO.tag)
@@ -118,7 +114,7 @@ import { EventDispatcher } from "./EventDispatcher";
 				// go on with the flow
 				if(isTagValid){
 					// do the normal flow..
-					ConversationalForm.illustrateFlow(this, "dispatch", FlowEvents.USER_INPUT_UPDATE, appDTO)
+					CFGlobals.illustrateFlow(this, "dispatch", FlowEvents.USER_INPUT_UPDATE, appDTO)
 
 					// update to latest DTO because values can be changed in validation flow...
 					if(appDTO.input)
@@ -129,9 +125,9 @@ import { EventDispatcher } from "./EventDispatcher";
 					}));
 
 					// goto next step when user has answered
-					setTimeout(() => this.nextStep(), ConversationalForm.animationsEnabled ? 250 : 0);
+					setTimeout(() => this.nextStep(), CFGlobals.animationsEnabled ? 250 : 0);
 				}else{
-					ConversationalForm.illustrateFlow(this, "dispatch", FlowEvents.USER_INPUT_INVALID, appDTO)
+					CFGlobals.illustrateFlow(this, "dispatch", FlowEvents.USER_INPUT_INVALID, appDTO)
 
 					// Value not valid
 					this.eventTarget.dispatchEvent(new CustomEvent(FlowEvents.USER_INPUT_INVALID, {
@@ -187,7 +183,7 @@ import { EventDispatcher } from "./EventDispatcher";
 						if(tagName !== "" && "cf-conditional-"+tagName === tagCondition.key.toLowerCase()){
 							// key found, so check condition
 							const flowTagValue: string | string[] = typeof tag.value === "string" ? <string> (<ITag> tag).value : <string[]>(<ITagGroup> tag).value;
-							let areConditionsMeet: boolean = Tag.testConditions(flowTagValue, tagCondition);
+							let areConditionsMeet: boolean = TagHelper.testConditions(flowTagValue, tagCondition);
 							if(areConditionsMeet){
 								this.activeConditions[tagName] = tagConditions;
 								// conditions are meet
@@ -292,7 +288,7 @@ import { EventDispatcher } from "./EventDispatcher";
 				this.savedStep = -1;//don't save step, as we wont return
 
 				// clear chatlist.
-				this.cfReference.chatList.clearFrom(this.step + 1);
+				this.cfReference.removeStepFromChatList(this.step + 1);
 
 				//reset from active tag, brute force
 				const editTagIndex: number = this.tags.indexOf(tag);
@@ -341,7 +337,7 @@ import { EventDispatcher } from "./EventDispatcher";
 			if(this.stopped)
 				return;
 
-			ConversationalForm.illustrateFlow(this, "dispatch", FlowEvents.FLOW_UPDATE, this.currentTag);
+			CFGlobals.illustrateFlow(this, "dispatch", FlowEvents.FLOW_UPDATE, this.currentTag);
 
 			this.currentTag.refresh();
 

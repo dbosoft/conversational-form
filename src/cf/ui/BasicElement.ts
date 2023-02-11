@@ -1,9 +1,9 @@
-import { ConversationalForm } from "../ConversationalForm";
+import { IConversationalForm } from "../interfaces/IConversationalForm";
 import { EventDispatcher } from "../logic/EventDispatcher";
 
 	export interface IBasicElementOptions{
 		eventTarget: EventDispatcher;
-		cfReference?: ConversationalForm,
+		cfReference?: IConversationalForm,
 		// set a custom template
 		customTemplate?: string
 	}
@@ -19,7 +19,7 @@ import { EventDispatcher } from "../logic/EventDispatcher";
 	export class BasicElement implements IBasicElement{
 		public el: HTMLElement;
 		protected eventTarget: EventDispatcher;
-		protected cfReference: ConversationalForm;
+		protected cfReference: IConversationalForm;
 		// optional value, but this can be used to overwrite the UI of Conversational Interface
 		protected customTemplate: string;
 

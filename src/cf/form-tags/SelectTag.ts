@@ -1,7 +1,8 @@
-import { FlowDTO } from "../logic/FlowManager";
 import { OptionButton } from "../ui/control-elements/OptionButton";
+import { FlowDTO, ITag } from "./ITag";
 import { OptionTag } from "./OptionTag";
-import { Tag, ITagOptions, ITag } from "./Tag";
+import { Tag, ITagOptions } from "./Tag";
+import { ITagBuilder } from "./ITagBuilder";
 
 	export class SelectTag extends Tag {
 
@@ -24,15 +25,15 @@ import { Tag, ITagOptions, ITag } from "./Tag";
 			return this.domElement.hasAttribute("multiple");
 		}
 
-		constructor(options: ITagOptions){
+		constructor(options: ITagOptions, tagBuilder: ITagBuilder){
 			super(options);
 
 			// build the option tags
 			this.optionTags = [];
-			var domOptionTags: NodeListOf<HTMLOptionElement> = this.domElement.getElementsByTagName("option");
+			var domOptionTags = this.domElement.getElementsByTagName("option");
 			for (let i = 0; i < domOptionTags.length; i++) {
 				let element: HTMLOptionElement = <HTMLOptionElement>domOptionTags[i];
-				let tag: OptionTag = <OptionTag> cf.Tag.createTag(element);
+				let tag: OptionTag = <OptionTag> tagBuilder.createTag(element);
 
 				if(tag){
 					this.optionTags.push(tag);

@@ -5,7 +5,7 @@ import { Helpers, TouchVector2d } from "../logic/Helpers";
 		interactionListener: HTMLElement;
 		eventTarget: EventDispatcher;
 		listToScroll: HTMLElement;
-		listNavButtons: NodeListOf<Element>;
+		listNavButtons: HTMLCollectionOf<Element>;
 
 	}
 	export class ScrollController{

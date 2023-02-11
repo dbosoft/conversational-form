@@ -1,20 +1,18 @@
-import { ConversationalForm } from "@/cf/ConversationalForm";
+import { CFGlobals } from "@/cf/CFGlobal";
 import { Dictionary } from "@/cf/data/Dictionary";
-import { ITag } from "@/cf/form-tags/Tag";
-import { ITagGroup } from "@/cf/form-tags/TagGroup";
-import { FlowDTO, FlowEvents } from "@/cf/logic/FlowManager";
+import { FlowDTO, ITag, ITagGroup } from "@/cf/form-tags/ITag";
+import { FlowEvents } from "@/cf/logic/FlowManager";
 import { BasicElement, IBasicElementOptions } from "../BasicElement";
 import { ControlElementsEvents } from "../control-elements/ControlElements";
-import { UserInputElement, UserInputEvents } from "../inputs/UserInputElement";
-import { InputKeyChangeDTO } from "../inputs/UserTextInput";
+import { InputKeyChangeDTO } from "../inputs/IUserTextInput";
+import { UserInputElement } from "../inputs/UserInputElement";
+import { UserInputEvents } from "../inputs/UserInputEvents";
+import { ChatListEvents } from "./ChatListEvents";
 import { ChatResponse } from "./ChatResponse";
+import { IChatList } from "./IChatList";
 
-	export const ChatListEvents = {
-		CHATLIST_UPDATED: "cf-chatlist-updated"
-	}
 
-	// class
-	export class ChatList extends BasicElement {
+	export class ChatList extends BasicElement implements IChatList {
 		private flowUpdateCallback: () => void;
 		private userInputUpdateCallback: () => void;
 		private onInputKeyChangeCallback: () => void;
@@ -60,7 +58,7 @@ import { ChatResponse } from "./ChatResponse";
 
 		private onInputHeightChange(event: CustomEvent){
 			const dto: FlowDTO = (<InputKeyChangeDTO> event.detail).dto;
-			ConversationalForm.illustrateFlow(this, "receive", event.type, dto);
+			CFGlobals.illustrateFlow(this, "receive", event.type, dto);
 
 			// this.input.controlElements.el.style.transition = "height 2s ease-out";
 			// this.input.controlElements.el.style.height = this.input.controlElements.el.scrollHeight + 'px';
@@ -70,11 +68,11 @@ import { ChatResponse } from "./ChatResponse";
 
 		private onInputKeyChange(event: CustomEvent){
 			const dto: FlowDTO = (<InputKeyChangeDTO> event.detail).dto;
-			ConversationalForm.illustrateFlow(this, "receive", event.type, dto);
+			CFGlobals.illustrateFlow(this, "receive", event.type, dto);
 		}
 
 		private onUserInputUpdate(event: CustomEvent){
-			ConversationalForm.illustrateFlow(this, "receive", event.type, event.detail);
+			CFGlobals.illustrateFlow(this, "receive", event.type, event.detail);
 
 			if(this.currentUserResponse){
 				const response: FlowDTO = event.detail;
@@ -100,7 +98,7 @@ import { ChatResponse } from "./ChatResponse";
 		*/
 		private onControlElementsResized(event: Event): void {
 
-			ConversationalForm.illustrateFlow(this, "receive", ControlElementsEvents.ON_RESIZE);
+			CFGlobals.illustrateFlow(this, "receive", ControlElementsEvents.ON_RESIZE);
 			let responseToScrollTo: ChatResponse = this.currentResponse;
 			if(responseToScrollTo){
 				if(!responseToScrollTo.added){
@@ -129,7 +127,7 @@ import { ChatResponse } from "./ChatResponse";
 		}
 
 		private onFlowUpdate(event: CustomEvent){
-			ConversationalForm.illustrateFlow(this, "receive", event.type, event.detail);
+			CFGlobals.illustrateFlow(this, "receive", event.type, event.detail);
 
 			const currentTag: ITag | ITagGroup = <ITag | ITagGroup> event.detail.tag;
 			if(this.currentResponse)
@@ -214,7 +212,7 @@ import { ChatResponse } from "./ChatResponse";
 			}
 		}
 
-		private updateTimer: number = 0;
+		private updateTimer: NodeJS.Timeout;
 		private onListUpdate(chatResponse: ChatResponse){
 			clearTimeout(this.updateTimer);
 

@@ -1,18 +1,18 @@
-import { ConversationalForm } from "../ConversationalForm";
+import { IConversationalForm } from "../interfaces/IConversationalForm";
 
 	export class EventDispatcher implements EventTarget{
 		private target: DocumentFragment;
 		
-		private _cf: ConversationalForm;
-		public get cf(): ConversationalForm{
+		private _cf: IConversationalForm;
+		public get cf(): IConversationalForm{
 			return this._cf;
 		}
 
-		public set cf(value: ConversationalForm){
+		public set cf(value: IConversationalForm){
 			this._cf = value;
 		}
 
-		constructor(cfRef: ConversationalForm = null) {
+		constructor(cfRef: IConversationalForm) {
 			this._cf = cfRef;
 
 			this.target = document.createDocumentFragment();

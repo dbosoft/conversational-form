@@ -1,8 +1,11 @@
+import { CFGlobals } from "@/cf/CFGlobal";
 import { ConversationalForm } from "@/cf/ConversationalForm";
 import { Dictionary } from "@/cf/data/Dictionary";
-import { FlowDTO, FlowEvents } from "@/cf/logic/FlowManager";
+import { FlowDTO } from "@/cf/form-tags/ITag";
+import { FlowEvents } from "@/cf/logic/FlowManager";
 import { Helpers } from "@/cf/logic/Helpers";
 import { Button } from "./Button";
+import { IControlElementOptions, ControlElementEvents, ControlElementProgressStates } from "./IControlElement";
 
 	// class
 	export class UploadFileUI extends Button {
@@ -10,7 +13,7 @@ import { Button } from "./Button";
 		private onDomElementChangeCallback: () => void;
 		private progressBar: HTMLElement;
 		private loading: boolean = false;
-		private submitTimer: number = 0;
+		private submitTimer: NodeJS.Timeout;
 		private _fileName: string = "";
 		private _readerResult: string = "";
 		private _files: FileList;
@@ -62,21 +65,21 @@ import { Button } from "./Button";
 		}
 
 		private onDomElementChange(event: any){
-			if(!ConversationalForm.suppressLog) console.log("...onDomElementChange");
+			if(!CFGlobals.suppressLog) console.log("...onDomElementChange");
 
 			var reader: FileReader = new FileReader();
 			this._files = (<HTMLInputElement> this.referenceTag.domElement).files;
 
 			reader.onerror = (event: any) => {
-				if(!ConversationalForm.suppressLog) console.log("onerror", event);
+				if(!CFGlobals.suppressLog) console.log("onerror", event);
 			}
 			reader.onprogress = (event: ProgressEvent) => {
-				if(!ConversationalForm.suppressLog) console.log("onprogress", event);
+				if(!CFGlobals.suppressLog) console.log("onprogress", event);
 
 				this.progressBar.style.width = ((event.loaded / event.total) * 100) + "%";
 			}
 			reader.onabort = (event: any) => {
-				if(!ConversationalForm.suppressLog) console.log("onabort", event);
+				if(!CFGlobals.suppressLog) console.log("onabort", event);
 			}
 			reader.onloadstart = (event: any) => {
 				// check for file size
@@ -88,7 +91,7 @@ import { Button } from "./Button";
 						errorText: Dictionary.get("input-placeholder-file-size-error")
 					};
 
-					ConversationalForm.illustrateFlow(this, "dispatch", FlowEvents.USER_INPUT_INVALID, dto)
+					CFGlobals.illustrateFlow(this, "dispatch", FlowEvents.USER_INPUT_INVALID, dto)
 					this.eventTarget.dispatchEvent(new CustomEvent(FlowEvents.USER_INPUT_INVALID, {
 						detail: dto
 					}));

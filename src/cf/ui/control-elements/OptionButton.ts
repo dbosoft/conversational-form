@@ -1,5 +1,6 @@
-import { ConversationalForm } from "@/cf/ConversationalForm";
+import { CFGlobals } from "@/cf/CFGlobal";
 import { Button } from "./Button";
+import { IControlElementOptions } from "./IControlElement";
 
 	export interface IOptionButtonOptions extends IControlElementOptions{
 		isMultiChoice: boolean;
@@ -35,7 +36,7 @@ import { Button } from "./Button";
 		}
 
 		protected onClick(event: MouseEvent){
-			ConversationalForm.illustrateFlow(this, "dispatch", OptionButtonEvents.CLICK, this);
+			CFGlobals.illustrateFlow(this, "dispatch", OptionButtonEvents.CLICK, this);
 			this.eventTarget.dispatchEvent(new CustomEvent(OptionButtonEvents.CLICK, {
 				detail: this
 			}));

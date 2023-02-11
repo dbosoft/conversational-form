@@ -1,13 +1,17 @@
-import { ConversationalForm } from "@/cf/ConversationalForm";
+import { CFGlobals } from "@/cf/CFGlobal";
 import { Dictionary } from "@/cf/data/Dictionary";
-import { ITag } from "@/cf/form-tags/Tag";
+import { FlowDTO, ITag } from "@/cf/form-tags/ITag";
+import { IConversationalForm } from "@/cf/interfaces/IConversationalForm";
 import { EventDispatcher } from "@/cf/logic/EventDispatcher";
-import { FlowEvents, FlowDTO } from "@/cf/logic/FlowManager";
-import { ChatListEvents } from "../chat/ChatList";
-import { UserInputEvents } from "../inputs/UserInputElement";
-import { InputKeyChangeDTO, UserTextInput } from "../inputs/UserTextInput";
+import { FlowEvents } from "@/cf/logic/FlowManager";
+import { ChatListEvents } from "../chat/ChatListEvents";
+import { InputKeyChangeDTO, IUserTextInput } from "../inputs/IUserTextInput";
+import { UserInputEvents } from "../inputs/UserInputEvents";
 import { ScrollController } from "../ScrollController";
 import { CheckboxButton } from "./CheckboxButton";
+import { ControlElement } from "./ControlElement";
+import { IControlElement, ControlElementEvents, ControlElementVector } from "./IControlElement";
+import { OptionsList } from "./OptionsList";
 import { RadioButton } from "./RadioButton";
 import { UploadFileUI } from "./UploadFileUI";
 
@@ -21,13 +25,13 @@ import { UploadFileUI } from "./UploadFileUI";
 
 	export interface IControlElementsOptions{
 		el: HTMLElement;
-		cfReference: ConversationalForm;
+		cfReference: IConversationalForm;
 		infoEl: HTMLElement;
 		eventTarget: EventDispatcher;
 	}
 
-	export class ControlElements {
-		private cfReference: ConversationalForm;
+	export class ControlElements  {
+		private cfReference: IConversationalForm;
 		private elements: Array<IControlElement | OptionsList>;
 		private eventTarget: EventDispatcher;
 		private el: HTMLElement;
@@ -193,7 +197,7 @@ import { UploadFileUI } from "./UploadFileUI";
 			this.list.offsetHeight;
 
 			requestAnimationFrame(() => {
-				ConversationalForm.illustrateFlow(this, "dispatch", ControlElementsEvents.CHANGED);
+				CFGlobals.illustrateFlow(this, "dispatch", ControlElementsEvents.CHANGED);
 				this.eventTarget.dispatchEvent(new CustomEvent(ControlElementsEvents.CHANGED));
 			})
 		}
@@ -205,7 +209,7 @@ import { UploadFileUI } from "./UploadFileUI";
 			}
 			
 			const dto: InputKeyChangeDTO = event.detail;
-			const userInput: UserTextInput = <UserTextInput> dto.dto.input;
+			const userInput: IUserTextInput = <IUserTextInput> dto.dto.input;
 
 			if(this.active){
 				const isNavKey: boolean = [Dictionary.keyCodes["left"], Dictionary.keyCodes["right"], Dictionary.keyCodes["down"], Dictionary.keyCodes["up"]].indexOf(dto.keyCode) != -1;
@@ -214,7 +218,7 @@ import { UploadFileUI } from "./UploadFileUI";
 				if(shouldFilter){
 					// input field is active, so we should filter..
 					const dto: FlowDTO = (<InputKeyChangeDTO> event.detail).dto;
-					const inputValue: string = (<UserTextInput> dto.input).getInputValue();
+					const inputValue: string = (<IUserTextInput> dto.input).getInputValue();
 					this.filterElementsFrom(inputValue);
 				}else{
 					if(dto.keyCode == Dictionary.keyCodes["left"]){
@@ -682,7 +686,7 @@ import { UploadFileUI } from "./UploadFileUI";
 
 				this.onListChanged();
 
-				ConversationalForm.illustrateFlow(this, "dispatch", UserInputEvents.CONTROL_ELEMENTS_ADDED, controlElementsAddedDTO);
+				CFGlobals.illustrateFlow(this, "dispatch", UserInputEvents.CONTROL_ELEMENTS_ADDED, controlElementsAddedDTO);
 				this.eventTarget.dispatchEvent(new CustomEvent(UserInputEvents.CONTROL_ELEMENTS_ADDED, {
 					detail: controlElementsAddedDTO
 				}));

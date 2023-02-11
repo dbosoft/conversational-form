@@ -1,4 +1,6 @@
 import { Tag } from "@/cf/form-tags/Tag";
+import { ControlElement } from "./ControlElement";
+import { IControlElementOptions, ControlElementEvents } from "./IControlElement";
 
 	export class Button extends ControlElement {
 		private imgEl: HTMLImageElement;

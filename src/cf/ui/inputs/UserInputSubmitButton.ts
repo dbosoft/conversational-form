@@ -1,6 +1,8 @@
+import { FlowDTO } from "@/cf/form-tags/ITag";
 import { IUserInput } from "@/cf/interfaces/IUserInput";
 import { EventDispatcher } from "@/cf/logic/EventDispatcher";
-import { FlowEvents, FlowDTO } from "@/cf/logic/FlowManager";
+import { FlowEvents } from "@/cf/logic/FlowManager";
+import { MicrophoneBridge, MicrophoneBridgeEvent } from "@/cf/logic/MicrophoneBridge";
 
 	export interface UserInputSubmitButtonOptions{
 		eventTarget: EventDispatcher;

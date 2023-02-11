@@ -1,14 +1,12 @@
-import { ConversationalForm } from "../ConversationalForm";
+import { CFGlobals } from "../CFGlobal";
 import { Dictionary } from "../data/Dictionary";
+import { FlowDTO } from "../form-tags/ITag";
 import { IUserInput } from "../interfaces/IUserInput";
-import { UserInputEvents } from "../ui/inputs/UserInputElement";
+import { UserInputEvents } from "../ui/inputs/UserInputEvents";
 import { UserInputSubmitButton } from "../ui/inputs/UserInputSubmitButton";
 import { EventDispatcher } from "./EventDispatcher";
-import { FlowEvents, FlowDTO } from "./FlowManager";
+import { FlowEvents } from "./FlowManager";
 
-// namespace
-namespace cf {
-	// interface
 	export interface IMicrophoneBridgeOptions{
 		el: HTMLElement;
 		button: UserInputSubmitButton;
@@ -119,7 +117,7 @@ namespace cf {
 					navigator.mediaDevices.getUserMedia = function(constraints) {
 
 						// First get ahold of the legacy getUserMedia, if present
-						var getUserMedia = navigator.getUserMedia || (<any>window).navigator.webkitGetUserMedia || (<any>window).navigator.mozGetUserMedia;
+						var getUserMedia = (<any>navigator).getUserMedia || (<any>window).navigator.webkitGetUserMedia || (<any>window).navigator.mozGetUserMedia;
 
 						// Some browsers just don't implement it - return a rejected promise with an error
 						// to keep a consistent interface
@@ -219,7 +217,7 @@ namespace cf {
 					text: this.currentTextResponse
 				};
 
-				ConversationalForm.illustrateFlow(this, "dispatch", UserInputEvents.SUBMIT, dto);
+				CFGlobals.illustrateFlow(this, "dispatch", UserInputEvents.SUBMIT, dto);
 				this.eventTarget.dispatchEvent(new CustomEvent(UserInputEvents.SUBMIT, {
 					detail: dto
 				}));
@@ -236,7 +234,7 @@ namespace cf {
 						detail: Dictionary.get("microphone-terminal-error")
 					}));
 
-					if(!ConversationalForm.suppressLog) console.log("Conversational Form: Terminal error: ", error);
+					if(!CFGlobals.suppressLog) console.log("Conversational Form: Terminal error: ", error);
 				}else{
 					if(this.inputCurrentError != error){
 						// api failed ...
@@ -255,7 +253,7 @@ namespace cf {
 							detail: Dictionary.get("microphone-terminal-error")
 						}));
 
-						if(!ConversationalForm.suppressLog) console.log("Conversational Form: Terminal error: ", error);
+						if(!CFGlobals.suppressLog) console.log("Conversational Form: Terminal error: ", error);
 					}
 				}
 			});
@@ -274,7 +272,7 @@ namespace cf {
 				errorText: error
 			};
 
-			ConversationalForm.illustrateFlow(this, "dispatch", FlowEvents.USER_INPUT_INVALID, dto)
+			CFGlobals.illustrateFlow(this, "dispatch", FlowEvents.USER_INPUT_INVALID, dto)
 			this.eventTarget.dispatchEvent(new CustomEvent(FlowEvents.USER_INPUT_INVALID, {
 				detail: dto
 			}));

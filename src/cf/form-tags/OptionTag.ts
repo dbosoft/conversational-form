@@ -1,5 +1,5 @@
-import { FlowDTO } from "../logic/FlowManager";
 import { Helpers } from "../logic/Helpers";
+import { FlowDTO } from "./ITag";
 import { Tag } from "./Tag";
 
 	// class

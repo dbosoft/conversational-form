@@ -1,25 +1,23 @@
-import { ConversationalForm } from "@/cf/ConversationalForm";
+import { CFGlobals } from "@/cf/CFGlobal";
 import { Dictionary } from "@/cf/data/Dictionary";
 import { InputTag } from "@/cf/form-tags/InputTag";
+import { FlowDTO, ITag, ITagGroup } from "@/cf/form-tags/ITag";
 import { SelectTag } from "@/cf/form-tags/SelectTag";
-import { TagEvents, ITag } from "@/cf/form-tags/Tag";
-import { ITagGroup, TagGroup } from "@/cf/form-tags/TagGroup";
+import { TagEvents } from "@/cf/form-tags/Tag";
 import { IUserInput } from "@/cf/interfaces/IUserInput";
-import { IUserInputElement } from "@/cf/interfaces/IUserInputElement";
-import { FlowDTO } from "@/cf/logic/FlowManager";
 import { ControlElements } from "../control-elements/ControlElements";
+import { ControlElementEvents, ControlElementProgressStates, IControlElement } from "../control-elements/IControlElement";
 import { UploadFileUI } from "../control-elements/UploadFileUI";
-import { UserInputElement, IUserInputOptions, UserInputEvents } from "./UserInputElement";
+import { IUserInputOptions } from "./IUserInputOptions";
+import { InputKeyChangeDTO, IUserTextInput } from "./IUserTextInput";
+import { UserInputElement } from "./UserInputElement";
+import { UserInputEvents } from "./UserInputEvents";
 import { UserInputSubmitButton, UserInputSubmitButtonEvents } from "./UserInputSubmitButton";
 
-	export interface InputKeyChangeDTO{
-		dto: FlowDTO,
-		keyCode: number,
-		inputFieldActive: boolean
-	}
+
 
 	// class
-	export class UserTextInput extends UserInputElement implements IUserInputElement {
+	export class UserTextInput extends UserInputElement implements IUserTextInput {
 		private inputElement: HTMLInputElement | HTMLTextAreaElement;
 		private submitButton: UserInputSubmitButton;
 
@@ -48,7 +46,7 @@ import { UserInputSubmitButton, UserInputSubmitButtonEvents } from "./UserInputS
 
 		public set disabled(value: boolean){
 			const hasChanged: boolean = this._disabled != value;
-			if(!ConversationalForm.suppressLog) console.log('option hasChanged', value);
+			if(!CFGlobals.suppressLog) console.log('option hasChanged', value);
 			
 			if(hasChanged){
 				this._disabled = value;
@@ -74,7 +72,7 @@ import { UserInputSubmitButton, UserInputSubmitButtonEvents } from "./UserInputS
 			this.inputElement.addEventListener('focus', this.onInputFocusCallback, false);
 			this.inputElement.addEventListener('blur', this.onInputBlurCallback, false);
 
-			if (!ConversationalForm.animationsEnabled) {
+			if (!CFGlobals.animationsEnabled) {
 				this.inputElement.setAttribute('no-animations', '');
 			}
 
@@ -217,7 +215,7 @@ import { UserInputSubmitButton, UserInputSubmitButtonEvents } from "./UserInputS
 			// console.log(this.inputElement.style.height, this.inputElement.style);
 			this.inputElement.style.height = (this.inputElement.scrollHeight === 0 ? oldHeight : this.inputElement.scrollHeight) + "px";
 
-			ConversationalForm.illustrateFlow(this, "dispatch", UserInputEvents.HEIGHT_CHANGE);
+			CFGlobals.illustrateFlow(this, "dispatch", UserInputEvents.HEIGHT_CHANGE);
 			this.eventTarget.dispatchEvent(new CustomEvent(UserInputEvents.HEIGHT_CHANGE, {
 				detail: this.inputElement.scrollHeight
 			}));
@@ -232,7 +230,7 @@ import { UserInputSubmitButton, UserInputSubmitButtonEvents } from "./UserInputS
 		}
 
 		protected inputInvalid(event: CustomEvent){
-			ConversationalForm.illustrateFlow(this, "receive", event.type, event.detail);
+			CFGlobals.illustrateFlow(this, "receive", event.type, event.detail);
 			const dto: FlowDTO = event.detail;
 
 			this.inputElement.setAttribute("data-value", this.inputElement.value);
@@ -249,7 +247,7 @@ import { UserInputSubmitButton, UserInputSubmitButtonEvents } from "./UserInputS
 
 			this.errorTimer = setTimeout(() => {
 				this.disabled = false;
-				if(!ConversationalForm.suppressLog) console.log('option, disabled 1', );
+				if(!CFGlobals.suppressLog) console.log('option, disabled 1', );
 				this.el.removeAttribute("error");
 				this.inputElement.value = this.inputElement.getAttribute("data-value");
 				this.inputElement.setAttribute("data-value", "");
@@ -452,7 +450,7 @@ import { UserInputSubmitButton, UserInputSubmitButtonEvents } from "./UserInputS
 		private onControlElementProgressChange(event: CustomEvent){
 			const status: string = event.detail;
 			this.disabled = status == ControlElementProgressStates.BUSY;
-			if(!ConversationalForm.suppressLog) console.log('option, disabled 2', );
+			if(!CFGlobals.suppressLog) console.log('option, disabled 2', );
 		}
 
 		private buildControlElements(tags: Array<ITag>){
@@ -460,7 +458,7 @@ import { UserInputSubmitButton, UserInputSubmitButtonEvents } from "./UserInputS
 		}
 
 		private onControlElementSubmit(event: CustomEvent){
-			ConversationalForm.illustrateFlow(this, "receive", event.type, event.detail);
+			CFGlobals.illustrateFlow(this, "receive", event.type, event.detail);
 
 			// when ex a RadioButton is clicked..
 			const controlElement: IControlElement = <IControlElement> event.detail;
@@ -565,7 +563,7 @@ import { UserInputSubmitButton, UserInputSubmitButtonEvents } from "./UserInputS
 					if(event.keyCode == Dictionary.keyCodes["enter"] || event.keyCode == Dictionary.keyCodes["space"]){
 						event.preventDefault();
 
-						const tagType: string = this._currentTag.type == "group" ? (<TagGroup>this._currentTag).getGroupTagType() : this._currentTag.type;
+						const tagType: string = this._currentTag.type == "group" ? (<ITagGroup>this._currentTag).getGroupTagType() : this._currentTag.type;
 
 						if(tagType == "select" || tagType == "checkbox"){
 							const mutiTag: SelectTag | InputTag = <SelectTag | InputTag> this._currentTag;
@@ -608,7 +606,7 @@ import { UserInputSubmitButton, UserInputSubmitButtonEvents } from "./UserInputS
 			// typing --->
 			this.submitButton.typing = dto.text && dto.text.length > 0;
 
-			ConversationalForm.illustrateFlow(this, "dispatch", UserInputEvents.KEY_CHANGE, dto);
+			CFGlobals.illustrateFlow(this, "dispatch", UserInputEvents.KEY_CHANGE, dto);
 			this.eventTarget.dispatchEvent(new CustomEvent(UserInputEvents.KEY_CHANGE, {
 				detail: <InputKeyChangeDTO> {
 					dto: dto,
@@ -670,7 +668,7 @@ import { UserInputSubmitButton, UserInputSubmitButtonEvents } from "./UserInputS
 			this.el.removeAttribute("error");
 			this.inputElement.setAttribute("data-value", "");
 
-			ConversationalForm.illustrateFlow(this, "dispatch", UserInputEvents.SUBMIT, dto);
+			CFGlobals.illustrateFlow(this, "dispatch", UserInputEvents.SUBMIT, dto);
 			this.eventTarget.dispatchEvent(new CustomEvent(UserInputEvents.SUBMIT, {
 				detail: dto
 			}));

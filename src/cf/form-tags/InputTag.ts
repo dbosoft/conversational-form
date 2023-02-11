@@ -1,4 +1,4 @@
-import { FlowDTO } from "../logic/FlowManager";
+import { FlowDTO } from "./ITag";
 import { Tag, ITagOptions } from "./Tag";
 
 // class
