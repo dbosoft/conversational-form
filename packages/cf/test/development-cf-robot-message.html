@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimal-ui" />
+
+</head>
+
+
+<body>
+
+	<form id="cf-form">
+		<input type="text" name="CHEESE" value="comte" cf-questions="What is your fave cheese?">
+		<!-- <label for="radio">
+					    <input cf-questions="Hi friend. Ready to signup for our demo newsletter?" cf-label="Yes, let's begin!" type="radio" value="0">
+					    Start
+					  </label> -->
+		<cf-robot-message
+			cf-questions="this is just a test message to show that the next question will be skipped when trying to edit the first question.">
+		</cf-robot-message>
+		<input type="text" name="FNAME" cf-questions="What is your firstname?">
+		<input type="text" name="LNAME" cf-questions="What is your lastname?">
+		<input type="text" name="EMAIL" cf-questions="What is your email?">
+
+	</form>
+
+	<div id="cf-context" role="cf-context" cf-context style="height: 600px; width: 400px; border: 1px solid #999;">
+
+	</div>
+
+
+	<script type="module">
+		import { ConversationalForm } from '../dist/ConversationalForm.js';
+
+		window.onload = function () {
+			var conversationalForm = ConversationalForm.startTheConversation({
+				formEl: document.getElementById("cf-form"),
+				context: document.getElementById("cf-context"),
+				// hideUserInputOnNoneTextInput: true,
+				userInterfaceOptions: {
+					controlElementsInAnimationDelay: 250,
+					robot: {
+						robotResponseTime: 0,
+						chainedResponseTime: 600
+					}
+				}
+			});
+		};
+	</script>
+</body>
+
+</html>

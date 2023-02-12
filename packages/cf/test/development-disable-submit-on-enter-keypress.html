@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimal-ui" />
+</head>
+
+
+<body>
+
+	<form id="cf-form">
+
+		<textarea name="story" cf-questions="Tell me a story about yourself" rows="4"></textarea>
+		<input type="text" name="lastname" cf-questions="And lastname?">
+		<input type="file" name="face">
+
+		<fieldset>
+			<label for="opinion">Simpel question. Just give me a straight answer</label>
+			<select cf-questions="Simpel question. Just give me a straight answer" name="yon" id="yon"
+				class="form-control">
+				<option>Yes</option>
+				<option>No</option>
+			</select>
+		</fieldset>
+
+		<fieldset>
+			<label for="opinion">You'll see the submit btn.</label>
+			<select multiple cf-questions="Do you think conversational forms will replace web forms in the future?"
+				name="opinion" id="opinion" class="form-control">
+				<option></option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+				<option>Definitely</option>
+				<option>Maybe</option>
+				<option>No</option>
+			</select>
+		</fieldset>
+
+		<input type="text" name="turtles" cf-questions="Do you like turtles?">
+
+		<fieldset>
+			<label>
+				<input cf-questions="Checkboxes, not required." type="checkbox" name="checkboxes" id="checkboxes-1"
+					value="developer">
+				Developer
+			</label>
+			<label>
+				<input type="checkbox" name="checkboxes" id="checkboxes-2" value="designer">
+				Designer
+			</label>
+			</div>
+			<label>
+				<input type="checkbox" name="checkboxes" id="checkboxes-3" value="curious-mind">
+				Curious mind
+			</label>
+		</fieldset>
+
+		<fieldset>
+			<label>
+				<input required cf-questions="Required checkboxes" type="checkbox" name="checkboxesReq"
+					id="checkboxesReq-1" value="developer">
+				Developer
+			</label>
+			<label>
+				<input type="checkbox" name="checkboxesReq" id="checkboxesReq-2" value="designer">
+				Designer
+			</label>
+			</div>
+			<label>
+				<input type="checkbox" name="checkboxesReq" id="checkboxesReq-3" value="curious-mind">
+				Curious mind
+			</label>
+		</fieldset>
+
+		<fieldset>
+			<label for="occupation">Occupation</label>
+			<div class="radio">
+				<label>
+					<input cf-questions="Some radios" type="radio" name="occupation" id="occupation-1"
+						value="developer">
+					Developer
+				</label>
+			</div>
+			<div class="radio">
+				<label>
+					<input type="radio" name="occupation" id="occupation-2" value="designer">
+					Designer
+				</label>
+			</div>
+			<div class="radio">
+				<label>
+					<input type="radio" name="occupation" id="occupation-3" value="curious-mind">
+					Curious mind
+				</label>
+			</div>
+			<div class="radio">
+				<label>
+					<input type="radio" name="occupation" id="occupation-2" value="lost">
+					Lost cause
+				</label>
+			</div>
+		</fieldset>
+
+	</form>
+
+	<div id="cf-context" role="cf-context" cf-context style="height: 600px; width: 400px; border: 1px solid #999;">
+
+	</div>
+
+	<script type="module">
+		import { ConversationalForm } from '../dist/ConversationalForm.js';
+
+		window.onload = function () {
+			var conversationalForm = ConversationalForm.startTheConversation({
+				formEl: document.getElementById("cf-form"),
+				context: document.getElementById("cf-context"),
+				preventSubmitOnEnter: true
+			});
+		};
+	</script>
+</body>
+
+</html>

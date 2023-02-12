@@ -1,0 +1,28 @@
+{
+  "name": "cf",
+  "version": "0.0.0",
+  "type": "module",
+  "source": "src/ConversationalForm.ts",
+  "module": "dist/ConversationalForm.js",
+  "types": "./dist/index.d.ts",
+  "license": "MIT",
+  "exports": {
+    ".": "./dist"
+  },
+  "scripts": {
+    "dev": "concurrently \"tsup --watch\" \"wds --node-resolve --watch\"",
+    "build": "tsup",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0",
+    "eslint": "^7.32.0",
+    "eslint-config-custom": "workspace:*",
+    "tsconfig": "workspace:*",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "@web/dev-server": "^0.1.35",
+    "tsup": "^6.1.3"
+  }
+}
