@@ -1,4 +1,4 @@
-import { ITag } from "../../form-tags/ITag"
+import { IDomTag } from "../../form-tags/ITag"
 import { IBasicElementOptions, IBasicElement } from "../BasicElement"
 
 export interface ControlElementVector {
@@ -12,15 +12,15 @@ export interface ControlElementVector {
 }
 
 export interface IControlElementOptions extends IBasicElementOptions {
-    referenceTag: ITag;
+    referenceTag?: IDomTag;
 }
 
 export interface IControlElement extends IBasicElement {
     el: HTMLElement;
-    referenceTag: ITag;
+    referenceTag?: IDomTag;
     type: string;
     value: string;
-    positionVector: ControlElementVector;
+    positionVector?: ControlElementVector;
     tabIndex: number;
     visible: boolean;
     focus: boolean;

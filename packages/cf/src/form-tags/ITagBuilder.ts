@@ -1,5 +1,5 @@
-import { ITag } from "./ITag";
+import { IDomTag } from "./ITag";
 
-export interface ITagBuilder{
-    createTag(element: HTMLInputElement | HTMLSelectElement | HTMLButtonElement | HTMLOptionElement): ITag
+export interface ITagBuilder {
+    createTag(element: HTMLInputElement | HTMLSelectElement | HTMLButtonElement | HTMLOptionElement): IDomTag | undefined
 }

@@ -1,27 +1,30 @@
 import { CFGlobals } from "../../CFGlobal";
-import { ITag } from "../../form-tags/ITag";
+import { IDomTag } from "../../form-tags/ITag";
 import { OptionTag } from "../../form-tags/OptionTag";
 import { SelectTag } from "../../form-tags/SelectTag";
-import { EventDispatcher } from "../../logic/EventDispatcher";
+import { IConversationalForm } from "../../interfaces/IConversationalForm";
+import { IEventTarget } from "../../logic/IEventTarget";
 import { ControlElementEvents } from "./IControlElement";
 import { OptionButton, OptionButtonEvents, IOptionButtonOptions } from "./OptionButton";
 
 export interface IOptionsListOptions {
 	context: HTMLElement;
-	eventTarget: EventDispatcher;
-	referenceTag: ITag;
+	eventTarget: IEventTarget;
+	referenceTag: IDomTag;
+	cfReference: IConversationalForm;
 }
 
 // class
 // builds x OptionsButton from the registered SelectTag
 export class OptionsList {
 
-	public elements: Array<OptionButton>;
-	private eventTarget: EventDispatcher;
+	public elements: Array<OptionButton> = [];
+	private eventTarget: IEventTarget;
 	private context: HTMLElement;
 	private multiChoice: boolean;
-	private referenceTag: ITag;
-	private onOptionButtonClickCallback: () => void;
+	private referenceTag: IDomTag;
+	private onOptionButtonClickCallback?: (event: CustomEvent) => void;
+	private cfReference: IConversationalForm;
 
 	public get type(): string {
 		return "OptionsList";
@@ -31,6 +34,7 @@ export class OptionsList {
 		this.context = options.context;
 		this.eventTarget = options.eventTarget;
 		this.referenceTag = options.referenceTag;
+		this.cfReference = options.cfReference;
 
 		// check for multi choice select tag
 		this.multiChoice = this.referenceTag.domElement.hasAttribute("multiple");
@@ -87,7 +91,8 @@ export class OptionsList {
 			const btn: OptionButton = new OptionButton(<IOptionButtonOptions>{
 				referenceTag: tag,
 				isMultiChoice: (<SelectTag>this.referenceTag).multipleChoice,
-				eventTarget: this.eventTarget
+				eventTarget: this.eventTarget,
+				cfReference: this.cfReference
 			});
 
 			this.elements.push(btn);
@@ -97,12 +102,14 @@ export class OptionsList {
 	}
 
 	public dealloc() {
-		this.eventTarget.removeEventListener(OptionButtonEvents.CLICK, this.onOptionButtonClickCallback, false);
-		this.onOptionButtonClickCallback = null;
+
+		if (this.onOptionButtonClickCallback)
+			this.eventTarget.removeEventListener(OptionButtonEvents.CLICK, this.onOptionButtonClickCallback, false);
+		this.onOptionButtonClickCallback = undefined;
 
 		while (this.elements.length > 0)
-			this.elements.pop().dealloc();
-		this.elements = null;
+			this.elements.pop()?.dealloc();
+		this.elements = [];
 	}
 }
 

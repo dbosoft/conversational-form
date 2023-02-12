@@ -1,5 +1,5 @@
 import { CFGlobals } from "../../CFGlobal";
-import { ITag } from "../../form-tags/ITag";
+import { IDomTag, ITag } from "../../form-tags/ITag";
 import { Tag } from "../../form-tags/Tag";
 import { Helpers } from "../../logic/Helpers";
 import { IBasicElementOptions, BasicElement } from "../BasicElement";
@@ -8,14 +8,14 @@ import { ControlElementEvents, ControlElementVector, IControlElement, IControlEl
 
 // class
 export class ControlElement extends BasicElement implements IControlElement {
-	public referenceTag: ITag;
+	public referenceTag?: IDomTag;
 
 	private animateInTimer: number = 0;
 	private _partOfSeveralChoices: boolean = false;
-	private _positionVector: ControlElementVector;
+	private _positionVector?: ControlElementVector;
 	private _focus: boolean = false;
-	private onFocusCallback: () => void;
-	private onBlurCallback: () => void;
+	private onFocusCallback?: (event: Event) => void;
+	private onBlurCallback?: (event: Event) => void;
 
 	public get type(): string {
 		return "ControlElement";
@@ -31,11 +31,12 @@ export class ControlElement extends BasicElement implements IControlElement {
 
 	public get value(): string {
 		// value is for the chat response -->
+
 		const hasTagImage: boolean = (<Tag>this.referenceTag).hasImage;
 		let str: string;
 		if (hasTagImage && !this.partOfSeveralChoices) {
 			// const image: string = hasTagImage ? "<img src='" + this.referenceTag.domElement.getAttribute("cf-image") + "'/>" : "";
-			const image = hasTagImage ? "<img src=\"" + this.referenceTag.domElement.getAttribute("cf-image") + "\"/>" : "";
+			const image = hasTagImage ? "<img src=\"" + this.referenceTag?.domElement.getAttribute("cf-image") + "\"/>" : "";
 			// str = "<div class='contains-image'>"
 			// str += image;
 			// str += "<span>" + Helpers.getInnerTextOfElement(this.el) + "</span>";
@@ -49,7 +50,7 @@ export class ControlElement extends BasicElement implements IControlElement {
 		return str;
 	}
 
-	public get positionVector(): ControlElementVector {
+	public get positionVector(): ControlElementVector | undefined {
 		return this._positionVector;
 	}
 
@@ -102,7 +103,7 @@ export class ControlElement extends BasicElement implements IControlElement {
 		this.onBlurCallback = this.onBlur.bind(this);
 		this.el.addEventListener('blur', this.onBlurCallback, false);
 
-		if (this.referenceTag.disabled) {
+		if (this.referenceTag?.disabled) {
 			this.el.setAttribute("disabled", "disabled");
 		}
 	}
@@ -164,11 +165,14 @@ export class ControlElement extends BasicElement implements IControlElement {
 	}
 
 	public dealloc() {
-		this.el.removeEventListener('blur', this.onBlurCallback, false);
-		this.onBlurCallback = null;
 
-		this.el.removeEventListener('focus', this.onFocusCallback, false);
-		this.onFocusCallback = null;
+		if (this.onBlurCallback)
+			this.el.removeEventListener('blur', this.onBlurCallback, false);
+		this.onBlurCallback = undefined;
+
+		if (this.onFocusCallback)
+			this.el.removeEventListener('focus', this.onFocusCallback, false);
+		this.onFocusCallback = undefined;
 
 		super.dealloc();
 	}

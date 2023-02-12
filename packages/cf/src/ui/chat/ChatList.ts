@@ -13,17 +13,17 @@ import { IChatList } from "./IChatList";
 
 
 export class ChatList extends BasicElement implements IChatList {
-	private flowUpdateCallback: () => void;
-	private userInputUpdateCallback: () => void;
-	private onInputKeyChangeCallback: () => void;
-	private onInputHeightChangeCallback: () => void;
-	private onControlElementsResizedCallback: () => void;
-	private onControlElementsChangedCallback: () => void;
-	private currentResponse: ChatResponse;
-	private currentUserResponse: ChatResponse;
-	private flowDTOFromUserInputUpdate: FlowDTO;
+	private flowUpdateCallback?: (event: CustomEvent) => void;
+	private userInputUpdateCallback?: (event: CustomEvent) => void;
+	private onInputKeyChangeCallback?: (event: CustomEvent) => void;
+	private onInputHeightChangeCallback?: (event: CustomEvent) => void;
+	private onControlElementsResizedCallback?: (event: CustomEvent) => void;
+	private onControlElementsChangedCallback?: (event: CustomEvent) => void;
+	private currentResponse?: ChatResponse;
+	private currentUserResponse?: ChatResponse;
+	private flowDTOFromUserInputUpdate?: FlowDTO;
 	private responses: Array<ChatResponse>;
-	private input: UserInputElement;
+	private input?: UserInputElement;
 
 	constructor(options: IBasicElementOptions) {
 		super(options);
@@ -99,7 +99,7 @@ export class ChatList extends BasicElement implements IChatList {
 	private onControlElementsResized(event: Event): void {
 
 		CFGlobals.illustrateFlow(this, "receive", ControlElementsEvents.ON_RESIZE);
-		let responseToScrollTo: ChatResponse = this.currentResponse;
+		let responseToScrollTo = this.currentResponse;
 		if (responseToScrollTo) {
 			if (!responseToScrollTo.added) {
 				// element not added yet, so find closest
@@ -119,10 +119,11 @@ export class ChatList extends BasicElement implements IChatList {
 	}
 
 	private onInputElementChanged() {
-		if (!this.cfReference || !this.cfReference.el) return;
-		const cfHeight: number = this.cfReference.el.offsetHeight;
-		const inputHeight: number = this.input.height;
-		const listHeight: number = cfHeight - inputHeight;
+		// TODO: why?
+		//	if (!this.cfReference || !this.cfReference.el) return;
+		//	const cfHeight: number = this.cfReference.el.offsetHeight;
+		//	const inputHeight: number = this.input.height;
+		//	const listHeight: number = cfHeight - inputHeight;
 		//this.el.style.height = listHeight + "px";
 	}
 
@@ -177,7 +178,7 @@ export class ChatList extends BasicElement implements IChatList {
 	* on user ChatReponse clicked
 	*/
 	private onUserWantsToEditTag(tagToChange: ITag): void {
-		let responseUserWantsToEdit: ChatResponse;
+		let responseUserWantsToEdit: ChatResponse | undefined;
 		for (let i = 0; i < this.responses.length; i++) {
 			let element: ChatResponse = <ChatResponse>this.responses[i];
 			if (!element.isRobotResponse && element.tag == tagToChange) {
@@ -188,17 +189,17 @@ export class ChatList extends BasicElement implements IChatList {
 		}
 
 		// reset the current user response
-		this.currentUserResponse.processResponseAndSetText();
+		this.currentUserResponse?.processResponseAndSetText();
 
 		if (responseUserWantsToEdit) {
 			// remove latest user response, if it is there any, also make sure we don't remove the first one
 			if (this.responses.length > 2) {
 				if (!this.responses[this.responses.length - 1].isRobotResponse) {
-					this.responses.pop().dealloc();
+					this.responses.pop()?.dealloc();
 				}
 
 				// remove latest robot response, it should always be a robot response
-				this.responses.pop().dealloc();
+				this.responses.pop()?.dealloc();
 			}
 
 			this.currentUserResponse = responseUserWantsToEdit;
@@ -212,7 +213,7 @@ export class ChatList extends BasicElement implements IChatList {
 		}
 	}
 
-	private updateTimer: number;
+	private updateTimer: number = 0;
 	private onListUpdate(chatResponse: ChatResponse) {
 		clearTimeout(this.updateTimer);
 
@@ -232,7 +233,7 @@ export class ChatList extends BasicElement implements IChatList {
 		index = index * 2; // double up because of robot responses
 		index += index % 2; // round up so we dont remove the user response element
 		while (this.responses.length > index) {
-			this.responses.pop().dealloc();
+			this.responses.pop()?.dealloc();
 		}
 	}
 
@@ -252,7 +253,7 @@ export class ChatList extends BasicElement implements IChatList {
 			}
 		}
 
-		this.currentUserResponse.setValue(this.flowDTOFromUserInputUpdate);
+		this.currentUserResponse?.setValue(this.flowDTOFromUserInputUpdate);
 	}
 
 	/**
@@ -277,10 +278,11 @@ export class ChatList extends BasicElement implements IChatList {
 		}
 	}
 
-	public createResponse(isRobotResponse: boolean, currentTag: ITag, value: string = null): ChatResponse {
+	public createResponse(isRobotResponse: boolean, currentTag?: ITag, value?: string): ChatResponse {
 		const scrollable: HTMLElement = <HTMLElement>this.el.querySelector(".scrollableInner");
+
 		const response: ChatResponse = new ChatResponse({
-			// image: null,
+			// image: undefined,
 			cfReference: this.cfReference,
 			list: this,
 			tag: currentTag,
@@ -309,14 +311,18 @@ export class ChatList extends BasicElement implements IChatList {
 	}
 
 	public dealloc() {
-		this.eventTarget.removeEventListener(FlowEvents.FLOW_UPDATE, this.flowUpdateCallback, false);
-		this.flowUpdateCallback = null;
+		if (this.flowUpdateCallback)
+			this.eventTarget.removeEventListener(FlowEvents.FLOW_UPDATE, this.flowUpdateCallback, false);
+		this.flowUpdateCallback = undefined;
 
-		this.eventTarget.removeEventListener(FlowEvents.USER_INPUT_UPDATE, this.userInputUpdateCallback, false);
-		this.userInputUpdateCallback = null;
+		if (this.userInputUpdateCallback)
+			this.eventTarget.removeEventListener(FlowEvents.USER_INPUT_UPDATE, this.userInputUpdateCallback, false);
+		this.userInputUpdateCallback = undefined;
 
-		this.eventTarget.removeEventListener(UserInputEvents.KEY_CHANGE, this.onInputKeyChangeCallback, false);
-		this.onInputKeyChangeCallback = null
+		if (this.onInputKeyChangeCallback)
+			this.eventTarget.removeEventListener(UserInputEvents.KEY_CHANGE, this.onInputKeyChangeCallback, false);
+		this.onInputKeyChangeCallback = undefined
+
 		super.dealloc();
 	}
 }

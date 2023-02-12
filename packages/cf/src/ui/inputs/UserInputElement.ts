@@ -1,6 +1,5 @@
 import { CFGlobals } from "../../CFGlobal";
-import { ITag, ITagGroup, FlowDTO } from "../../form-tags/ITag";
-import { IConversationalForm } from "../../interfaces/IConversationalForm";
+import { ITag, ITagGroup, FlowDTO, IDomTag } from "../../form-tags/ITag";
 import { IUserInputElement } from "../../interfaces/IUserInputElement";
 import { FlowEvents } from "../../logic/FlowManager";
 import { Helpers } from "../../logic/Helpers";
@@ -9,21 +8,25 @@ import { ChatListEvents } from "../chat/ChatListEvents";
 import { IUserInputOptions } from "./IUserInputOptions";
 
 // interface
-export class UserInputElement extends BasicElement implements IUserInputElement {
+export abstract class UserInputElement extends BasicElement implements IUserInputElement {
 	public static ERROR_TIME: number = 2000;
 	public static preventAutoFocus: boolean = false;
 	public static hideUserInputOnNoneTextInput: boolean = false;
 
-	private onChatReponsesUpdatedCallback: () => void;
-	private windowFocusCallback: () => void;
-	private inputInvalidCallback: () => void;
-	private flowUpdateCallback: () => void;
-	protected _currentTag: ITag | ITagGroup;
+	private onChatReponsesUpdatedCallback?: (event: CustomEvent) => void;
+	private windowFocusCallback?: (event: Event) => void;
+	private inputInvalidCallback?: (event: CustomEvent) => void;
+	private flowUpdateCallback?: (event: CustomEvent) => void;
+	protected _currentTag?: IDomTag | ITagGroup;
 	protected _disabled: boolean = false;
 	protected _visible: boolean = false;
 
-	public get currentTag(): ITag | ITagGroup {
+	public get currentTag(): IDomTag | ITagGroup | undefined {
 		return this._currentTag;
+	}
+
+	protected isDomTag(tag: ITag): tag is IDomTag {
+		return tag.type != "group";
 	}
 
 	public set visible(value: boolean) {
@@ -66,8 +69,11 @@ export class UserInputElement extends BasicElement implements IUserInputElement 
 			elMargin *= 2;
 		} else {
 			// none-IE
-			elHeight = parseInt(document.defaultView.getComputedStyle(el, '').getPropertyValue('height'), 10);
-			elMargin = parseInt(document.defaultView.getComputedStyle(el, '').getPropertyValue('margin-top')) + parseInt(document.defaultView.getComputedStyle(el, '').getPropertyValue('margin-bottom'));
+			if (document.defaultView) {
+				elHeight = parseInt(document.defaultView.getComputedStyle(el, '').getPropertyValue('height'), 10);
+				elMargin = parseInt(document.defaultView.getComputedStyle(el, '').getPropertyValue('margin-top'))
+					+ parseInt(document.defaultView.getComputedStyle(el, '').getPropertyValue('margin-bottom'));
+			}
 		}
 		return (elHeight + elMargin);
 	}
@@ -87,7 +93,7 @@ export class UserInputElement extends BasicElement implements IUserInputElement 
 		this.flowUpdateCallback = this.onFlowUpdate.bind(this);
 		this.eventTarget.addEventListener(FlowEvents.FLOW_UPDATE, this.flowUpdateCallback, false);
 	}
-	protected onEnterOrSubmitButtonSubmit(event: CustomEvent = null) {
+	protected onEnterOrSubmitButtonSubmit(event: CustomEvent) {
 
 	}
 
@@ -110,36 +116,41 @@ export class UserInputElement extends BasicElement implements IUserInputElement 
 		this.disabled = false;
 	}
 
-	public getFlowDTO(): FlowDTO {
-		let value: FlowDTO;// = this.inputElement.value;
-		return value;
-	}
+	public abstract getFlowDTO(): FlowDTO;
+
 	public setFocusOnInput() {
 	}
 	public onFlowStopped() {
 	}
+
 	public reset() {
 	}
 
 	public dealloc() {
-		this.eventTarget.removeEventListener(ChatListEvents.CHATLIST_UPDATED, this.onChatReponsesUpdatedCallback, false);
-		this.onChatReponsesUpdatedCallback = null;
 
-		this.eventTarget.removeEventListener(FlowEvents.USER_INPUT_INVALID, this.inputInvalidCallback, false);
-		this.inputInvalidCallback = null;
+		if (this.onChatReponsesUpdatedCallback)
+			this.eventTarget.removeEventListener(ChatListEvents.CHATLIST_UPDATED, this.onChatReponsesUpdatedCallback, false);
+		this.onChatReponsesUpdatedCallback = undefined;
 
-		window.removeEventListener('focus', this.windowFocusCallback, false);
-		this.windowFocusCallback = null;
+		if (this.inputInvalidCallback)
+			this.eventTarget.removeEventListener(FlowEvents.USER_INPUT_INVALID, this.inputInvalidCallback, false);
 
-		this.eventTarget.removeEventListener(FlowEvents.FLOW_UPDATE, this.flowUpdateCallback, false);
-		this.flowUpdateCallback = null;
+		this.inputInvalidCallback = undefined;
+
+		if (this.windowFocusCallback)
+			window.removeEventListener('focus', this.windowFocusCallback, false);
+		this.windowFocusCallback = undefined;
+
+		if (this.flowUpdateCallback)
+			this.eventTarget.removeEventListener(FlowEvents.FLOW_UPDATE, this.flowUpdateCallback, false);
+		this.flowUpdateCallback = undefined;
 
 		super.dealloc();
 	}
 
 	protected onFlowUpdate(event: CustomEvent) {
 		CFGlobals.illustrateFlow(this, "receive", event.type, event.detail);
-		this._currentTag = <ITag | ITagGroup>event.detail.tag;
+		this._currentTag = <IDomTag>event.detail.tag;
 	}
 
 	protected windowFocus(event: Event) {

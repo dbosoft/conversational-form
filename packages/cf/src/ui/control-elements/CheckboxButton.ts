@@ -1,42 +1,48 @@
 import { Button } from "./Button";
 
-	export class CheckboxButton extends Button {
+export class CheckboxButton extends Button {
 
-		public get type():string{
-			return "CheckboxButton";
+	public get type(): string {
+		return "CheckboxButton";
+	}
+
+	public get checked(): boolean {
+		return this.el.getAttribute("checked") == "checked";
+	}
+
+	public set checked(value: boolean) {
+		if (!this.referenceTag?.domElement)
+			return;
+
+		if (!value) {
+			this.el.removeAttribute("checked");
+			(<HTMLInputElement>this.referenceTag.domElement).removeAttribute("checked");
+			(<HTMLInputElement>this.referenceTag.domElement).checked = false;
+		} else {
+			this.el.setAttribute("checked", "checked");
+			(<HTMLInputElement>this.referenceTag.domElement).setAttribute("checked", "checked");
+			(<HTMLInputElement>this.referenceTag.domElement).checked = true;
 		}
+	}
 
-		public get checked():boolean{
-			return this.el.getAttribute("checked") == "checked";
-		}
+	protected onClick(event: MouseEvent) {
+		this.checked = !this.checked;
+	}
 
-		public set checked(value: boolean){
-			if(!value){
-				this.el.removeAttribute("checked");
-				(<HTMLInputElement> this.referenceTag.domElement).removeAttribute("checked");
-				(<HTMLInputElement> this.referenceTag.domElement).checked = false;
-			}else{
-				this.el.setAttribute("checked", "checked");
-				(<HTMLInputElement> this.referenceTag.domElement).setAttribute("checked", "checked");
-				(<HTMLInputElement> this.referenceTag.domElement).checked = true;
-			}
-		}
+	// override
+	public getTemplate(): string {
+		if (!this.referenceTag)
+			return "";
 
-		protected onClick(event: MouseEvent){
-			this.checked = !this.checked;
-		}
-
-		// override
-		public getTemplate () : string {
-			const isChecked: boolean = (<HTMLInputElement> this.referenceTag.domElement).checked && this.referenceTag.domElement.hasAttribute("checked");
-			return `<cf-button class="cf-button cf-checkbox-button `+(this.referenceTag.label.trim().length == 0 ? "no-text" : "")+`" checked=`+(isChecked ? "checked" : "")+`>
+		const isChecked: boolean = (<HTMLInputElement>this.referenceTag.domElement).checked && this.referenceTag.domElement.hasAttribute("checked");
+		return `<cf-button class="cf-button cf-checkbox-button ` + (this.referenceTag.label.trim().length == 0 ? "no-text" : "") + `" checked=` + (isChecked ? "checked" : "") + `>
 				<div>
 					<cf-checkbox></cf-checkbox>
 					<span>` + this.referenceTag.label + `</span>
 				</div>
 			</cf-button>
 			`;
-		}
 	}
+}
 
 

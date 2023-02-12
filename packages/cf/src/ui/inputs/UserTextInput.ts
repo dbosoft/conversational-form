@@ -1,7 +1,7 @@
 import { CFGlobals } from "../../CFGlobal";
 import { Dictionary } from "../../data/Dictionary";
 import { InputTag } from "../../form-tags/InputTag";
-import { FlowDTO, ITag, ITagGroup } from "../../form-tags/ITag";
+import { FlowDTO, IDomTag, ITag, ITagGroup } from "../../form-tags/ITag";
 import { SelectTag } from "../../form-tags/SelectTag";
 import { TagEvents } from "../../form-tags/Tag";
 import { IUserInput } from "../../interfaces/IUserInput";
@@ -21,20 +21,20 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 	private inputElement: HTMLInputElement | HTMLTextAreaElement;
 	private submitButton: UserInputSubmitButton;
 
-	private onControlElementSubmitCallback: () => void;
-	private onSubmitButtonChangeStateCallback: () => void;
-	private onInputFocusCallback: () => void;
-	private onInputBlurCallback: () => void;
-	private onOriginalTagChangedCallback: () => void;
-	private onControlElementProgressChangeCallback: () => void;
-	private errorTimer: ReturnType<typeof setTimeout>;
+	private onControlElementSubmitCallback?: (event: CustomEvent) => void;
+	private onSubmitButtonChangeStateCallback?: (event: CustomEvent) => void;
+	private onInputFocusCallback?: (event: Event) => void;
+	private onInputBlurCallback?: (event: Event) => void;
+	private onOriginalTagChangedCallback?: (event: CustomEvent) => void;
+	private onControlElementProgressChangeCallback?: (event: CustomEvent) => void;
+	private errorTimer?: ReturnType<typeof setTimeout>;
 	private initialInputHeight: number = 0;
 	private shiftIsDown: boolean = false;
-	private keyUpCallback: () => void;
-	private keyDownCallback: () => void;
+	private keyUpCallback?: (event: Event) => void;
+	private keyDownCallback?: (event: Event) => void;
 
 
-	protected microphoneObj: IUserInput;
+	protected microphoneObj?: IUserInput;
 
 	private controlElements: ControlElements;
 
@@ -110,7 +110,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 			eventTarget: this.eventTarget
 		});
 
-		this.el.querySelector('div').appendChild(this.submitButton.el);
+		this.el.querySelector('div')?.appendChild(this.submitButton.el);
 
 		// setup microphone support, audio
 		if (options.microphoneInputObj) {
@@ -249,7 +249,8 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 			this.disabled = false;
 			if (!CFGlobals.suppressLog) console.log('option, disabled 1',);
 			this.el.removeAttribute("error");
-			this.inputElement.value = this.inputElement.getAttribute("data-value");
+
+			this.inputElement.value = this.inputElement.getAttribute("data-value") ?? "";
 			this.inputElement.setAttribute("data-value", "");
 			this.setPlaceholder();
 			this.setFocusOnInput();
@@ -283,12 +284,20 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 	 * @memberof UserTextInput
 	 */
 	private checkForCorrectInputTag() {
+
+		if (!this._currentTag || !this.isDomTag(this._currentTag))
+			return;
+
 		const tagName: String = this.tagType(this._currentTag);
 
 		// remove focus and blur events, because we want to create a new element
 		if (this.inputElement && this.inputElement.tagName !== tagName) {
-			this.inputElement.removeEventListener('focus', this.onInputFocusCallback, false);
-			this.inputElement.removeEventListener('blur', this.onInputBlurCallback, false);
+
+			if (this.onInputFocusCallback)
+				this.inputElement.removeEventListener('focus', this.onInputFocusCallback, false);
+
+			if (this.onInputBlurCallback)
+				this.inputElement.removeEventListener('blur', this.onInputBlurCallback, false);
 		}
 
 		this.removeAttribute('autocomplete');
@@ -306,14 +315,14 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 			}
 
 			if (this._currentTag.domElement.hasAttribute('autocomplete')) {
-				input.setAttribute('autocomplete', this._currentTag.domElement.getAttribute('autocomplete'));
+				input.setAttribute('autocomplete', this._currentTag.domElement.getAttribute('autocomplete') ?? "");
 			}
 
 			if (this._currentTag.domElement.hasAttribute('list')) {
-				input.setAttribute('list', this._currentTag.domElement.getAttribute('list'));
+				input.setAttribute('list', this._currentTag.domElement.getAttribute('list') ?? "");
 			}
 
-			this.inputElement.parentNode.replaceChild(input, this.inputElement);
+			this.inputElement.parentNode?.replaceChild(input, this.inputElement);
 			this.inputElement = input;
 		} else if (this.inputElement && this.inputElement.tagName !== tagName) {
 			// change to textarea
@@ -321,14 +330,18 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 			Array.prototype.slice.call(this.inputElement.attributes).forEach((item: any) => {
 				textarea.setAttribute(item.name, item.value);
 			});
-			this.inputElement.parentNode.replaceChild(textarea, this.inputElement);
+			this.inputElement.parentNode?.replaceChild(textarea, this.inputElement);
 			this.inputElement = textarea;
 		}
 
 		// add focus and blur events to newly created input element
 		if (this.inputElement && this.inputElement.tagName !== tagName) {
-			this.inputElement.addEventListener('focus', this.onInputFocusCallback, false);
-			this.inputElement.addEventListener('blur', this.onInputBlurCallback, false);
+
+			if (this.onInputFocusCallback)
+				this.inputElement.addEventListener('focus', this.onInputFocusCallback, false);
+
+			if (this.onInputBlurCallback)
+				this.inputElement.addEventListener('blur', this.onInputBlurCallback, false);
 		}
 
 		if (this.initialInputHeight == 0) {
@@ -353,7 +366,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		}
 	}
 
-	tagType(inputElement: ITag): String {
+	tagType(inputElement: IDomTag): String {
 
 		if (
 			!inputElement.domElement
@@ -366,7 +379,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 			inputElement.domElement.tagName === 'TEXTAREA'
 			|| (
 				inputElement.domElement.hasAttribute('rows')
-				&& parseInt(inputElement.domElement.getAttribute('rows'), 10) > 1
+				&& parseInt(inputElement.domElement.getAttribute('rows') ?? "", 10) > 1
 			)
 		) return 'TEXTAREA';
 
@@ -384,6 +397,9 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 
 		// animate input field in
 
+		if (!this._currentTag)
+			return;
+
 		this.el.setAttribute("tag-type", this._currentTag.type);
 
 		// replace textarea and visa versa
@@ -392,6 +408,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		// set input field to type password if the dom input field is that, covering up the input
 		var isInputSpecificType: boolean = ["password", "number", "email", "tel"].indexOf(this._currentTag.type) !== -1;
 		this.inputElement.setAttribute("type", isInputSpecificType ? this._currentTag.type : "input");
+
 
 		clearTimeout(this.errorTimer);
 		this.el.removeAttribute("error");
@@ -411,7 +428,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		if (this._currentTag.type == "group") {
 			this.buildControlElements((<ITagGroup>this._currentTag).elements);
 		} else {
-			this.buildControlElements([this._currentTag]);
+			this.buildControlElements([<IDomTag>this._currentTag]);
 		}
 
 		if (this._currentTag.defaultValue) {
@@ -453,7 +470,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		if (!CFGlobals.suppressLog) console.log('option, disabled 2',);
 	}
 
-	private buildControlElements(tags: Array<ITag>) {
+	private buildControlElements(tags: Array<IDomTag>) {
 		this.controlElements.buildTags(tags);
 	}
 
@@ -475,30 +492,37 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 	private isMetaKeyPressed(event: KeyboardEvent): boolean {
 		// if any meta keys, then ignore, getModifierState, but safari does not support..
 		if (event.metaKey || [91, 93].indexOf(event.keyCode) !== -1)
-			return;
+			return true;
+		else
+			return false;
 	}
 
-	private onKeyDown(event: KeyboardEvent) {
+	private onKeyDown(event: Event) {
+
+		const keyEvent = event as KeyboardEvent;
+		if (!keyEvent) return;
+
 		if (!this.active && !this.controlElements.focus)
 			return;
 
 		if (this.isControlElementsActiveAndUserInputHidden())
 			return;
 
-		if (this.isMetaKeyPressed(event))
+		if (this.isMetaKeyPressed(keyEvent))
 			return;
 
 		// if any meta keys, then ignore
-		if (event.keyCode == Dictionary.keyCodes["shift"])
+		if (keyEvent.keyCode == Dictionary.keyCodes["shift"])
 			this.shiftIsDown = true;
 
 		// If submit is prevented by option 'preventSubmitOnEnter'
-		if (this.cfReference.preventSubmitOnEnter === true && this.inputElement.hasAttribute('rows') && parseInt(this.inputElement.getAttribute('rows')) > 1) {
+		if (this.cfReference.preventSubmitOnEnter === true && this.inputElement.hasAttribute('rows')
+			&& parseInt(this.inputElement.getAttribute('rows') ?? "") > 1) {
 			return;
 		}
 
 		// prevent textarea line breaks
-		if (event.keyCode == Dictionary.keyCodes["enter"] && !event.shiftKey) {
+		if (keyEvent.keyCode == Dictionary.keyCodes["enter"] && !keyEvent.shiftKey) {
 			event.preventDefault();
 		}
 	}
@@ -507,26 +531,30 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		return this.controlElements && this.controlElements.active && UserInputElement.hideUserInputOnNoneTextInput
 	}
 
-	private onKeyUp(event: KeyboardEvent) {
+	private onKeyUp(event: Event) {
+
+		const keyEvent = event as KeyboardEvent;
+		if (!keyEvent) return;
+
 		if ((!this.active && !this.isControlElementsActiveAndUserInputHidden()) && !this.controlElements.focus)
 			return;
 
-		if (this.isMetaKeyPressed(event))
+		if (this.isMetaKeyPressed(keyEvent))
 			return;
 
-		if (event.keyCode == Dictionary.keyCodes["shift"]) {
+		if (keyEvent.keyCode == Dictionary.keyCodes["shift"]) {
 			this.shiftIsDown = false;
-		} else if (event.keyCode == Dictionary.keyCodes["up"]) {
+		} else if (keyEvent.keyCode == Dictionary.keyCodes["up"]) {
 			event.preventDefault();
 
 			if (this.active && !this.controlElements.focus)
 				this.controlElements.focusFrom("bottom");
-		} else if (event.keyCode == Dictionary.keyCodes["down"]) {
+		} else if (keyEvent.keyCode == Dictionary.keyCodes["down"]) {
 			event.preventDefault();
 
 			if (this.active && !this.controlElements.focus)
 				this.controlElements.focusFrom("top");
-		} else if (event.keyCode == Dictionary.keyCodes["tab"]) {
+		} else if (keyEvent.keyCode == Dictionary.keyCodes["tab"]) {
 			// tab key pressed, check if node is child of CF, if then then reset focus to input element
 
 			var doesKeyTargetExistInCF: boolean = false;
@@ -548,19 +576,19 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 			}
 		}
 
-		if (this.el.hasAttribute("disabled"))
+		if (this.el.hasAttribute("disabled") || !this._currentTag)
 			return;
 
 		const value: FlowDTO = this.getFlowDTO();
 
-		if ((event.keyCode == Dictionary.keyCodes["enter"] && !event.shiftKey) || event.keyCode == Dictionary.keyCodes["space"]) {
-			if (event.keyCode == Dictionary.keyCodes["enter"] && this.active) {
+		if ((keyEvent.keyCode == Dictionary.keyCodes["enter"] && !keyEvent.shiftKey) || keyEvent.keyCode == Dictionary.keyCodes["space"]) {
+			if (keyEvent.keyCode == Dictionary.keyCodes["enter"] && this.active) {
 				if (this.cfReference.preventSubmitOnEnter === true) return;
 				event.preventDefault();
 				this.onEnterOrSubmitButtonSubmit();
 			} else {
 				// either click on submit button or do something with control elements
-				if (event.keyCode == Dictionary.keyCodes["enter"] || event.keyCode == Dictionary.keyCodes["space"]) {
+				if (keyEvent.keyCode == Dictionary.keyCodes["enter"] || keyEvent.keyCode == Dictionary.keyCodes["space"]) {
 					event.preventDefault();
 
 					const tagType: string = this._currentTag.type == "group" ? (<ITagGroup>this._currentTag).getGroupTagType() : this._currentTag.type;
@@ -569,7 +597,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 						const mutiTag: SelectTag | InputTag = <SelectTag | InputTag>this._currentTag;
 						// if select or checkbox then check for multi select item
 						if (tagType == "checkbox" || (<SelectTag>mutiTag).multipleChoice) {
-							if ((this.active || this.isControlElementsActiveAndUserInputHidden()) && event.keyCode == Dictionary.keyCodes["enter"]) {
+							if ((this.active || this.isControlElementsActiveAndUserInputHidden()) && keyEvent.keyCode == Dictionary.keyCodes["enter"]) {
 								// click on UserTextInput submit button, only ENTER allowed
 								this.submitButton.click();
 							} else {
@@ -580,23 +608,23 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 									this.setFocusOnInput();
 								}
 
-								this.dispatchKeyChange(value, event.keyCode);
+								this.dispatchKeyChange(value, keyEvent.keyCode);
 							}
 						} else {
-							this.dispatchKeyChange(value, event.keyCode);
+							this.dispatchKeyChange(value, keyEvent.keyCode);
 						}
 					} else {
 						if (this._currentTag.type == "group") {
 							// let the controlements handle action
-							this.dispatchKeyChange(value, event.keyCode);
+							this.dispatchKeyChange(value, keyEvent.keyCode);
 						}
 					}
-				} else if (event.keyCode == Dictionary.keyCodes["space"] && document.activeElement) {
-					this.dispatchKeyChange(value, event.keyCode);
+				} else if (keyEvent.keyCode == Dictionary.keyCodes["space"] && document.activeElement) {
+					this.dispatchKeyChange(value, keyEvent.keyCode);
 				}
 			}
-		} else if (event.keyCode != Dictionary.keyCodes["shift"] && event.keyCode != Dictionary.keyCodes["tab"]) {
-			this.dispatchKeyChange(value, event.keyCode)
+		} else if (keyEvent.keyCode != Dictionary.keyCodes["shift"] && keyEvent.keyCode != Dictionary.keyCodes["tab"]) {
+			this.dispatchKeyChange(value, keyEvent.keyCode)
 		}
 
 		this.onInputChange();
@@ -604,7 +632,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 
 	private dispatchKeyChange(dto: FlowDTO, keyCode: number) {
 		// typing --->
-		this.submitButton.typing = dto.text && dto.text.length > 0;
+		this.submitButton.typing = dto.text != undefined && dto.text.length > 0;
 
 		CFGlobals.illustrateFlow(this, "dispatch", UserInputEvents.KEY_CHANGE, dto);
 		this.eventTarget.dispatchEvent(new CustomEvent(UserInputEvents.KEY_CHANGE, {
@@ -621,12 +649,12 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		this.setFocusOnInput();
 	}
 
-	private onInputBlur(event: FocusEvent) {
+	private onInputBlur(event: Event) {
 		this._active = false;
 		this.eventTarget.dispatchEvent(new CustomEvent(UserInputEvents.BLUR));
 	}
 
-	private onInputFocus(event: FocusEvent) {
+	private onInputFocus(event: Event) {
 		this._active = true;
 		this.onInputChange();
 		this.eventTarget.dispatchEvent(new CustomEvent(UserInputEvents.FOCUS));
@@ -638,7 +666,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		}
 	}
 
-	protected onEnterOrSubmitButtonSubmit(event: CustomEvent = null) {
+	protected onEnterOrSubmitButtonSubmit(event: CustomEvent | undefined = undefined) {
 		const isControlElementsActiveAndUserInputHidden: boolean = this.controlElements.active && UserInputElement.hideUserInputOnNoneTextInput;
 		if ((this.active || isControlElementsActiveAndUserInputHidden) && this.controlElements.highlighted) {
 			// active input field and focus on control elements happens when a control element is highlighted
@@ -646,7 +674,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		} else {
 			if (!this._currentTag) {
 				// happens when a form is empty, so just play along and submit response to chatlist..
-				this.eventTarget.cf.addUserChatResponse(this.inputElement.value);
+				this.cfReference.addUserChatResponse(this.inputElement.value);
 			} else {
 				// we need to check if current tag is file
 				if (this._currentTag.type == "file" && event) {
@@ -681,26 +709,32 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 	}
 
 	public dealloc() {
-		this.inputElement.removeEventListener('blur', this.onInputBlurCallback, false);
-		this.onInputBlurCallback = null;
 
-		this.inputElement.removeEventListener('focus', this.onInputFocusCallback, false);
-		this.onInputFocusCallback = null;
+		if (this.onInputBlurCallback)
+			this.inputElement.removeEventListener('blur', this.onInputBlurCallback, false);
+		this.onInputBlurCallback = undefined;
 
-		document.removeEventListener("keydown", this.keyDownCallback, false);
-		this.keyDownCallback = null;
+		if (this.onInputFocusCallback)
+			this.inputElement.removeEventListener('focus', this.onInputFocusCallback, false);
+		this.onInputFocusCallback = undefined;
 
-		document.removeEventListener("keyup", this.keyUpCallback, false);
-		this.keyUpCallback = null;
+		if (this.keyDownCallback)
+			document.removeEventListener("keydown", this.keyDownCallback, false);
+		this.keyDownCallback = undefined;
 
-		this.eventTarget.removeEventListener(ControlElementEvents.SUBMIT_VALUE, this.onControlElementSubmitCallback, false);
-		this.onControlElementSubmitCallback = null;
+		if (this.keyUpCallback)
+			document.removeEventListener("keyup", this.keyUpCallback, false);
+		this.keyUpCallback = undefined;
+
+		if (this.onControlElementSubmitCallback)
+			this.eventTarget.removeEventListener(ControlElementEvents.SUBMIT_VALUE, this.onControlElementSubmitCallback, false);
+		this.onControlElementSubmitCallback = undefined;
 
 		// remove submit button instance
-		this.submitButton.el.removeEventListener(UserInputSubmitButtonEvents.CHANGE, this.onSubmitButtonChangeStateCallback, false);
-		this.onSubmitButtonChangeStateCallback = null;
+		if (this.onSubmitButtonChangeStateCallback)
+			this.eventTarget.removeEventListener(UserInputSubmitButtonEvents.CHANGE, this.onSubmitButtonChangeStateCallback, false);
+		this.onSubmitButtonChangeStateCallback = undefined;
 		this.submitButton.dealloc();
-		this.submitButton = null;
 
 		super.dealloc();
 	}

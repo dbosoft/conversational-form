@@ -1,4 +1,4 @@
-import { FlowDTO, ITag } from "../form-tags/ITag";
+import { FlowDTO, IDomTag, ITag, ITagGroup } from "../form-tags/ITag";
 import { IUserInput } from "../interfaces/IUserInput";
 import { IUserInterfaceOptions } from "../interfaces/IUserInterfaceOptions";
 import { EventDispatcher } from "../logic/EventDispatcher";
@@ -13,7 +13,7 @@ export interface ConversationalFormOptions extends IConversationalFormSettings {
     context?: HTMLElement;
 
     // pass in custom tags (when prevent the auto-instantiation of ConversationalForm)
-    tags?: Array<ITag>;
+    tags?: Array<IDomTag | ITagGroup>;
 
     // overwrite the default user Dictionary items
     dictionaryData?: Object;
