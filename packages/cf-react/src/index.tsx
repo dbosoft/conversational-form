@@ -2,5 +2,5 @@
 import "./styles.css";
 
 // components
-export * from "./Button";
-export * from "./Card";
+export * from "./ConversationalComponent";
+export * from "./ConversationalFormProps";

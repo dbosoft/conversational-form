@@ -1,19 +1,21 @@
 {
-  "name": "ui",
+  "name": "cf-react",
   "version": "0.0.0",
   "sideEffects": [
     "**/*.css"
   ],
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist",
-    "./styles.css": "./dist/index.css"
+    ".": "./dist"
   },
   "license": "MIT",
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "cf": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.2.0"
