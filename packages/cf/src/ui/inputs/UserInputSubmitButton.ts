@@ -1,11 +1,11 @@
 import { FlowDTO } from "../../form-tags/ITag";
 import { IUserInput } from "../../interfaces/IUserInput";
-import { EventDispatcher } from "../../logic/EventDispatcher";
 import { FlowEvents } from "../../logic/FlowManager";
+import { IEventTarget } from "../../logic/IEventTarget";
 import { MicrophoneBridge, MicrophoneBridgeEvent } from "../../logic/MicrophoneBridge";
 
 export interface UserInputSubmitButtonOptions {
-	eventTarget: EventDispatcher;
+	eventTarget: IEventTarget;
 }
 
 export const UserInputSubmitButtonEvents = {
@@ -14,12 +14,12 @@ export const UserInputSubmitButtonEvents = {
 
 // class
 export class UserInputSubmitButton {
-	private onClickCallback: () => void;
-	private eventTarget: EventDispatcher;
+	private onClickCallback?: (event: Event) => void;
+	private eventTarget: IEventTarget;
 
-	private mic: MicrophoneBridge;
+	private mic?: MicrophoneBridge;
 	private _active: boolean = true;
-	private onMicrophoneTerminalErrorCallback: () => void;
+	private onMicrophoneTerminalErrorCallback?: (event: CustomEvent) => void;
 
 	public el: HTMLElement;
 
@@ -120,7 +120,7 @@ export class UserInputSubmitButton {
 	protected onMicrophoneTerminalError(event: CustomEvent) {
 		if (this.mic) {
 			this.mic.dealloc();
-			this.mic = null;
+			this.mic = undefined;
 			this.el.removeChild(this.el.getElementsByClassName("cf-microphone")[0]);
 
 			this.el.classList.remove("microphone-interface");
@@ -134,10 +134,10 @@ export class UserInputSubmitButton {
 		}
 	}
 
-	private onClick(event: MouseEvent) {
-		const isMicVisible: boolean = this.mic && !this.typing;
+	private onClick(event: Event) {
+		const isMicVisible = this.mic && !this.typing;
 		if (isMicVisible) {
-			this.mic.callInput();
+			this.mic?.callInput();
 		} else {
 			this.eventTarget.dispatchEvent(new CustomEvent(UserInputSubmitButtonEvents.CHANGE));
 		}
@@ -156,17 +156,19 @@ export class UserInputSubmitButton {
 	* remove instance
 	*/
 	public dealloc(): void {
-		this.eventTarget.removeEventListener(MicrophoneBridgeEvent.TERMNIAL_ERROR, this.onMicrophoneTerminalErrorCallback, false);
-		this.onMicrophoneTerminalErrorCallback = null;
+		if (this.onMicrophoneTerminalErrorCallback)
+			this.eventTarget.removeEventListener(MicrophoneBridgeEvent.TERMNIAL_ERROR, this.onMicrophoneTerminalErrorCallback, false);
+
+		this.onMicrophoneTerminalErrorCallback = undefined;
 
 		if (this.mic) {
 			this.mic.dealloc();
 		}
-		this.mic = null;
+		this.mic = undefined;
 
-		this.el.removeEventListener("click", this.onClickCallback, false);
-		this.onClickCallback = null;
-		this.el = null;
-		this.eventTarget = null;
+		if (this.onClickCallback)
+			this.el.removeEventListener("click", this.onClickCallback, false);
+		this.onClickCallback = undefined;
+
 	}
 }

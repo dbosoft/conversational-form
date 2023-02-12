@@ -26,6 +26,7 @@
 			box-sizing: border-box;
 		}
 	</style>
+	<link rel="stylesheet" href="../build/styles/conversational-form-irisblue.css">
 </head>
 
 
@@ -49,11 +50,11 @@
 
 	</form>
 
-	<div id="cf-context" role="cf-context" cf-context>
+	<div id="cf-context" style="position:relative" role="cf-context" cf-context>
 
 	</div>
 
-	<script type="module">
+	<script type="module" id="conversational-form-development">
 		import { ConversationalForm } from '../dist/ConversationalForm.js';
 
 		window.onload = function () {
@@ -61,12 +62,20 @@
 				formEl: document.getElementById("cf-form"),
 				context: document.getElementById("cf-context"),
 				showProgressBar: false,
+				userInterfaceOptions: {
+					robot: {
+						robotResponseTime: 1500
+					},
+					user:
+					{
+						showThinking: true
+					}
+				},
 				submitCallback: function () {
 					conversationalForm.addRobotChatResponse(
 						"Check the dev console for FormatData output."
 					);
-				},
-				theme: 'green'
+				}
 			});
 		};
 	</script>

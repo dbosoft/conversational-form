@@ -98,13 +98,13 @@
 	.conversational-form--enable-animation & {
 		transition: opacity $cf-anim-time * 0.25 $cf-ease-easeOut;
 	}
-
+ 
 	// test
 
 	// disable user selection for the app feel
 	* {
 		// user-select none
-		-webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+		-webkit-tap-highlight-color: rgba(70, 32, 32, 0);
 		tap-highlight-color: rgba(255, 255, 255, 0);
 	}
 }

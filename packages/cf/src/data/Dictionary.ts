@@ -1,6 +1,6 @@
 import { Helpers } from "../logic/Helpers";
 
-export interface IKeyCodes{
+export interface IKeyCodes {
 	"left": number,
 	"right": number,
 	"down": number,
@@ -12,7 +12,7 @@ export interface IKeyCodes{
 	"tab": number,
 }
 
-export interface IDictionaryOptions{
+export interface IDictionaryOptions {
 	data?: Object;
 	robotData?: Object;
 	userImage: string;
@@ -20,17 +20,17 @@ export interface IDictionaryOptions{
 	version: string;
 }
 // class
-export class Dictionary{
+export class Dictionary {
 	private static instance: Dictionary;
 	private version: string;
 
-	constructor(options?: IDictionaryOptions){
+	constructor(options: IDictionaryOptions) {
 		Dictionary.instance = this;
 
 		this.version = options.version;
 
 		// overwrite data if defined 
-		if(options && options.data)
+		if (options && options.data)
 			this.data = this.validateAndSetNewData(options.data, this.data);
 
 		// overwrite user image
@@ -39,16 +39,16 @@ export class Dictionary{
 		} else {
 			this.data['user-image'] = this.data['user-image'];
 		}
-		
+
 		// overwrite robot image
 		if (options.robotImage) {
 			this.robotData["robot-image"] = options.robotImage;
 		} else {
 			this.robotData['robot-image'] = this.robotData['robot-image'];
 		}
-		
+
 		// overwrite robot questions if defined
-		if(options && options.robotData)
+		if (options && options.robotData)
 			this.robotData = this.validateAndSetNewData(options.robotData, this.robotData);
 	}
 
@@ -64,13 +64,13 @@ export class Dictionary{
 		"tab": 9,
 	}
 
-	public static get(id:string): string{
+	public static get(id: string): string {
 		const ins: Dictionary = Dictionary.instance;
 		let value: string = ins.data[id];
 
-		if(!value){
+		if (!value) {
 			value = ins.data["entry-not-found"];
-		}else{
+		} else {
 			const values: Array<string> = Helpers.getValuesOfBars(value);
 			value = values[Math.floor(Math.random() * values.length)];
 		}
@@ -85,7 +85,7 @@ export class Dictionary{
 	*	type: string, "human" || "robot"
 	*	value: string, value to be inserted
 	*/
-	public static set(id:string, type: string, value: string): string{
+	public static set(id: string, type: string, value: string): string {
 		const ins: Dictionary = Dictionary.instance;
 		let obj: any = type == "robot" ? ins.robotData : ins.data;
 
@@ -93,14 +93,14 @@ export class Dictionary{
 		return obj[id];
 	}
 
-	public static getRobotResponse(tagType:string): string{
+	public static getRobotResponse(tagType: string): string {
 		const ins: Dictionary = Dictionary.instance;
 		let value: string = ins.robotData[tagType];
-		if(!value){
+		if (!value) {
 			// value not found, so pick a general one
 			let generals: Array<string> = Helpers.getValuesOfBars(ins.robotData["general"]);
 			value = generals[Math.floor(Math.random() * generals.length)];
-		}else{
+		} else {
 			let values: Array<string> = Helpers.getValuesOfBars(value);
 			value = values[Math.floor(Math.random() * values.length)];
 		}
@@ -108,7 +108,7 @@ export class Dictionary{
 		return value;
 	}
 
-	public static parseAndGetMultiValueString(arr: Array<string>):string{
+	public static parseAndGetMultiValueString(arr: Array<string>): string {
 		// check ControlElement.ts for value(s)
 		let value: string = "";
 		for (let i = 0; i < arr.length; i++) {
@@ -120,10 +120,10 @@ export class Dictionary{
 		return value;
 	}
 
-	private validateAndSetNewData(newData: any, originalDataObject: any){
-		for(var key in originalDataObject){
-			if(!newData[key]){
-				console.warn("Conversational Form Dictionary warning, '"+key+"' value is undefined, mapping '"+key+"' to default value. See Dictionary.ts for keys.");
+	private validateAndSetNewData(newData: any, originalDataObject: any) {
+		for (var key in originalDataObject) {
+			if (!newData[key]) {
+				console.warn("Conversational Form Dictionary warning, '" + key + "' value is undefined, mapping '" + key + "' to default value. See Dictionary.ts for keys.");
 				newData[key] = originalDataObject[key];
 			}
 		}

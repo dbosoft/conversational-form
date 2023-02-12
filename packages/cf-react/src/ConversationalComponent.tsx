@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { ConversationalForm } from 'cf';
 import { ConversationalFormProps } from './ConversationalFormProps';
 
-
 export function ConversationalComponent(props: ConversationalFormProps) {
     const cfRef = useRef<any>(null);;
     const ref = useRef<any>(null);
@@ -20,7 +19,6 @@ export function ConversationalComponent(props: ConversationalFormProps) {
                 robotImage: `/images/chatbot.svg`,
                 submitCallback: submitCallback,
                 preventAutoFocus: true,
-                loadExternalStyleSheet: true,
                 suppressLog: false
 
             },

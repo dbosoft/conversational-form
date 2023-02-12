@@ -2,6 +2,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "cf",
+      "request": "launch",
+      "type": "pwa-chrome",
+      "url": "http://localhost:8000/test",
+      "webRoot": "${workspaceFolder}/packages/cf"
+    },
+    {
       "name": "nextapp: debug server-side",
       "type": "node-terminal",
       "request": "launch",

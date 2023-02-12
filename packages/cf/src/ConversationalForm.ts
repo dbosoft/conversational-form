@@ -1,7 +1,7 @@
 import { CFGlobals } from "./CFGlobal";
 import { Dictionary } from "./data/Dictionary";
 import { InputTag } from "./form-tags/InputTag";
-import { FlowDTO, ITag, ITagGroup } from "./form-tags/ITag";
+import { FlowDTO, IDomTag, ITag, ITagGroup } from "./form-tags/ITag";
 import { ITagBuilder } from "./form-tags/ITagBuilder";
 import { TagBuilder } from "./form-tags/TagBuilder";
 import { TagGroup } from "./form-tags/TagGroup";
@@ -11,7 +11,7 @@ import { IUserInput } from "./interfaces/IUserInput";
 import { IUserInterfaceOptions, UserInterfaceDefaultOptions } from "./interfaces/IUserInterfaceOptions";
 import { EventDispatcher } from "./logic/EventDispatcher";
 import { FlowManager } from "./logic/FlowManager";
-import { Helpers } from "./logic/Helpers";
+import { DeepMergeTwoTypes } from "./logic/Helpers";
 import { ConversationalFormOptions, ConversationalFormlessOptions } from "./options/ConversationalFormOptions";
 import { DataTag, TagsParser } from "./parsing/TagsParser";
 import { ChatList } from "./ui/chat/ChatList";
@@ -20,6 +20,7 @@ import { UserInputElement } from "./ui/inputs/UserInputElement";
 import { UserTextInput } from "./ui/inputs/UserTextInput";
 import { ProgressBar } from "./ui/ProgressBar";
 import { ScrollController } from "./ui/ScrollController";
+
 
 export class ConversationalForm implements IConversationalForm {
 	public version: string = "1.0.2";
@@ -30,7 +31,7 @@ export class ConversationalForm implements IConversationalForm {
 	 * createId
 	 * Id of the instance, to isolate events
 	 */
-	private _createId: string
+	private _createId?: string;
 	public get createId(): string {
 		if (!this._createId) {
 			this._createId = new Date().getTime().toString();
@@ -40,7 +41,7 @@ export class ConversationalForm implements IConversationalForm {
 	}
 
 	// instance specific event target
-	private _eventTarget: EventDispatcher;
+	private _eventTarget?: EventDispatcher;
 	public get eventTarget(): EventDispatcher {
 		if (!this._eventTarget) {
 			this._eventTarget = new EventDispatcher(this);
@@ -54,28 +55,24 @@ export class ConversationalForm implements IConversationalForm {
 	public chatList: ChatList;
 	public uiOptions: IUserInterfaceOptions;
 	public options: ConversationalFormOptions;
-	public preventSubmitOnEnter: boolean;
+	public preventSubmitOnEnter: boolean = false;
 
 	private context: HTMLElement;
 	private formEl: HTMLFormElement;
-	private submitCallback: (cf: ConversationalForm) => void | HTMLButtonElement;
-	private onUserAnswerClickedCallback: () => void;
-	private flowStepCallback: (dto: FlowDTO, success: () => void, error: () => void) => void;
-	private tags: Array<ITag | ITagGroup>;
+	private submitCallback?: (cf: ConversationalForm) => void | HTMLButtonElement;
+	private onUserAnswerClickedCallback?: (event: CustomEvent) => void;
+	private flowStepCallback?: (dto: FlowDTO, success: () => void, error: () => void) => void;
+	private tags: Array<IDomTag | ITagGroup>;
 	private flowManager: FlowManager;
 	private isDevelopment: boolean = false;
-	private loadExternalStyleSheet: boolean = true;
-	private theme: String = 'light';
 	private preventAutoAppend: boolean = false;
 	private preventAutoStart: boolean = false;
 
 	private userInput: UserTextInput;
-	private microphoneInputObj: IUserInput;
+	private microphoneInputObj?: IUserInput;
 	private tagBuilder: ITagBuilder;
 
 	constructor(options: ConversationalFormOptions) {
-		(<any>window).ConversationalForm = this;
-
 		this.cdnPath = this.cdnPath.split("{version}").join(this.version);
 
 		if (typeof options.suppressLog === 'boolean')
@@ -90,8 +87,6 @@ export class ConversationalForm implements IConversationalForm {
 		if (!CFGlobals.suppressLog) console.log('Conversational Form > version:', this.version);
 		if (!CFGlobals.suppressLog) console.log('Conversational Form > options:', options);
 
-		(<any>window).ConversationalForm[this.createId] = this;
-
 		// possible to create your own event dispatcher, so you can tap into the events of the app
 		if (options.eventDispatcher)
 			this._eventTarget = <EventDispatcher>options.eventDispatcher;
@@ -104,19 +99,15 @@ export class ConversationalForm implements IConversationalForm {
 			this.flowStepCallback = options.flowStepCallback;
 
 		this.isDevelopment = CFGlobals.illustrateAppFlow = !!document.getElementById("conversational-form-development");
-
-		if (options.loadExternalStyleSheet == false) {
-			this.loadExternalStyleSheet = false;
+		if (this.isDevelopment && typeof options.suppressLog !== 'boolean') {
+			CFGlobals.suppressLog = false;
 		}
 
-		if (typeof options.theme === 'string')
-			this.theme = options.theme;
-
-		if (!isNaN(options.scrollAcceleration))
+		if (options.scrollAcceleration && !isNaN(options.scrollAcceleration))
 			ScrollController.acceleration = options.scrollAcceleration;
 
-		this.preventAutoStart = options.preventAutoStart;
-		this.preventAutoAppend = options.preventAutoAppend;
+		this.preventAutoStart = options.preventAutoStart ?? false;
+		this.preventAutoAppend = options.preventAutoAppend ?? false;
 
 		if (!options.formEl)
 			throw new Error("Conversational Form error, the formEl needs to be defined.");
@@ -152,90 +143,48 @@ export class ConversationalForm implements IConversationalForm {
 		this.dictionary = new Dictionary({
 			data: options.dictionaryData,
 			robotData: options.dictionaryRobot,
-			userImage: options.userImage,
-			robotImage: options.robotImage,
+			userImage: options.userImage ?? "",
+			robotImage: options.robotImage ?? "",
 			version: this.version
 		});
 
 		this.context = options.context ? options.context : document.body;
-		this.tags = options.tags;
+		this.tags = options.tags ?? [];
 
 		if (options.microphoneInput) {
 			// validate the user ..... TODO....
 			if (!options.microphoneInput.init || !options.microphoneInput.input) {
 				console.warn("Conversational Form: microphoneInput is not correctly setup", options.microphoneInput);
-				options.microphoneInput = null;
+				options.microphoneInput = undefined;
 			}
 		}
 
 		this.microphoneInputObj = options.microphoneInput;
 
-		// set the ui options
-		this.uiOptions = Helpers.extendObject(UserInterfaceDefaultOptions, options.userInterfaceOptions || {});
-		// console.log('this.uiOptions:', this.uiOptions);
+		// spreed objects deep (to avoid using a additional deep merge library all fields are listed here )
+		this.uiOptions = {
+			...UserInterfaceDefaultOptions,
+			...options.userInterfaceOptions,
+			input: {
+				...UserInterfaceDefaultOptions.input,
+				...options.userInterfaceOptions?.input
+			},
+			robot: {
+				...UserInterfaceDefaultOptions.robot,
+				...options.userInterfaceOptions?.robot
+			},
+			user:
+			{
+				...UserInterfaceDefaultOptions.user,
+				...options.userInterfaceOptions?.user
+			},
+		};
+
+
+		console.log('this.uiOptions:', this.uiOptions);
 
 		this.options = options;
 		this.tagBuilder = new TagBuilder();
-
-		this.init();
-	}
-
-	public init(): ConversationalForm {
-		switch (this.theme) {
-			case 'dark':
-				this.theme = 'conversational-form-dark.min.css';
-				if (!this.options.robotImage) this.updateDictionaryValue('robot-image', 'robot', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%233A3A3C'/%3E%3Crect x='66' y='66' width='68' height='68' fill='%23E5E6EA'/%3E%3C/svg%3E%0A");
-				if (!this.options.userImage) this.updateDictionaryValue('user-image', 'user', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23E5E6EA'/%3E%3Cpath d='M100 55L138.971 122.5H61.0289L100 55Z' fill='%233A3A3C'/%3E%3C/svg%3E%0A");
-				break;
-			case 'green':
-				this.theme = 'conversational-form-green.min.css';
-				if (!this.options.robotImage) this.updateDictionaryValue('robot-image', 'robot', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23EEEFF0'/%3E%3Crect x='66' y='66' width='68' height='68' fill='%2300BF75'/%3E%3C/svg%3E%0A");
-				if (!this.options.userImage) this.updateDictionaryValue('user-image', 'user', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%2300BF75'/%3E%3Cpath d='M100 55L138.971 122.5H61.0289L100 55Z' fill='%23EEEFF0'/%3E%3C/svg%3E%0A");
-				break;
-			case 'blue':
-				this.theme = 'conversational-form-irisblue.min.css';
-				if (!this.options.robotImage) this.updateDictionaryValue('robot-image', 'robot', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23E8E9EB'/%3E%3Crect x='66' y='66' width='68' height='68' fill='%2300C2DF'/%3E%3C/svg%3E%0A");
-				if (!this.options.userImage) this.updateDictionaryValue('user-image', 'user', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%2300C2DF'/%3E%3Cpath d='M100 55L138.971 122.5H61.0289L100 55Z' fill='%23E8E9EB'/%3E%3C/svg%3E%0A");
-				break;
-			case 'purple':
-				this.theme = 'conversational-form-purple.min.css';
-				if (!this.options.robotImage) this.updateDictionaryValue('robot-image', 'robot', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23EEEFF0'/%3E%3Crect x='66' y='66' width='68' height='68' fill='%235A1DE4'/%3E%3C/svg%3E%0A");
-				if (!this.options.userImage) this.updateDictionaryValue('user-image', 'user', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%235A1DE4'/%3E%3Cpath d='M100 55L138.971 122.5H61.0289L100 55Z' fill='%23EEEFF0'/%3E%3C/svg%3E%0A");
-				break;
-			case 'red':
-				this.theme = 'conversational-form-red.min.css';
-				if (!this.options.robotImage) this.updateDictionaryValue('robot-image', 'robot', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23E8E9EB'/%3E%3Crect x='66' y='66' width='68' height='68' fill='%23FF3233'/%3E%3C/svg%3E%0A");
-				if (!this.options.userImage) this.updateDictionaryValue('user-image', 'user', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23FF3233'/%3E%3Cpath d='M100 55L138.971 122.5H61.0289L100 55Z' fill='%23E8E9EB'/%3E%3C/svg%3E%0A");
-				break;
-			default:
-				this.theme = 'conversational-form.min.css';
-		}
-
-		if (this.isDevelopment) {
-			// Set path for development
-			this.cdnPath = '../build/';
-
-			// strip .min from filename since we do not have minified css in build
-			this.theme = this.theme.replace('.min', '');
-		}
-
-		if (this.loadExternalStyleSheet) {
-			// not in development/examples, so inject production css
-			const head: HTMLHeadElement = document.head || document.getElementsByTagName("head")[0];
-			const style: HTMLStyleElement = document.createElement("link");
-			const githubMasterUrl: string = this.cdnPath + this.theme;
-			style.type = "text/css";
-			style.media = "all";
-			style.setAttribute("rel", "stylesheet");
-			style.setAttribute("href", githubMasterUrl);
-			head.appendChild(style);
-		}
-
-		// set context position to relative, else we break out of the box
-		const position: string = window.getComputedStyle(this.context).getPropertyValue("position").toLowerCase();
-		if (["fixed", "absolute", "relative"].indexOf(position) == -1) {
-			this.context.style.position = "relative";
-		}
 
 		// if tags are not defined then we will try and build some tags our selves..
 		if (!this.tags || this.tags.length == 0) {
@@ -247,7 +196,9 @@ export class ConversationalForm implements IConversationalForm {
 				const element = fields[i];
 				if (TagHelper.isTagValid(element)) {
 					// ignore hidden tags
-					this.tags.push(this.tagBuilder.createTag(element));
+					const tag = this.tagBuilder.createTag(element);
+					if (tag)
+						this.tags.push(tag);
 				}
 			}
 		} else {
@@ -255,16 +206,16 @@ export class ConversationalForm implements IConversationalForm {
 		}
 
 		// remove invalid tags if they've sneaked in.. this could happen if tags are setup manually as we don't encurage to use static Tag.isTagValid
-		const indexesToRemove: Array<ITag> = [];
+		const indexesToRemove: Array<IDomTag | ITagGroup> = [];
 		for (var i = 0; i < this.tags.length; i++) {
 			const element = this.tags[i];
-			if (!element || !TagHelper.isTagValid(element.domElement)) {
+			if (!element || (this.isDomTag(element) && !TagHelper.isTagValid(element.domElement))) {
 				indexesToRemove.push(element);
 			}
 		}
 
 		for (var i = 0; i < indexesToRemove.length; i++) {
-			var tag: ITag = indexesToRemove[i];
+			var tag = indexesToRemove[i];
 			this.tags.splice(this.tags.indexOf(tag), 1);
 		}
 
@@ -274,133 +225,8 @@ export class ConversationalForm implements IConversationalForm {
 
 		//let's start the conversation
 		this.tags = this.setupTagGroups(this.tags);
-		this.setupUI();
-
-		return this;
-	}
-
-	/**
-	* @name updateDictionaryValue
-	* set a dictionary value at "runtime"
-	*	id: string, id of the value to update
-	*	type: string, "human" || "robot"
-	*	value: string, value to be inserted
-	*/
-	public updateDictionaryValue(id: string, type: string, value: string) {
-		Dictionary.set(id, type, value);
-
-		// if(["robot-image", "user-image"].indexOf(id) != -1){
-		// 	this.chatList.updateThumbnail(id == "robot-image", value);
-		// }
-	}
-
-	public getFormData(serialized: boolean = false): FormData | any {
-		if (serialized) {
-			const serialized: any = {}
-			for (var i = 0; i < this.tags.length; i++) {
-				const element = this.tags[i];
-				if (element.value)
-					serialized[element.name || "tag-" + i.toString()] = element.value
-			}
-
-			return serialized
-		} else {
-			var formData: FormData = new FormData(this.formEl);
-			return formData;
-		}
-	}
-
-	public addRobotChatResponse(response: string) {
-		this.chatList.createResponse(true, null, response);
-	}
-
-	public addUserChatResponse(response: string) {
-		// add a "fake" user response..
-		this.chatList.createResponse(false, null, response);
-	}
-
-	public stop(optionalStoppingMessage: string = "") {
-		this.flowManager.stop();
-		if (optionalStoppingMessage != "")
-			this.chatList.createResponse(true, null, optionalStoppingMessage);
-
-		this.userInput.onFlowStopped();
-	}
-
-	public start() {
-		this.userInput.disabled = false;
-		if (!CFGlobals.suppressLog) console.log('option, disabled 3',);
-		this.userInput.visible = true;
-
-		this.flowManager.start();
-	}
-
-	public getTag(nameOrIndex: string | number): ITag {
-		if (typeof nameOrIndex == "number") {
-			return this.tags[nameOrIndex];
-		} else {
-			// TODO: fix so you can get a tag by its name attribute
-			return null;
-		}
-	}
-
-	public removeStepFromChatList(index: number): void {
-		this.chatList.clearFrom(index);
-	}
-
-	private setupTagGroups(tags: Array<ITag>): Array<ITag | ITagGroup> {
-		// make groups, from input tag[type=radio | type=checkbox]
-		// groups are used to bind logic like radio-button or checkbox dependencies
-		var groups: any = [];
-		for (var i = 0; i < tags.length; i++) {
-			const tag: ITag = tags[i];
-			if (tag.type == "radio" || tag.type == "checkbox") {
-				if (!groups[tag.name])
-					groups[tag.name] = [];
-
-				groups[tag.name].push(tag);
-			}
-		}
-
-		if (Object.keys(groups).length > 0) {
-			for (let group in groups) {
-				if (groups[group].length > 0) {
-					// always build groupd when radio or checkbox
-
-					// find the fieldset, if any..
-					let isFieldsetValidForCF = (tag: HTMLElement): boolean => { return tag && tag.tagName.toLowerCase() !== "fieldset" && !tag.hasAttribute("cf-questions") };
-
-					let fieldset: HTMLElement = groups[group][0].domElement.parentNode;
-					if (fieldset && fieldset.tagName.toLowerCase() !== "fieldset") {
-						fieldset = <HTMLElement>fieldset.parentNode;
-						if (isFieldsetValidForCF(fieldset)) {
-							// not a valid fieldset, we only accept fieldsets that contain cf attr
-							fieldset = null;
-						}
-					}
-
-					const tagGroup: TagGroup = new TagGroup({
-						fieldset: <HTMLFieldSetElement>fieldset, // <-- can be null
-						elements: groups[group]
-					});
-
-					// remove the tags as they are now apart of a group
-					for (var i = 0; i < groups[group].length; i++) {
-						let tagToBeRemoved: InputTag = groups[group][i];
-						if (i == 0)// add the group at same index as the the first tag to be removed
-							tags.splice(tags.indexOf(tagToBeRemoved), 1, tagGroup);
-						else
-							tags.splice(tags.indexOf(tagToBeRemoved), 1);
-					}
-				}
-			}
-		}
-
-		return tags;
-	}
 
 
-	private setupUI() {
 		// start the flow
 		this.flowManager = new FlowManager({
 			cfReference: this,
@@ -444,7 +270,10 @@ export class ConversationalForm implements IConversationalForm {
 		});
 
 		if (CFGlobals.showProgressBar) {
-			const progressBar = new ProgressBar(this);
+			const progressBar = new ProgressBar({
+				cfReference: this,
+				eventTarget: this.eventTarget
+			});
 			innerWrap.appendChild(progressBar.el);
 		}
 
@@ -466,12 +295,134 @@ export class ConversationalForm implements IConversationalForm {
 		}
 	}
 
+
+	/**
+	* @name updateDictionaryValue
+	* set a dictionary value at "runtime"
+	*	id: string, id of the value to update
+	*	type: string, "human" || "robot"
+	*	value: string, value to be inserted
+	*/
+	public updateDictionaryValue(id: string, type: string, value: string) {
+		Dictionary.set(id, type, value);
+
+		// if(["robot-image", "user-image"].indexOf(id) != -1){
+		// 	this.chatList.updateThumbnail(id == "robot-image", value);
+		// }
+	}
+
+	public getFormData(serialized: boolean = false): FormData | any {
+		if (serialized) {
+			const serialized: any = {}
+			for (var i = 0; i < this.tags.length; i++) {
+				const element = this.tags[i];
+				if (element.value)
+					serialized[element.name || "tag-" + i.toString()] = element.value
+			}
+
+			return serialized
+		} else {
+			var formData: FormData = new FormData(this.formEl);
+			return formData;
+		}
+	}
+
+	public addRobotChatResponse(response: string) {
+		this.chatList.createResponse(true, undefined, response);
+	}
+
+	public addUserChatResponse(response: string) {
+		// add a "fake" user response..
+		this.chatList.createResponse(false, undefined, response);
+	}
+
+	public stop(optionalStoppingMessage: string = "") {
+		this.flowManager.stop();
+		if (optionalStoppingMessage != "")
+			this.chatList.createResponse(true, undefined, optionalStoppingMessage);
+
+		this.userInput.onFlowStopped();
+	}
+
+	public start() {
+		this.userInput.disabled = false;
+		if (!CFGlobals.suppressLog) console.log('option, disabled 3',);
+		this.userInput.visible = true;
+
+		this.flowManager.start();
+	}
+
+	public getTag(nameOrIndex: string | number): ITag | undefined {
+		if (typeof nameOrIndex == "number") {
+			return this.tags[nameOrIndex];
+		} else {
+			// TODO: fix so you can get a tag by its name attribute
+			return undefined;
+		}
+	}
+
+	public removeStepFromChatList(index: number): void {
+		this.chatList.clearFrom(index);
+	}
+
+	private setupTagGroups(tags: Array<ITag>): Array<IDomTag | ITagGroup> {
+		// make groups, from input tag[type=radio | type=checkbox]
+		// groups are used to bind logic like radio-button or checkbox dependencies
+		var groups: any = [];
+		for (var i = 0; i < tags.length; i++) {
+			const tag: ITag = tags[i];
+			if (tag.name && (tag.type == "radio" || tag.type == "checkbox")) {
+
+				if (!groups[tag.name])
+					groups[tag.name] = [];
+
+				groups[tag.name].push(tag);
+			}
+		}
+
+		if (Object.keys(groups).length > 0) {
+			for (let group in groups) {
+				if (groups[group].length > 0) {
+					// always build groupd when radio or checkbox
+
+					// find the fieldset, if any..
+					let isFieldsetValidForCF = (tag: HTMLElement): boolean => { return tag && tag.tagName.toLowerCase() !== "fieldset" && !tag.hasAttribute("cf-questions") };
+
+					let fieldset: HTMLElement | undefined = groups[group][0].domElement.parentNode;
+					if (fieldset && fieldset.tagName.toLowerCase() !== "fieldset") {
+						fieldset = <HTMLElement>fieldset.parentNode;
+						if (isFieldsetValidForCF(fieldset)) {
+							// not a valid fieldset, we only accept fieldsets that contain cf attr
+							fieldset = undefined;
+						}
+					}
+
+					const tagGroup: TagGroup = new TagGroup({
+						fieldset: <HTMLFieldSetElement>fieldset, // <-- can be undefined
+						elements: groups[group]
+					});
+
+					// remove the tags as they are now apart of a group
+					for (var i = 0; i < groups[group].length; i++) {
+						let tagToBeRemoved: InputTag = groups[group][i];
+						if (i == 0)// add the group at same index as the the first tag to be removed
+							tags.splice(tags.indexOf(tagToBeRemoved), 1, tagGroup);
+						else
+							tags.splice(tags.indexOf(tagToBeRemoved), 1);
+					}
+				}
+			}
+		}
+
+		return <(IDomTag | ITagGroup)[]>tags;
+	}
+
 	/**
 	* @name onUserAnswerClicked
 	* on user ChatReponse clicked
 	*/
 	private onUserAnswerClicked(event: CustomEvent): void {
-		const tag: ITag | ITagGroup = event.detail;
+		const tag: IDomTag | ITagGroup = event.detail;
 		this.flowManager.editTag(tag);
 	}
 
@@ -486,7 +437,7 @@ export class ConversationalForm implements IConversationalForm {
 	* see examples/formless.html
 	*/
 	public addTags(tagsData: Array<DataTag>, addAfterCurrentStep: boolean = true, atIndex: number = -1): void {
-		let tags: Array<ITag | ITagGroup> = [];
+		let tags: Array<IDomTag | ITagGroup> = [];
 
 		for (let i = 0; i < tagsData.length; i++) {
 			let tagData: DataTag = tagsData[i];
@@ -500,20 +451,24 @@ export class ConversationalForm implements IConversationalForm {
 				for (let j = 0; j < groupTag.children.length; j++) {
 					let tag: HTMLElement = <HTMLElement>groupTag.children[j];
 					if (TagHelper.isTagValid(tag)) {
-						let tagElement: ITag = this.tagBuilder.createTag(<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>tag);
+						let tagElement = this.tagBuilder.createTag(<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>tag);
 						// add ref for group creation
-						if (!tagElement.name) {
-							tagElement.name = "tag-ref-" + j.toString();
-						}
+						if (tagElement) {
+							if (!tagElement.name) {
+								tagElement.name = "tag-ref-" + j.toString();
+							}
 
-						tags.push(tagElement);
+							tags.push(tagElement);
+						}
 					}
 				}
 			} else {
-				let tag: HTMLElement | HTMLInputElement | HTMLSelectElement | HTMLButtonElement = tagData.tag === "select" ? TagsParser.parseGroupTag(tagData) : TagsParser.parseTag(tagData);
+				const tag: HTMLElement | HTMLInputElement | HTMLSelectElement | HTMLButtonElement = tagData.tag === "select" ? TagsParser.parseGroupTag(tagData) : TagsParser.parseTag(tagData);
 				if (TagHelper.isTagValid(tag)) {
-					let tagElement: ITag = this.tagBuilder.createTag(<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>tag);
-					tags.push(tagElement);
+					const tagElement = this.tagBuilder.createTag(<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>tag);
+
+					if (tagElement)
+						tags.push(tagElement);
 				}
 			}
 		}
@@ -581,12 +536,12 @@ export class ConversationalForm implements IConversationalForm {
 
 	public remove() {
 		if (this.microphoneInputObj) {
-			this.microphoneInputObj = null;
+			this.microphoneInputObj = undefined;
 		}
 
 		if (this.onUserAnswerClickedCallback) {
 			this.eventTarget.removeEventListener(ChatResponseEvents.USER_ANSWER_CLICKED, this.onUserAnswerClickedCallback, false);
-			this.onUserAnswerClickedCallback = null;
+			this.onUserAnswerClickedCallback = undefined;
 		}
 
 		if (this.flowManager)
@@ -596,19 +551,22 @@ export class ConversationalForm implements IConversationalForm {
 		if (this.chatList)
 			this.chatList.dealloc();
 
-		this.dictionary = null;
-		this.flowManager = null;
-		this.userInput = null;
-		this.chatList = null;
-		this.context = null;
-		this.formEl = null;
-		this.tags = null;
+		/*
+	this.dictionary = null;
+	this.flowManager = null;
+	this.userInput = null;
+	this.chatList = null;
+	this.context = null;
+	this.formEl = null;
+	this.tags = null;
 
-		this.submitCallback = null;
-		this.el.parentNode.removeChild(this.el);
-		this.el = null;
+	this.submitCallback = null;
+	*/
+		this.el.parentNode?.removeChild(this.el);
 
-		(<any>window).ConversationalForm[this.createId] = null;
+		//this.el = null;
+
+
 	}
 
 	private static hasAutoInstantiated: boolean = false;
@@ -667,5 +625,9 @@ export class ConversationalForm implements IConversationalForm {
 
 			ConversationalForm.hasAutoInstantiated = true;
 		}
+	}
+
+	private isDomTag(tag: ITag): tag is IDomTag {
+		return tag.type != "group";
 	}
 }

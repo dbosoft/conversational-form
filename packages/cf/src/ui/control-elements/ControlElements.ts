@@ -1,9 +1,9 @@
 import { CFGlobals } from "../../CFGlobal";
 import { Dictionary } from "../../data/Dictionary";
-import { FlowDTO, ITag } from "../../form-tags/ITag";
+import { FlowDTO, IDomTag, ITag } from "../../form-tags/ITag";
 import { IConversationalForm } from "../../interfaces/IConversationalForm";
-import { EventDispatcher } from "../../logic/EventDispatcher";
 import { FlowEvents } from "../../logic/FlowManager";
+import { IEventTarget } from "../../logic/IEventTarget";
 import { ChatListEvents } from "../chat/ChatListEvents";
 import { InputKeyChangeDTO, IUserTextInput } from "../inputs/IUserTextInput";
 import { UserInputEvents } from "../inputs/UserInputEvents";
@@ -27,31 +27,31 @@ export interface IControlElementsOptions {
 	el: HTMLElement;
 	cfReference: IConversationalForm;
 	infoEl: HTMLElement;
-	eventTarget: EventDispatcher;
+	eventTarget: IEventTarget;
 }
 
 export class ControlElements {
 	private cfReference: IConversationalForm;
-	private elements: Array<IControlElement | OptionsList>;
-	private eventTarget: EventDispatcher;
+	private elements: Array<IControlElement | OptionsList> = [];
+	private eventTarget: IEventTarget;
 	private el: HTMLElement;
 	private list: HTMLElement;
 	private infoElement: HTMLElement;
-	private currentControlElement: IControlElement;
+	private currentControlElement?: IControlElement;
 
 	private animateInFromResponseTimer: any;
 	private ignoreKeyboardInput: boolean = false;
 	private rowIndex: number = -1;
 	private columnIndex: number = 0;
-	private tableableRows: Array<Array<IControlElement>>;
+	private tableableRows: Array<Array<IControlElement>> = [][0];
 
-	private userInputUpdateCallback: () => void;
-	private onChatReponsesUpdatedCallback: () => void;
-	private onUserInputKeyChangeCallback: () => void;
-	private onElementFocusCallback: () => void;
-	private onScrollCallback: () => void;
-	private onElementLoadedCallback: () => void;
-	private onResizeCallback: () => void;
+	private userInputUpdateCallback?: (event: CustomEvent) => void;
+	private onChatReponsesUpdatedCallback?: (event: CustomEvent) => void;
+	private onUserInputKeyChangeCallback?: (event: CustomEvent) => void;
+	private onElementFocusCallback?: (event: CustomEvent) => void;
+	private onScrollCallback?: (event: Event) => void;
+	private onElementLoadedCallback?: (event: CustomEvent) => void;
+	private onResizeCallback?: (event: Event) => void;
 
 	private elementWidth: number = 0;
 	private filterListNumberOfVisible: number = 0;
@@ -153,7 +153,7 @@ export class ControlElements {
 	* when element is loaded, usally image loaded.
 	*/
 	private onElementLoaded(event: CustomEvent) {
-		this.onResize(null);
+		this.onResize(event);
 	}
 
 	private onElementFocus(event: CustomEvent) {
@@ -276,13 +276,13 @@ export class ControlElements {
 
 		if (this.tableableRows[this.rowIndex]) {
 			// when row index is changed we need to find the closest column element, we cannot expect them to be indexly aligned
-			const centerX: number = this.tableableRows[oldRowIndex] ? this.tableableRows[oldRowIndex][this.columnIndex].positionVector.centerX : 0
+			const centerX: number = this.tableableRows[oldRowIndex] ? this.tableableRows[oldRowIndex][this.columnIndex].positionVector?.centerX ?? 0 : 0
 			const items: Array<IControlElement> = this.tableableRows[this.rowIndex];
 			let currentDistance: number = 10000000000000;
 			for (let i = 0; i < items.length; i++) {
 				let element: IControlElement = <IControlElement>items[i];
-				if (currentDistance > Math.abs(centerX - element.positionVector.centerX)) {
-					currentDistance = Math.abs(centerX - element.positionVector.centerX);
+				if (currentDistance > Math.abs(centerX - (element.positionVector?.centerX ?? 0))) {
+					currentDistance = Math.abs(centerX - (element.positionVector?.centerX ?? 0));
 					this.columnIndex = i;
 				}
 			}
@@ -390,12 +390,14 @@ export class ControlElements {
 
 					}
 
-					document.querySelector('.scrollableInner').classList.remove('scroll');
+					document.querySelector('.scrollableInner')?.classList.remove('scroll');
 
 					// Check if chatlist is scrolled to the bottom - if not we need to do it manually (pertains to Chrome)
-					const scrollContainer: HTMLElement = document.querySelector('scrollable');
-					if (scrollContainer.scrollTop < scrollContainer.scrollHeight) {
-						scrollContainer.scrollTop = scrollContainer.scrollHeight;
+					const scrollContainer = document.querySelector('scrollable');
+					if (scrollContainer) {
+						if (scrollContainer.scrollTop < scrollContainer.scrollHeight) {
+							scrollContainer.scrollTop = scrollContainer.scrollHeight;
+						}
 					}
 				}, 300);
 			}, 200);
@@ -428,7 +430,7 @@ export class ControlElements {
 				let element: IControlElement = <IControlElement>elements[i];
 				if (element.visible) {
 					// crude way of checking if element is top row or bottom row..
-					if (element.positionVector.y < 30)
+					if ((element.positionVector?.y ?? 0) < 30)
 						this.tableableRows[0].push(element);
 					else
 						this.tableableRows[1].push(element);
@@ -447,7 +449,7 @@ export class ControlElements {
 	}
 
 	public resetAfterErrorMessage() {
-		this.currentControlElement = null;
+		this.currentControlElement = undefined;
 		this.disabled = false;
 	}
 
@@ -503,7 +505,7 @@ export class ControlElements {
 			for (let i = 0; i < elements.length; i++) {
 				let element: CheckboxButton = <CheckboxButton>elements[i];
 				if (element == controlElement) {
-					const isChecked: boolean = (<HTMLInputElement>element.referenceTag.domElement).checked;
+					const isChecked: boolean = (<HTMLInputElement>element.referenceTag?.domElement).checked;
 					element.checked = isChecked;
 				}
 			}
@@ -553,7 +555,7 @@ export class ControlElements {
 							values.push(element.value);
 						}
 
-						dto.controlElements.push(element);
+						dto.controlElements?.push(element);
 					}
 
 
@@ -569,7 +571,7 @@ export class ControlElements {
 							dto.text = element.value;
 						}
 
-						dto.controlElements.push(element);
+						dto.controlElements?.push(element);
 					}
 
 
@@ -595,7 +597,7 @@ export class ControlElements {
 
 				case "UploadFileUI":
 					dto.text = (<UploadFileUI>this.elements[0]).getFilesAsString();//Dictionary.parseAndGetMultiValueString(values);
-					dto.controlElements.push(<UploadFileUI>this.elements[0]);
+					dto.controlElements?.push(<UploadFileUI>this.elements[0]);
 					break;
 			}
 		}
@@ -608,7 +610,7 @@ export class ControlElements {
 
 		if (this.elements) {
 			while (this.elements.length > 0) {
-				this.elements.pop().dealloc();
+				this.elements.pop()?.dealloc();
 			}
 		}
 
@@ -617,7 +619,7 @@ export class ControlElements {
 		this.onListChanged();
 	}
 
-	public buildTags(tags: Array<ITag>) {
+	public buildTags(tags: Array<IDomTag>) {
 		this.disabled = false;
 
 		const topList: HTMLUListElement = (<HTMLUListElement>this.el.parentNode).getElementsByTagName("ul")[0];
@@ -629,19 +631,21 @@ export class ControlElements {
 		this.elements = [];
 
 		for (var i = 0; i < tags.length; i++) {
-			var tag: ITag = tags[i];
+			var tag: IDomTag = tags[i];
 
 			switch (tag.type) {
 				case "radio":
 					this.elements.push(new RadioButton({
 						referenceTag: tag,
-						eventTarget: this.eventTarget
+						eventTarget: this.eventTarget,
+						cfReference: this.cfReference
 					}));
 					break;
 				case "checkbox":
 					this.elements.push(new CheckboxButton({
 						referenceTag: tag,
-						eventTarget: this.eventTarget
+						eventTarget: this.eventTarget,
+						cfReference: this.cfReference
 					}));
 
 					break;
@@ -649,7 +653,8 @@ export class ControlElements {
 					this.elements.push(new OptionsList({
 						referenceTag: tag,
 						context: this.list,
-						eventTarget: this.eventTarget
+						eventTarget: this.eventTarget,
+						cfReference: this.cfReference
 					}));
 					break;
 				case "input":
@@ -657,7 +662,8 @@ export class ControlElements {
 					if (tag.type == "file") {
 						this.elements.push(new UploadFileUI({
 							referenceTag: tag,
-							eventTarget: this.eventTarget
+							eventTarget: this.eventTarget,
+							cfReference: this.cfReference
 						}));
 					}
 					// nothing to add.
@@ -717,8 +723,8 @@ export class ControlElements {
 				let element: IControlElement = <IControlElement>elements[i];
 				if (element.visible) {
 					element.calcPosition();
-					this.listWidth += element.positionVector.width;
-					listWidthValues.push(element.positionVector.x + element.positionVector.width);
+					this.listWidth += element.positionVector?.width ?? 0;
+					listWidthValues.push(element.positionVector?.x ?? 0 + (element.positionVector?.width ?? 0));
 					listWidthValues2.push(element);
 				}
 
@@ -751,8 +757,9 @@ export class ControlElements {
 			// sort the list so we can set tabIndex properly
 			var elementsCopyForSorting: Array<IControlElement> = elements.slice();
 			const tabIndexFilteredElements: Array<IControlElement> = elementsCopyForSorting.sort((a: IControlElement, b: IControlElement) => {
-				const aOverB: boolean = a.positionVector.y > b.positionVector.y;
-				return a.positionVector.x == b.positionVector.x ? (aOverB ? 1 : -1) : a.positionVector.x < b.positionVector.x ? -1 : 1;
+				const aOverB: boolean = (a.positionVector?.y ?? 0) > (b.positionVector?.y ?? 0);
+				return (a.positionVector?.x ?? 0) == (b.positionVector?.x ?? 0) ? (aOverB ? 1 : -1)
+					: (a.positionVector?.x ?? 0) < (b.positionVector?.x ?? 0) ? -1 : 1;
 			});
 
 			let tabIndex: number = 0;
@@ -792,29 +799,36 @@ export class ControlElements {
 	}
 
 	public dealloc() {
-		this.currentControlElement = null;
-		this.tableableRows = null;
+		this.currentControlElement = undefined;
+		this.tableableRows = [][0];
 
-		window.removeEventListener('resize', this.onResizeCallback, false);
-		this.onResizeCallback = null;
+		if (this.onResizeCallback)
+			window.removeEventListener('resize', this.onResizeCallback, false);
+		this.onResizeCallback = undefined;
 
-		this.el.removeEventListener('scroll', this.onScrollCallback, false);
-		this.onScrollCallback = null;
+		if (this.onScrollCallback)
+			this.el.removeEventListener('scroll', this.onScrollCallback, false);
+		this.onScrollCallback = undefined;
 
-		this.eventTarget.removeEventListener(ControlElementEvents.ON_FOCUS, this.onElementFocusCallback, false);
-		this.onElementFocusCallback = null;
+		if (this.onElementFocusCallback)
+			this.eventTarget.removeEventListener(ControlElementEvents.ON_FOCUS, this.onElementFocusCallback, false);
+		this.onElementFocusCallback = undefined;
 
-		this.eventTarget.removeEventListener(ChatListEvents.CHATLIST_UPDATED, this.onChatReponsesUpdatedCallback, false);
-		this.onChatReponsesUpdatedCallback = null;
+		if (this.onChatReponsesUpdatedCallback)
+			this.eventTarget.removeEventListener(ChatListEvents.CHATLIST_UPDATED, this.onChatReponsesUpdatedCallback, false);
+		this.onChatReponsesUpdatedCallback = undefined;
 
-		this.eventTarget.removeEventListener(UserInputEvents.KEY_CHANGE, this.onUserInputKeyChangeCallback, false);
-		this.onUserInputKeyChangeCallback = null;
+		if (this.onUserInputKeyChangeCallback)
+			this.eventTarget.removeEventListener(UserInputEvents.KEY_CHANGE, this.onUserInputKeyChangeCallback, false);
+		this.onUserInputKeyChangeCallback = undefined;
 
-		this.eventTarget.removeEventListener(FlowEvents.USER_INPUT_UPDATE, this.userInputUpdateCallback, false);
-		this.userInputUpdateCallback = null;
+		if (this.userInputUpdateCallback)
+			this.eventTarget.removeEventListener(FlowEvents.USER_INPUT_UPDATE, this.userInputUpdateCallback, false);
+		this.userInputUpdateCallback = undefined;
 
-		this.eventTarget.removeEventListener(ControlElementEvents.ON_LOADED, this.onElementLoadedCallback, false);
-		this.onElementLoadedCallback = null;
+		if (this.onElementLoadedCallback)
+			this.eventTarget.removeEventListener(ControlElementEvents.ON_LOADED, this.onElementLoadedCallback, false);
+		this.onElementLoadedCallback = undefined;
 
 		this.listScrollController.dealloc();
 	}

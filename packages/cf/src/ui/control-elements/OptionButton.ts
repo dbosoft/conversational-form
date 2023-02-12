@@ -44,6 +44,10 @@ export class OptionButton extends Button {
 
 	// override
 	public getTemplate(): string {
+
+		if (!this.referenceTag)
+			return "";
+
 		// be aware that first option element on none multiple select tags will be selected by default
 		let tmpl: string = '<cf-button class="cf-button ' + (this.isMultiChoice ? "cf-checkbox-button" : "") + '" ' + ((<HTMLOptionElement>this.referenceTag.domElement).selected ? "selected='selected'" : "") + '>';
 
