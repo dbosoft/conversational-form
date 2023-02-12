@@ -65,8 +65,6 @@ export class ConversationalForm implements IConversationalForm {
 	private tags: Array<IDomTag | ITagGroup>;
 	private flowManager: FlowManager;
 	private isDevelopment: boolean = false;
-	private loadExternalStyleSheet: boolean = true;
-	private theme: String = 'light';
 	private preventAutoAppend: boolean = false;
 	private preventAutoStart: boolean = false;
 
@@ -104,13 +102,6 @@ export class ConversationalForm implements IConversationalForm {
 		if (this.isDevelopment && typeof options.suppressLog !== 'boolean') {
 			CFGlobals.suppressLog = false;
 		}
-
-		if (options.loadExternalStyleSheet == false) {
-			this.loadExternalStyleSheet = false;
-		}
-
-		if (typeof options.theme === 'string')
-			this.theme = options.theme;
 
 		if (options.scrollAcceleration && !isNaN(options.scrollAcceleration))
 			ScrollController.acceleration = options.scrollAcceleration;
@@ -194,54 +185,6 @@ export class ConversationalForm implements IConversationalForm {
 
 		this.options = options;
 		this.tagBuilder = new TagBuilder();
-
-		switch (this.theme) {
-			case 'dark':
-				this.theme = 'conversational-form-dark.min.css';
-				if (!this.options.robotImage) this.updateDictionaryValue('robot-image', 'robot', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%233A3A3C'/%3E%3Crect x='66' y='66' width='68' height='68' fill='%23E5E6EA'/%3E%3C/svg%3E%0A");
-				if (!this.options.userImage) this.updateDictionaryValue('user-image', 'user', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23E5E6EA'/%3E%3Cpath d='M100 55L138.971 122.5H61.0289L100 55Z' fill='%233A3A3C'/%3E%3C/svg%3E%0A");
-				break;
-			case 'green':
-				this.theme = 'conversational-form-green.min.css';
-				if (!this.options.robotImage) this.updateDictionaryValue('robot-image', 'robot', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23EEEFF0'/%3E%3Crect x='66' y='66' width='68' height='68' fill='%2300BF75'/%3E%3C/svg%3E%0A");
-				if (!this.options.userImage) this.updateDictionaryValue('user-image', 'user', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%2300BF75'/%3E%3Cpath d='M100 55L138.971 122.5H61.0289L100 55Z' fill='%23EEEFF0'/%3E%3C/svg%3E%0A");
-				break;
-			case 'blue':
-				this.theme = 'conversational-form-irisblue.min.css';
-				if (!this.options.robotImage) this.updateDictionaryValue('robot-image', 'robot', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23E8E9EB'/%3E%3Crect x='66' y='66' width='68' height='68' fill='%2300C2DF'/%3E%3C/svg%3E%0A");
-				if (!this.options.userImage) this.updateDictionaryValue('user-image', 'user', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%2300C2DF'/%3E%3Cpath d='M100 55L138.971 122.5H61.0289L100 55Z' fill='%23E8E9EB'/%3E%3C/svg%3E%0A");
-				break;
-			case 'purple':
-				this.theme = 'conversational-form-purple.min.css';
-				if (!this.options.robotImage) this.updateDictionaryValue('robot-image', 'robot', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23EEEFF0'/%3E%3Crect x='66' y='66' width='68' height='68' fill='%235A1DE4'/%3E%3C/svg%3E%0A");
-				if (!this.options.userImage) this.updateDictionaryValue('user-image', 'user', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%235A1DE4'/%3E%3Cpath d='M100 55L138.971 122.5H61.0289L100 55Z' fill='%23EEEFF0'/%3E%3C/svg%3E%0A");
-				break;
-			case 'red':
-				this.theme = 'conversational-form-red.min.css';
-				if (!this.options.robotImage) this.updateDictionaryValue('robot-image', 'robot', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23E8E9EB'/%3E%3Crect x='66' y='66' width='68' height='68' fill='%23FF3233'/%3E%3C/svg%3E%0A");
-				if (!this.options.userImage) this.updateDictionaryValue('user-image', 'user', "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23FF3233'/%3E%3Cpath d='M100 55L138.971 122.5H61.0289L100 55Z' fill='%23E8E9EB'/%3E%3C/svg%3E%0A");
-				break;
-			default:
-				this.theme = 'conversational-form.min.css';
-		}
-
-		if (this.loadExternalStyleSheet) {
-			// not in development/examples, so inject production css
-			const head: HTMLHeadElement = document.head || document.getElementsByTagName("head")[0];
-			const style: HTMLStyleElement = document.createElement("link");
-			const githubMasterUrl: string = this.cdnPath + this.theme;
-			style.type = "text/css";
-			style.media = "all";
-			style.setAttribute("rel", "stylesheet");
-			style.setAttribute("href", githubMasterUrl);
-			head.appendChild(style);
-		}
-
-		// set context position to relative, else we break out of the box
-		const position: string = window.getComputedStyle(this.context).getPropertyValue("position").toLowerCase();
-		if (["fixed", "absolute", "relative"].indexOf(position) == -1) {
-			this.context.style.position = "relative";
-		}
 
 		// if tags are not defined then we will try and build some tags our selves..
 		if (!this.tags || this.tags.length == 0) {
