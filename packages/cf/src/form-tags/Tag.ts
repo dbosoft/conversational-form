@@ -26,7 +26,7 @@ export interface ITagOptions {
 
 // class
 export class Tag implements ITag {
-	private errorMessages: Array<string> = [];
+	private errorMessages?: Array<string>;
 	private pattern?: RegExp;
 	private changeCallback?: () => void;
 	private conditionalTags: Array<ConditionalValue> = [];

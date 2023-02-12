@@ -232,13 +232,13 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 	protected inputInvalid(event: CustomEvent) {
 		CFGlobals.illustrateFlow(this, "receive", event.type, event.detail);
 		const dto: FlowDTO = event.detail;
-
 		this.inputElement.setAttribute("data-value", this.inputElement.value);
 		this.inputElement.value = "";
 
 		this.el.setAttribute("error", "");
 		this.disabled = true;
 		// cf-error
+		console.log("error:" + this._currentTag?.errorMessage);
 		this.inputElement.setAttribute("placeholder", dto.errorText || (this._currentTag ? this._currentTag.errorMessage : ""));
 		clearTimeout(this.errorTimer);
 

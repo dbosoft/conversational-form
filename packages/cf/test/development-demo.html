@@ -53,7 +53,7 @@
 
 	</div>
 
-	<script type="module">
+	<script type="module" id="conversational-form-development">
 		import { ConversationalForm } from '../dist/ConversationalForm.js';
 
 		window.onload = function () {
@@ -61,6 +61,15 @@
 				formEl: document.getElementById("cf-form"),
 				context: document.getElementById("cf-context"),
 				showProgressBar: false,
+				userInterfaceOptions: {
+					robot: {
+						robotResponseTime: 1500
+					},
+					user:
+					{
+						showThinking: true
+					}
+				},
 				submitCallback: function () {
 					conversationalForm.addRobotChatResponse(
 						"Check the dev console for FormatData output."

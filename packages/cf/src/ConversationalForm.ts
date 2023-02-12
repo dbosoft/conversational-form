@@ -11,7 +11,7 @@ import { IUserInput } from "./interfaces/IUserInput";
 import { IUserInterfaceOptions, UserInterfaceDefaultOptions } from "./interfaces/IUserInterfaceOptions";
 import { EventDispatcher } from "./logic/EventDispatcher";
 import { FlowManager } from "./logic/FlowManager";
-import { Helpers } from "./logic/Helpers";
+import { DeepMergeTwoTypes } from "./logic/Helpers";
 import { ConversationalFormOptions, ConversationalFormlessOptions } from "./options/ConversationalFormOptions";
 import { DataTag, TagsParser } from "./parsing/TagsParser";
 import { ChatList } from "./ui/chat/ChatList";
@@ -20,6 +20,7 @@ import { UserInputElement } from "./ui/inputs/UserInputElement";
 import { UserTextInput } from "./ui/inputs/UserTextInput";
 import { ProgressBar } from "./ui/ProgressBar";
 import { ScrollController } from "./ui/ScrollController";
+
 
 export class ConversationalForm implements IConversationalForm {
 	public version: string = "1.0.2";
@@ -100,6 +101,9 @@ export class ConversationalForm implements IConversationalForm {
 			this.flowStepCallback = options.flowStepCallback;
 
 		this.isDevelopment = CFGlobals.illustrateAppFlow = !!document.getElementById("conversational-form-development");
+		if (this.isDevelopment && typeof options.suppressLog !== 'boolean') {
+			CFGlobals.suppressLog = false;
+		}
 
 		if (options.loadExternalStyleSheet == false) {
 			this.loadExternalStyleSheet = false;
@@ -166,9 +170,27 @@ export class ConversationalForm implements IConversationalForm {
 
 		this.microphoneInputObj = options.microphoneInput;
 
-		// set the ui options
-		this.uiOptions = Helpers.extendObject(UserInterfaceDefaultOptions, options.userInterfaceOptions || {});
-		// console.log('this.uiOptions:', this.uiOptions);
+		// spreed objects deep (to avoid using a additional deep merge library all fields are listed here )
+		this.uiOptions = {
+			...UserInterfaceDefaultOptions,
+			...options.userInterfaceOptions,
+			input: {
+				...UserInterfaceDefaultOptions.input,
+				...options.userInterfaceOptions?.input
+			},
+			robot: {
+				...UserInterfaceDefaultOptions.robot,
+				...options.userInterfaceOptions?.robot
+			},
+			user:
+			{
+				...UserInterfaceDefaultOptions.user,
+				...options.userInterfaceOptions?.user
+			},
+		};
+
+
+		console.log('this.uiOptions:', this.uiOptions);
 
 		this.options = options;
 		this.tagBuilder = new TagBuilder();
@@ -201,14 +223,6 @@ export class ConversationalForm implements IConversationalForm {
 				break;
 			default:
 				this.theme = 'conversational-form.min.css';
-		}
-
-		if (this.isDevelopment) {
-			// Set path for development
-			this.cdnPath = '../build/';
-
-			// strip .min from filename since we do not have minified css in build
-			this.theme = this.theme.replace('.min', '');
 		}
 
 		if (this.loadExternalStyleSheet) {
