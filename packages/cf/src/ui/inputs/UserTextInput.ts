@@ -212,7 +212,6 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		// safari likes to jump around with the scrollHeight value, let's keep it in check with an initial height.
 		const oldHeight: number = Math.max(this.initialInputHeight, parseInt(this.inputElement.style.height, 10));
 		this.inputElement.style.height = '0px';
-		// console.log(this.inputElement.style.height, this.inputElement.style);
 		this.inputElement.style.height = (this.inputElement.scrollHeight === 0 ? oldHeight : this.inputElement.scrollHeight) + "px";
 
 		CFGlobals.illustrateFlow(this, "dispatch", UserInputEvents.HEIGHT_CHANGE);

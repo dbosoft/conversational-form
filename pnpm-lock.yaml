@@ -63,13 +63,13 @@ importers:
 
   apps/nextapp:
     specifiers:
+      '@dbosoft/cf-next': workspace:*
+      '@dbosoft/conversational-form': workspace:*
       '@next/font': 13.1.6
       '@types/node': ^18.13.0
       '@types/react': ^18.0.28
       '@types/react-dom': ^18.0.10
       autoprefixer: ^10.4.13
-      cf: workspace:*
-      cf-next: workspace:*
       eslint-config-custom: workspace:*
       next: 13.1.6
       postcss: ^8.4.21
@@ -80,9 +80,9 @@ importers:
       tsconfig: workspace:*
       typescript: ^4.9.5
     dependencies:
+      '@dbosoft/cf-next': link:../../packages/cf-next
+      '@dbosoft/conversational-form': link:../../packages/cf
       '@next/font': 13.1.6
-      cf: link:../../packages/cf
-      cf-next: link:../../packages/cf-next
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -122,8 +122,8 @@ importers:
 
   packages/cf-next:
     specifiers:
+      '@dbosoft/cf-react': workspace:*
       '@types/react': ^18.0.26
-      cf-react: workspace:*
       eslint: ^7.32.0
       eslint-config-custom: workspace:*
       next: 13.0.0
@@ -132,7 +132,7 @@ importers:
       tsup: ^6.1.3
       typescript: ^4.9.4
     dependencies:
-      cf-react: link:../cf-react
+      '@dbosoft/cf-react': link:../cf-react
       next: 13.0.0_biqbaboplfbrettd7655fr4n2y
     devDependencies:
       '@types/react': 18.0.28
@@ -145,8 +145,8 @@ importers:
 
   packages/cf-react:
     specifiers:
+      '@dbosoft/conversational-form': workspace:*
       '@types/react': ^18.0.26
-      cf: workspace:*
       eslint: ^7.32.0
       eslint-config-custom: workspace:*
       react: ^18.2.0
@@ -154,7 +154,7 @@ importers:
       tsup: ^6.1.3
       typescript: ^4.9.4
     dependencies:
-      cf: link:../cf
+      '@dbosoft/conversational-form': link:../cf
     devDependencies:
       '@types/react': 18.0.28
       eslint: 7.32.0

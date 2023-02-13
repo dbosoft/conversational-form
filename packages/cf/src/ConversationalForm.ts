@@ -23,10 +23,7 @@ import { ScrollController } from "./ui/ScrollController";
 
 
 export class ConversationalForm implements IConversationalForm {
-	public version: string = "1.0.2";
 
-
-	private cdnPath: string = "https://cdn.jsdelivr.net/gh/space10-community/conversational-form@{version}/dist/";
 	/**
 	 * createId
 	 * Id of the instance, to isolate events
@@ -73,7 +70,6 @@ export class ConversationalForm implements IConversationalForm {
 	private tagBuilder: ITagBuilder;
 
 	constructor(options: ConversationalFormOptions) {
-		this.cdnPath = this.cdnPath.split("{version}").join(this.version);
 
 		if (typeof options.suppressLog === 'boolean')
 			CFGlobals.suppressLog = options.suppressLog;
@@ -84,7 +80,6 @@ export class ConversationalForm implements IConversationalForm {
 		if (typeof options.preventSubmitOnEnter === 'boolean')
 			this.preventSubmitOnEnter = options.preventSubmitOnEnter;
 
-		if (!CFGlobals.suppressLog) console.log('Conversational Form > version:', this.version);
 		if (!CFGlobals.suppressLog) console.log('Conversational Form > options:', options);
 
 		// possible to create your own event dispatcher, so you can tap into the events of the app
@@ -144,8 +139,7 @@ export class ConversationalForm implements IConversationalForm {
 			data: options.dictionaryData,
 			robotData: options.dictionaryRobot,
 			userImage: options.userImage ?? "",
-			robotImage: options.robotImage ?? "",
-			version: this.version
+			robotImage: options.robotImage ?? ""
 		});
 
 		this.context = options.context ? options.context : document.body;
@@ -179,9 +173,6 @@ export class ConversationalForm implements IConversationalForm {
 				...options.userInterfaceOptions?.user
 			},
 		};
-
-
-		console.log('this.uiOptions:', this.uiOptions);
 
 		this.options = options;
 		this.tagBuilder = new TagBuilder();
@@ -551,25 +542,10 @@ export class ConversationalForm implements IConversationalForm {
 		if (this.chatList)
 			this.chatList.dealloc();
 
-		/*
-	this.dictionary = null;
-	this.flowManager = null;
-	this.userInput = null;
-	this.chatList = null;
-	this.context = null;
-	this.formEl = null;
-	this.tags = null;
-
-	this.submitCallback = null;
-	*/
 		this.el.parentNode?.removeChild(this.el);
-
-		//this.el = null;
-
 
 	}
 
-	private static hasAutoInstantiated: boolean = false;
 	public static startTheConversation(data: ConversationalFormOptions | ConversationalFormlessOptions) {
 		let isFormless: boolean = !!(<any>data).formEl === false;
 		let formlessTags: any;
@@ -589,6 +565,7 @@ export class ConversationalForm implements IConversationalForm {
 			}
 
 			// formless, so generate the pseudo tags
+
 			const formEl: HTMLFormElement = TagsParser.parseJSONIntoElements(formlessTags)
 			constructorOptions.formEl = formEl;
 		} else {
@@ -599,33 +576,6 @@ export class ConversationalForm implements IConversationalForm {
 		return new ConversationalForm(constructorOptions);
 	}
 
-	public static autoStartTheConversation() {
-		if (ConversationalForm.hasAutoInstantiated)
-			return;
-
-		// auto start the conversation
-		let formElements: NodeListOf<Element> = document.querySelectorAll("form[cf-form]");
-
-		// no form elements found, look for the old init attribute
-		if (formElements.length === 0) {
-			formElements = document.querySelectorAll("form[cf-form-element]");
-		}
-
-		const formContexts: NodeListOf<Element> = document.querySelectorAll("*[cf-context]");
-
-		if (formElements && formElements.length > 0) {
-			for (let i = 0; i < formElements.length; i++) {
-				let form: HTMLFormElement = <HTMLFormElement>formElements[i];
-				let context: HTMLFormElement = <HTMLFormElement>formContexts[i];
-				ConversationalForm.startTheConversation({
-					formEl: form,
-					context: context
-				});
-			}
-
-			ConversationalForm.hasAutoInstantiated = true;
-		}
-	}
 
 	private isDomTag(tag: ITag): tag is IDomTag {
 		return tag.type != "group";

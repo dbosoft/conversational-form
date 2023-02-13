@@ -1,6 +1,6 @@
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
-import 'cf/styles/conversational-form.css';
+import '@dbosoft/conversational-form/styles/conversational-form-dark.css';
 
 import { Inter } from '@next/font/google'
 

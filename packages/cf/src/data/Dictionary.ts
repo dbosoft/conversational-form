@@ -16,18 +16,14 @@ export interface IDictionaryOptions {
 	data?: Object;
 	robotData?: Object;
 	userImage: string;
-	robotImage: string;
-	version: string;
+	robotImage: string
 }
 // class
 export class Dictionary {
 	private static instance: Dictionary;
-	private version: string;
 
 	constructor(options: IDictionaryOptions) {
 		Dictionary.instance = this;
-
-		this.version = options.version;
 
 		// overwrite data if defined 
 		if (options && options.data)
