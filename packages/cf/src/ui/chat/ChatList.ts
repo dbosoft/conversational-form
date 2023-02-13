@@ -213,7 +213,7 @@ export class ChatList extends BasicElement implements IChatList {
 		}
 	}
 
-	private updateTimer: number = 0;
+	private updateTimer: undefined | ReturnType<typeof setTimeout> = undefined;
 	private onListUpdate(chatResponse: ChatResponse) {
 		clearTimeout(this.updateTimer);
 
