@@ -15,13 +15,13 @@
     "preserveWatchOutput": true,
     "skipLibCheck": true,
     "importHelpers": true,
-    "strict": false,
+    "strict": true,
     "target": "ES6",
     "lib": [
       "dom",
-      "dom.iterable",
       "ES6"
     ],
+    "types": [],
     "outDir": "./dist"
   },
   "exclude": [

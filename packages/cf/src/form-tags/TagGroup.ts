@@ -79,7 +79,7 @@ export class TagGroup implements ITagGroup {
 			return tagQuestion;
 		} else {
 			// fallback to robot response from dictionary
-			const robotReponse: string = Dictionary.getRobotResponse(this.getGroupTagType());
+			const robotReponse: string = this.flowManager.cf.dictionary.getRobotResponse(this.getGroupTagType());
 			return robotReponse;
 		}
 	}
@@ -106,7 +106,7 @@ export class TagGroup implements ITagGroup {
 	}
 
 	public get errorMessage(): string {
-		var errorMessage = Dictionary.get("input-placeholder-error");
+		var errorMessage = this.flowManager.cf.dictionary.get("input-placeholder-error");
 
 		for (let i = 0; i < this.elements.length; i++) {
 			let element: ITag = <ITag>this.elements[i];

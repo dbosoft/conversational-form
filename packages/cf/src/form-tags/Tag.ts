@@ -93,7 +93,7 @@ export class Tag implements ITag {
 	public get question(): string {
 		// if questions are empty, then fall back to dictionary, every time
 		if (!this.questions || this.questions.length == 0)
-			return Dictionary.getRobotResponse(this.type);
+			return this.flowManager?.cf.dictionary.getRobotResponse(this.type) ?? "";
 		else
 			return this.questions[Math.floor(Math.random() * this.questions.length)];
 	}
@@ -111,12 +111,12 @@ export class Tag implements ITag {
 			} else if (this.domElement.parentNode && (<HTMLElement>this.domElement.parentNode).getAttribute("cf-error")) {
 				this.errorMessages = Helpers.getValuesOfBars((<HTMLElement>this.domElement.parentNode).getAttribute("cf-error") ?? "");
 			} else if (this.required) {
-				this.errorMessages = [Dictionary.get("input-placeholder-required")]
+				this.errorMessages = this.flowManager ? [this.flowManager.cf.dictionary.get("input-placeholder-required")] : [];
 			} else {
 				if (this.type == "file")
-					this.errorMessages = [Dictionary.get("input-placeholder-file-error")];
+					this.errorMessages = this.flowManager ? [this.flowManager.cf.dictionary.get("input-placeholder-file-error")] : [];
 				else {
-					this.errorMessages = [Dictionary.get("input-placeholder-error")];
+					this.errorMessages = this.flowManager ? [this.flowManager.cf.dictionary.get("input-placeholder-error")] : [];
 				}
 			}
 		}
@@ -313,7 +313,7 @@ export class Tag implements ITag {
 		if (this._label)
 			return this._label;
 
-		return Dictionary.getRobotResponse(this.type);
+		return this.flowManager?.cf.dictionary.getRobotResponse(this.type) ?? "";
 	}
 
 	/**

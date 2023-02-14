@@ -1,19 +1,26 @@
 {
-  "name": "cf-next",
-  "version": "0.0.0",
+  "name": "@dbosoft/cf-next",
+  "version": "2.0.0-alpha.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbosoft/conversational-form"
+  },
+  "homepage": "https://github.com/dbosoft/conversational-form",
+  "source": "src/index.ts",
+  "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
   "exports": {
     ".": "./dist"
   },
-  "license": "MIT",
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "cf-react": "workspace:*"
+    "@dbosoft/cf-react": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.2.0",
@@ -26,6 +33,7 @@
     "react": "^18.2.0",
     "tsconfig": "workspace:*",
     "tsup": "^6.1.3",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "next": "13.0.0"
   }
 }

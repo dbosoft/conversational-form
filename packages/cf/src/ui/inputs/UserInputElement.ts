@@ -10,8 +10,6 @@ import { IUserInputOptions } from "./IUserInputOptions";
 // interface
 export abstract class UserInputElement extends BasicElement implements IUserInputElement {
 	public static ERROR_TIME: number = 2000;
-	public static preventAutoFocus: boolean = false;
-	public static hideUserInputOnNoneTextInput: boolean = false;
 
 	private onChatReponsesUpdatedCallback?: (event: CustomEvent) => void;
 	private windowFocusCallback?: (event: Event) => void;

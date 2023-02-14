@@ -4,5 +4,5 @@ import { IBasicElementOptions } from "../BasicElement";
 
 export interface IUserInputOptions extends IBasicElementOptions {
     cfReference: IConversationalForm;
-    microphoneInputObj?: IUserInput;
+    userInput?: IUserInput;
 }

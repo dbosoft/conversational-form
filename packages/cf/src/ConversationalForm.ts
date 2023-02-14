@@ -1,3 +1,4 @@
+import { CreateOptions, defaultOptions } from ".";
 import { CFGlobals } from "./CFGlobal";
 import { Dictionary } from "./data/Dictionary";
 import { InputTag } from "./form-tags/InputTag";
@@ -8,25 +9,19 @@ import { TagGroup } from "./form-tags/TagGroup";
 import { TagHelper } from "./form-tags/TagHelper";
 import { IConversationalForm } from "./interfaces/IConversationalForm";
 import { IUserInput } from "./interfaces/IUserInput";
-import { IUserInterfaceOptions, UserInterfaceDefaultOptions } from "./interfaces/IUserInterfaceOptions";
 import { EventDispatcher } from "./logic/EventDispatcher";
 import { FlowManager } from "./logic/FlowManager";
-import { DeepMergeTwoTypes } from "./logic/Helpers";
-import { ConversationalFormOptions, ConversationalFormlessOptions } from "./options/ConversationalFormOptions";
+import { IEventTarget } from "./logic/IEventTarget";
+import { FormOptions } from "./options/FormOptions";
 import { DataTag, TagsParser } from "./parsing/TagsParser";
 import { ChatList } from "./ui/chat/ChatList";
 import { ChatResponseEvents } from "./ui/chat/ChatResponse";
-import { UserInputElement } from "./ui/inputs/UserInputElement";
 import { UserTextInput } from "./ui/inputs/UserTextInput";
 import { ProgressBar } from "./ui/ProgressBar";
-import { ScrollController } from "./ui/ScrollController";
 
 
 export class ConversationalForm implements IConversationalForm {
-	public version: string = "1.0.2";
 
-
-	private cdnPath: string = "https://cdn.jsdelivr.net/gh/space10-community/conversational-form@{version}/dist/";
 	/**
 	 * createId
 	 * Id of the instance, to isolate events
@@ -41,10 +36,10 @@ export class ConversationalForm implements IConversationalForm {
 	}
 
 	// instance specific event target
-	private _eventTarget?: EventDispatcher;
-	public get eventTarget(): EventDispatcher {
+	private _eventTarget?: IEventTarget;
+	public get eventTarget(): IEventTarget {
 		if (!this._eventTarget) {
-			this._eventTarget = new EventDispatcher(this);
+			this._eventTarget = new EventDispatcher();
 		}
 
 		return this._eventTarget;
@@ -53,9 +48,7 @@ export class ConversationalForm implements IConversationalForm {
 	public dictionary: Dictionary;
 	public el: HTMLElement;
 	public chatList: ChatList;
-	public uiOptions: IUserInterfaceOptions;
-	public options: ConversationalFormOptions;
-	public preventSubmitOnEnter: boolean = false;
+	public options: FormOptions;
 
 	private context: HTMLElement;
 	private formEl: HTMLFormElement;
@@ -65,125 +58,81 @@ export class ConversationalForm implements IConversationalForm {
 	private tags: Array<IDomTag | ITagGroup>;
 	private flowManager: FlowManager;
 	private isDevelopment: boolean = false;
-	private preventAutoAppend: boolean = false;
-	private preventAutoStart: boolean = false;
 
-	private userInput: UserTextInput;
-	private microphoneInputObj?: IUserInput;
+	private textInput: UserTextInput;
+	private userInput?: IUserInput;
 	private tagBuilder: ITagBuilder;
 
-	constructor(options: ConversationalFormOptions) {
-		this.cdnPath = this.cdnPath.split("{version}").join(this.version);
+	constructor({ form, context, ...optionalOptions }: {
+		form: HTMLFormElement,
+		context: HTMLElement,
+	} & CreateOptions) {
 
-		if (typeof options.suppressLog === 'boolean')
-			CFGlobals.suppressLog = options.suppressLog;
+		const {
+			tags,
+			appearance,
+			behaviour,
+			onSubmit,
+			onFlowStep,
+			eventDispatcher,
+			userInput } = optionalOptions;
 
-		if (typeof options.showProgressBar === 'boolean')
-			CFGlobals.showProgressBar = options.showProgressBar;
-
-		if (typeof options.preventSubmitOnEnter === 'boolean')
-			this.preventSubmitOnEnter = options.preventSubmitOnEnter;
-
-		if (!CFGlobals.suppressLog) console.log('Conversational Form > version:', this.version);
-		if (!CFGlobals.suppressLog) console.log('Conversational Form > options:', options);
-
-		// possible to create your own event dispatcher, so you can tap into the events of the app
-		if (options.eventDispatcher)
-			this._eventTarget = <EventDispatcher>options.eventDispatcher;
-
-		if (!this.eventTarget.cf)
-			this.eventTarget.cf = this;
-
-		// set a general step validation callback
-		if (options.flowStepCallback)
-			this.flowStepCallback = options.flowStepCallback;
-
-		this.isDevelopment = CFGlobals.illustrateAppFlow = !!document.getElementById("conversational-form-development");
-		if (this.isDevelopment && typeof options.suppressLog !== 'boolean') {
-			CFGlobals.suppressLog = false;
-		}
-
-		if (options.scrollAcceleration && !isNaN(options.scrollAcceleration))
-			ScrollController.acceleration = options.scrollAcceleration;
-
-		this.preventAutoStart = options.preventAutoStart ?? false;
-		this.preventAutoAppend = options.preventAutoAppend ?? false;
-
-		if (!options.formEl)
-			throw new Error("Conversational Form error, the formEl needs to be defined.");
-
-		this.formEl = options.formEl;
-		this.formEl.setAttribute("cf-create-id", this.createId);
-
-		if (options.hideUserInputOnNoneTextInput === true) {
-			UserInputElement.hideUserInputOnNoneTextInput = true;
-		}
-
-		this.submitCallback = options.submitCallback;
-		if (this.submitCallback && typeof this.submitCallback === "string") {
-			// Must be a string on window, rewritten to avoid unsafe eval() calls
-			const fn = (window as any)[this.submitCallback];
-			this.submitCallback = fn;
-		}
-
-		if (this.formEl.getAttribute("cf-no-animation") == "")
-			CFGlobals.animationsEnabled = false;
-
-		if (
-			typeof options.animationsEnabled === 'boolean'
-			&& options.animationsEnabled === false
-		) {
-			CFGlobals.animationsEnabled = false;
-			this.formEl.setAttribute("cf-no-animation", "");
-		}
-
-		if (options.preventAutoFocus || this.formEl.getAttribute("cf-prevent-autofocus") == "")
-			UserInputElement.preventAutoFocus = true;
-
-		this.dictionary = new Dictionary({
-			data: options.dictionaryData,
-			robotData: options.dictionaryRobot,
-			userImage: options.userImage ?? "",
-			robotImage: options.robotImage ?? "",
-			version: this.version
-		});
-
-		this.context = options.context ? options.context : document.body;
-		this.tags = options.tags ?? [];
-
-		if (options.microphoneInput) {
-			// validate the user ..... TODO....
-			if (!options.microphoneInput.init || !options.microphoneInput.input) {
-				console.warn("Conversational Form: microphoneInput is not correctly setup", options.microphoneInput);
-				options.microphoneInput = undefined;
+		// initialize form options form create options
+		this.options = {
+			behaviour: { ...defaultOptions.behaviour, ...behaviour },
+			appearance: {
+				animations: { ...defaultOptions.appearance.animations, ...appearance?.animations },
+				user: { ...defaultOptions.appearance.user, ...appearance?.user },
+				robot: { ...defaultOptions.appearance.robot, ...appearance?.robot },
 			}
 		}
 
-		this.microphoneInputObj = options.microphoneInput;
 
-		// spreed objects deep (to avoid using a additional deep merge library all fields are listed here )
-		this.uiOptions = {
-			...UserInterfaceDefaultOptions,
-			...options.userInterfaceOptions,
-			input: {
-				...UserInterfaceDefaultOptions.input,
-				...options.userInterfaceOptions?.input
-			},
-			robot: {
-				...UserInterfaceDefaultOptions.robot,
-				...options.userInterfaceOptions?.robot
-			},
-			user:
-			{
-				...UserInterfaceDefaultOptions.user,
-				...options.userInterfaceOptions?.user
-			},
-		};
+		this.isDevelopment = CFGlobals.illustrateAppFlow = !!document.getElementById("conversational-form-development");
+		CFGlobals.suppressLog = this.options.behaviour?.suppressLog
+			?? defaultOptions.behaviour?.suppressLog ?? true;
 
 
-		console.log('this.uiOptions:', this.uiOptions);
+		if (!CFGlobals.suppressLog) console.log('Conversational Form > options:', this.options);
 
-		this.options = options;
+		// possible to create your own event dispatcher, so you can tap into the events of the app
+		this._eventTarget = eventDispatcher;
+
+		// set a general step validation callback
+		this.flowStepCallback = onFlowStep;
+
+
+		if (!form)
+			throw new Error("Conversational Form error, the formElement needs to be defined.");
+
+		this.formEl = form;
+		this.formEl.setAttribute("cf-create-id", this.createId);
+
+		this.submitCallback = onSubmit;
+
+		this.dictionary = new Dictionary({
+			data: appearance?.user?.dictionary,
+			robotData: appearance?.robot?.dictionary,
+			userImage: appearance?.user?.image ?? "",
+			robotImage: appearance?.robot?.image ?? ""
+		});
+
+		if (!context)
+			throw new Error("Conversational Form error, the context element needs to be defined.");
+
+		this.context = context;
+
+		this.userInput = userInput;
+		if (userInput) {
+			// validate the user ..... TODO....
+			if (!userInput.init || !userInput.input) {
+				console.warn("Conversational Form: userInput is not correctly setup", userInput);
+				this.userInput = undefined;
+			}
+		}
+
+
+		this.tags = tags ?? [];
 		this.tagBuilder = new TagBuilder();
 
 		// if tags are not defined then we will try and build some tags our selves..
@@ -241,15 +190,11 @@ export class ConversationalForm implements IConversationalForm {
 
 		this.addBrowserTypes(this.el);
 
-		if (CFGlobals.animationsEnabled)
+		if (this.options.appearance?.animations?.enabled === true)
 			this.el.classList.add("conversational-form--enable-animation");
 
 		// add conversational form to context
-		if (!this.preventAutoAppend)
-			this.context.appendChild(this.el);
-
-		//hide until stylesheet is rendered
-		this.el.style.visibility = "hidden";
+		this.context.appendChild(this.el);
 
 		var innerWrap = document.createElement("div");
 		innerWrap.className = "conversational-form-inner";
@@ -263,13 +208,13 @@ export class ConversationalForm implements IConversationalForm {
 
 		innerWrap.appendChild(this.chatList.el);
 
-		this.userInput = new UserTextInput({
-			microphoneInputObj: this.microphoneInputObj,
+		this.textInput = new UserTextInput({
+			userInput: this.userInput,
 			eventTarget: this.eventTarget,
 			cfReference: this
 		});
 
-		if (CFGlobals.showProgressBar) {
+		if (appearance?.showProgressBar === true) {
 			const progressBar = new ProgressBar({
 				cfReference: this,
 				eventTarget: this.eventTarget
@@ -277,21 +222,18 @@ export class ConversationalForm implements IConversationalForm {
 			innerWrap.appendChild(progressBar.el);
 		}
 
-		this.chatList.addInput(this.userInput);
+		this.chatList.addInput(this.textInput);
 
-		innerWrap.appendChild(this.userInput.el);
+		innerWrap.appendChild(this.textInput.el);
 
 		this.onUserAnswerClickedCallback = this.onUserAnswerClicked.bind(this);
 		this.eventTarget.addEventListener(ChatResponseEvents.USER_ANSWER_CLICKED, this.onUserAnswerClickedCallback, false);
 
 		this.el.classList.add("conversational-form--show")
 
-		if (!this.preventAutoStart)
-			this.flowManager.start();
-
 		if (!this.tags || this.tags.length == 0) {
 			// no tags, so just show the input
-			this.userInput.visible = true;
+			this.textInput.visible = true;
 		}
 	}
 
@@ -304,7 +246,7 @@ export class ConversationalForm implements IConversationalForm {
 	*	value: string, value to be inserted
 	*/
 	public updateDictionaryValue(id: string, type: string, value: string) {
-		Dictionary.set(id, type, value);
+		this.dictionary.set(id, type, value);
 
 		// if(["robot-image", "user-image"].indexOf(id) != -1){
 		// 	this.chatList.updateThumbnail(id == "robot-image", value);
@@ -341,13 +283,13 @@ export class ConversationalForm implements IConversationalForm {
 		if (optionalStoppingMessage != "")
 			this.chatList.createResponse(true, undefined, optionalStoppingMessage);
 
-		this.userInput.onFlowStopped();
+		this.textInput.onFlowStopped();
 	}
 
 	public start() {
-		this.userInput.disabled = false;
+		this.textInput.disabled = false;
 		if (!CFGlobals.suppressLog) console.log('option, disabled 3',);
-		this.userInput.visible = true;
+		this.textInput.visible = true;
 
 		this.flowManager.start();
 	}
@@ -489,7 +431,7 @@ export class ConversationalForm implements IConversationalForm {
 	*/
 	public remapTagsAndStartFrom(index: number = 0, setCurrentTagValue: boolean = false, ignoreExistingTags: boolean = false) {
 		if (setCurrentTagValue) {
-			this.chatList.setCurrentUserResponse(this.userInput.getFlowDTO());
+			this.chatList.setCurrentUserResponse(this.textInput.getFlowDTO());
 		}
 		// possibility to start the form flow over from {index}
 		for (var i = 0; i < this.tags.length; i++) {
@@ -505,14 +447,14 @@ export class ConversationalForm implements IConversationalForm {
 	* Sets focus on Conversational Form
 	*/
 	public focus() {
-		if (this.userInput)
-			this.userInput.setFocusOnInput();
+		if (this.textInput)
+			this.textInput.setFocusOnInput();
 	}
 
 	public doSubmitForm() {
 		this.el.classList.add("done");
 
-		this.userInput.reset();
+		this.textInput.reset();
 
 		if (this.submitCallback) {
 			// remove should be called in the submitCallback
@@ -535,8 +477,8 @@ export class ConversationalForm implements IConversationalForm {
 	}
 
 	public remove() {
-		if (this.microphoneInputObj) {
-			this.microphoneInputObj = undefined;
+		if (this.userInput) {
+			this.userInput = undefined;
 		}
 
 		if (this.onUserAnswerClickedCallback) {
@@ -546,88 +488,21 @@ export class ConversationalForm implements IConversationalForm {
 
 		if (this.flowManager)
 			this.flowManager.dealloc();
-		if (this.userInput)
-			this.userInput.dealloc();
+		if (this.textInput)
+			this.textInput.dealloc();
 		if (this.chatList)
 			this.chatList.dealloc();
 
-		/*
-	this.dictionary = null;
-	this.flowManager = null;
-	this.userInput = null;
-	this.chatList = null;
-	this.context = null;
-	this.formEl = null;
-	this.tags = null;
-
-	this.submitCallback = null;
-	*/
 		this.el.parentNode?.removeChild(this.el);
 
-		//this.el = null;
-
-
 	}
 
-	private static hasAutoInstantiated: boolean = false;
-	public static startTheConversation(data: ConversationalFormOptions | ConversationalFormlessOptions) {
-		let isFormless: boolean = !!(<any>data).formEl === false;
-		let formlessTags: any;
-		let constructorOptions: ConversationalFormOptions;
-
-		if (isFormless) {
-			if (typeof data === "string") {
-				// Formless init w. string
-				isFormless = true;
-				const json: any = JSON.parse(data)
-				constructorOptions = (<ConversationalFormlessOptions>json).options;
-				formlessTags = (<ConversationalFormlessOptions>json).tags;
-			} else {
-				// Formless init w. JSON object
-				constructorOptions = (<ConversationalFormlessOptions>data).options;
-				formlessTags = (<ConversationalFormlessOptions>data).tags;
-			}
-
-			// formless, so generate the pseudo tags
-			const formEl: HTMLFormElement = TagsParser.parseJSONIntoElements(formlessTags)
-			constructorOptions.formEl = formEl;
-		} else {
-			// keep it standard
-			constructorOptions = <ConversationalFormOptions>data;
-		}
-
-		return new ConversationalForm(constructorOptions);
-	}
-
-	public static autoStartTheConversation() {
-		if (ConversationalForm.hasAutoInstantiated)
-			return;
-
-		// auto start the conversation
-		let formElements: NodeListOf<Element> = document.querySelectorAll("form[cf-form]");
-
-		// no form elements found, look for the old init attribute
-		if (formElements.length === 0) {
-			formElements = document.querySelectorAll("form[cf-form-element]");
-		}
-
-		const formContexts: NodeListOf<Element> = document.querySelectorAll("*[cf-context]");
-
-		if (formElements && formElements.length > 0) {
-			for (let i = 0; i < formElements.length; i++) {
-				let form: HTMLFormElement = <HTMLFormElement>formElements[i];
-				let context: HTMLFormElement = <HTMLFormElement>formContexts[i];
-				ConversationalForm.startTheConversation({
-					formEl: form,
-					context: context
-				});
-			}
-
-			ConversationalForm.hasAutoInstantiated = true;
-		}
+	public static generateForm(formlessTags: any[]): HTMLFormElement {
+		return TagsParser.parseJSONIntoElements(formlessTags);
 	}
 
 	private isDomTag(tag: ITag): tag is IDomTag {
 		return tag.type != "group";
 	}
 }
+

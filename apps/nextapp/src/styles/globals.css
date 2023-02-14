@@ -4,5 +4,5 @@
 
 
 .conversational-form * {
-    @apply font-mono text-sm;
+    @apply font-mono text-sm
 }

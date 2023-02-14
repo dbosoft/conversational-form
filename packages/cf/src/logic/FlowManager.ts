@@ -1,3 +1,4 @@
+import { defaultOptions } from "..";
 import { CFGlobals } from "../CFGlobal";
 import { ConditionalValue } from "../form-tags/ConditionalValue";
 import { FlowDTO, IDomTag, ITag, ITagGroup } from "../form-tags/ITag";
@@ -49,6 +50,10 @@ export class FlowManager implements IFlowManager {
 
 	public get currentTag(): IDomTag | ITagGroup {
 		return this.tags[this.step];
+	}
+
+	public get cf(): IConversationalForm {
+		return this.cfReference;
 	}
 
 	constructor(options: FlowManagerOptions) {
@@ -125,7 +130,8 @@ export class FlowManager implements IFlowManager {
 				}));
 
 				// goto next step when user has answered
-				setTimeout(() => this.nextStep(), CFGlobals.animationsEnabled ? 250 : 0);
+				setTimeout(() => this.nextStep(), this.cfReference.options.appearance?.animations?.enabled === true
+					? this.cfReference.options.appearance.animations.delay ?? 0 : 0);
 			} else {
 				CFGlobals.illustrateFlow(this, "dispatch", FlowEvents.USER_INPUT_INVALID, appDTO)
 
@@ -290,6 +296,7 @@ export class FlowManager implements IFlowManager {
 			this.savedStep = -1;//don't save step, as we wont return
 
 			// clear chatlist.
+			console.log("remove step");
 			this.cfReference.removeStepFromChatList(this.step + 1);
 
 			//reset from active tag, brute force
@@ -298,6 +305,7 @@ export class FlowManager implements IFlowManager {
 				const tag: ITag | ITagGroup = this.tags[i];
 				tag.reset();
 			}
+
 		}
 	}
 

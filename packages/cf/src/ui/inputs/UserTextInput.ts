@@ -34,7 +34,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 	private keyDownCallback?: (event: Event) => void;
 
 
-	protected microphoneObj?: IUserInput;
+	protected userInput?: IUserInput;
 
 	private controlElements: ControlElements;
 
@@ -72,7 +72,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		this.inputElement.addEventListener('focus', this.onInputFocusCallback, false);
 		this.inputElement.addEventListener('blur', this.onInputBlurCallback, false);
 
-		if (!CFGlobals.animationsEnabled) {
+		if (this.cfReference.options.appearance?.animations?.enabled !== true) {
 			this.inputElement.setAttribute('no-animations', '');
 		}
 
@@ -107,20 +107,21 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		// this.eventTarget.addEventListener(ControlElementsEvents.ON_RESIZE, () => {}, false);
 
 		this.submitButton = new UserInputSubmitButton({
-			eventTarget: this.eventTarget
+			eventTarget: this.eventTarget,
+			cfReference: this.cfReference
 		});
 
 		this.el.querySelector('div')?.appendChild(this.submitButton.el);
 
 		// setup microphone support, audio
-		if (options.microphoneInputObj) {
-			this.microphoneObj = options.microphoneInputObj;
-			if (this.microphoneObj && this.microphoneObj.init) {
+		if (options.userInput) {
+			this.userInput = options.userInput;
+			if (this.userInput && this.userInput.init) {
 				// init if init method is defined
-				this.microphoneObj.init();
+				this.userInput.init();
 			}
 
-			this.submitButton.addMicrophone(this.microphoneObj);
+			this.submitButton.addMicrophone(this.userInput);
 		}
 	}
 
@@ -163,7 +164,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 
 	public deactivate(): void {
 		super.deactivate();
-		if (this.microphoneObj) {
+		if (this.userInput) {
 			this.submitButton.active = false;
 		}
 	}
@@ -172,7 +173,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		super.reactivate();
 
 		// called from microphone interface, check if active microphone, and set loading if yes
-		if (this.microphoneObj && !this.submitButton.typing) {
+		if (this.userInput && !this.submitButton.typing) {
 			this.submitButton.loading = true;
 			// setting typing to false calls the externa interface, like Microphone
 			this.submitButton.typing = false;
@@ -212,7 +213,6 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		// safari likes to jump around with the scrollHeight value, let's keep it in check with an initial height.
 		const oldHeight: number = Math.max(this.initialInputHeight, parseInt(this.inputElement.style.height, 10));
 		this.inputElement.style.height = '0px';
-		// console.log(this.inputElement.style.height, this.inputElement.style);
 		this.inputElement.style.height = (this.inputElement.scrollHeight === 0 ? oldHeight : this.inputElement.scrollHeight) + "px";
 
 		CFGlobals.illustrateFlow(this, "dispatch", UserInputEvents.HEIGHT_CHANGE);
@@ -270,10 +270,12 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 			if (this._currentTag.inputPlaceholder) {
 				this.inputElement.setAttribute("placeholder", this._currentTag.inputPlaceholder);
 			} else {
-				this.inputElement.setAttribute("placeholder", this._currentTag.type == "group" ? Dictionary.get("group-placeholder") : Dictionary.get("input-placeholder"));
+				this.inputElement.setAttribute("placeholder", this._currentTag.type == "group"
+					? this.cfReference.dictionary.get("group-placeholder")
+					: this.cfReference.dictionary.get("input-placeholder"));
 			}
 		} else {
-			this.inputElement.setAttribute("placeholder", Dictionary.get("group-placeholder"));
+			this.inputElement.setAttribute("placeholder", this.cfReference.dictionary.get("group-placeholder"));
 		}
 	}
 
@@ -446,7 +448,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 			this.inputElement.setAttribute('rows', (<InputTag>this._currentTag).rows.toString());
 		}
 
-		if (UserInputElement.hideUserInputOnNoneTextInput) {
+		if (this.cfReference.options.appearance?.hideUserInputOnNoneTextInput === true) {
 			// toggle userinput hide
 			if (this.controlElements.active) {
 				this.el.classList.add("hide-input");
@@ -516,7 +518,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 			this.shiftIsDown = true;
 
 		// If submit is prevented by option 'preventSubmitOnEnter'
-		if (this.cfReference.preventSubmitOnEnter === true && this.inputElement.hasAttribute('rows')
+		if (this.cfReference.options.behaviour?.noSubmitOnEnter === true && this.inputElement.hasAttribute('rows')
 			&& parseInt(this.inputElement.getAttribute('rows') ?? "") > 1) {
 			return;
 		}
@@ -528,7 +530,8 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 	}
 
 	private isControlElementsActiveAndUserInputHidden(): boolean {
-		return this.controlElements && this.controlElements.active && UserInputElement.hideUserInputOnNoneTextInput
+		return this.controlElements && this.controlElements.active
+			&& this.cfReference.options.appearance?.hideUserInputOnNoneTextInput === true
 	}
 
 	private onKeyUp(event: Event) {
@@ -583,7 +586,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 
 		if ((keyEvent.keyCode == Dictionary.keyCodes["enter"] && !keyEvent.shiftKey) || keyEvent.keyCode == Dictionary.keyCodes["space"]) {
 			if (keyEvent.keyCode == Dictionary.keyCodes["enter"] && this.active) {
-				if (this.cfReference.preventSubmitOnEnter === true) return;
+				if (this.cfReference.options.behaviour?.noSubmitOnEnter === true) return;
 				event.preventDefault();
 				this.onEnterOrSubmitButtonSubmit();
 			} else {
@@ -661,13 +664,14 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 	}
 
 	public setFocusOnInput() {
-		if (!UserInputElement.preventAutoFocus && !this.el.classList.contains("hide-input")) {
+		if (!this.cfReference.options.behaviour?.noAutoFocus && !this.el.classList.contains("hide-input")) {
 			this.inputElement.focus();
 		}
 	}
 
 	protected onEnterOrSubmitButtonSubmit(event: CustomEvent | undefined = undefined) {
-		const isControlElementsActiveAndUserInputHidden: boolean = this.controlElements.active && UserInputElement.hideUserInputOnNoneTextInput;
+		const isControlElementsActiveAndUserInputHidden: boolean = this.controlElements.active
+			&& (this.cfReference.options.appearance?.hideUserInputOnNoneTextInput ?? false);
 		if ((this.active || isControlElementsActiveAndUserInputHidden) && this.controlElements.highlighted) {
 			// active input field and focus on control elements happens when a control element is highlighted
 			this.controlElements.clickOnHighlighted();

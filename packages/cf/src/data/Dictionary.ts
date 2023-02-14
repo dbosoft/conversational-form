@@ -16,18 +16,12 @@ export interface IDictionaryOptions {
 	data?: Object;
 	robotData?: Object;
 	userImage: string;
-	robotImage: string;
-	version: string;
+	robotImage: string
 }
 // class
 export class Dictionary {
-	private static instance: Dictionary;
-	private version: string;
 
 	constructor(options: IDictionaryOptions) {
-		Dictionary.instance = this;
-
-		this.version = options.version;
 
 		// overwrite data if defined 
 		if (options && options.data)
@@ -64,12 +58,11 @@ export class Dictionary {
 		"tab": 9,
 	}
 
-	public static get(id: string): string {
-		const ins: Dictionary = Dictionary.instance;
-		let value: string = ins.data[id];
+	public get(id: string): string {
+		let value: string = this.data[id];
 
 		if (!value) {
-			value = ins.data["entry-not-found"];
+			value = this.data["entry-not-found"];
 		} else {
 			const values: Array<string> = Helpers.getValuesOfBars(value);
 			value = values[Math.floor(Math.random() * values.length)];
@@ -85,20 +78,18 @@ export class Dictionary {
 	*	type: string, "human" || "robot"
 	*	value: string, value to be inserted
 	*/
-	public static set(id: string, type: string, value: string): string {
-		const ins: Dictionary = Dictionary.instance;
-		let obj: any = type == "robot" ? ins.robotData : ins.data;
+	public set(id: string, type: string, value: string): string {
+		let obj: any = type == "robot" ? this.robotData : this.data;
 
 		obj[id] = value;
 		return obj[id];
 	}
 
-	public static getRobotResponse(tagType: string): string {
-		const ins: Dictionary = Dictionary.instance;
-		let value: string = ins.robotData[tagType];
+	public getRobotResponse(tagType: string): string {
+		let value: string = this.robotData[tagType];
 		if (!value) {
 			// value not found, so pick a general one
-			let generals: Array<string> = Helpers.getValuesOfBars(ins.robotData["general"]);
+			let generals: Array<string> = Helpers.getValuesOfBars(this.robotData["general"]);
 			value = generals[Math.floor(Math.random() * generals.length)];
 		} else {
 			let values: Array<string> = Helpers.getValuesOfBars(value);
@@ -108,12 +99,12 @@ export class Dictionary {
 		return value;
 	}
 
-	public static parseAndGetMultiValueString(arr: Array<string>): string {
+	public parseAndGetMultiValueString(arr: Array<string>): string {
 		// check ControlElement.ts for value(s)
 		let value: string = "";
 		for (let i = 0; i < arr.length; i++) {
 			let str: string = <string>arr[i];
-			let sym: string = (arr.length > 1 && i == arr.length - 2 ? Dictionary.get("user-reponse-and") : ", ");
+			let sym: string = (arr.length > 1 && i == arr.length - 2 ? this.get("user-reponse-and") : ", ");
 			value += str + (i < arr.length - 1 ? sym : "");
 		}
 

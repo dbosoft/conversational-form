@@ -9,16 +9,16 @@ import { IControlElementOptions, ControlElementEvents, ControlElementProgressSta
 // class
 export class UploadFileUI extends Button {
 	private maxFileSize: number = 100000000000;
-	private onDomElementChangeCallback: () => void;
+	private onDomElementChangeCallback?: (event: Event) => void;
 	private progressBar: HTMLElement;
 	private loading: boolean = false;
-	private submitTimer: number;
+	private submitTimer: undefined | ReturnType<typeof setTimeout> = undefined;
 	private _fileName: string = "";
 	private _readerResult: string = "";
-	private _files: FileList;
+	private _files: FileList = new FileList();
 
 	public get value(): string {
-		return (<HTMLInputElement>this.referenceTag.domElement).value;//;this.readerResult || this.fileName;
+		return (<HTMLInputElement>this.referenceTag?.domElement).value;//;this.readerResult || this.fileName;
 	}
 
 	public get readerResult(): string {
@@ -41,7 +41,8 @@ export class UploadFileUI extends Button {
 		super(options);
 
 		if (Helpers.caniuse.fileReader()) {
-			const maxFileSizeStr: string = this.referenceTag.domElement.getAttribute("cf-max-size") || this.referenceTag.domElement.getAttribute("max-size");
+			const maxFileSizeStr: string = (this.referenceTag?.domElement.getAttribute("cf-max-size")
+				|| this.referenceTag?.domElement.getAttribute("max-size")) ?? "";
 			if (maxFileSizeStr) {
 				const maxFileSize: number = parseInt(maxFileSizeStr, 10);
 				this.maxFileSize = maxFileSize;
@@ -50,7 +51,7 @@ export class UploadFileUI extends Button {
 			this.progressBar = <HTMLElement>this.el.getElementsByTagName("cf-upload-file-progress-bar")[0];
 
 			this.onDomElementChangeCallback = this.onDomElementChange.bind(this);
-			this.referenceTag.domElement.addEventListener("change", this.onDomElementChangeCallback, false);
+			this.referenceTag?.domElement.addEventListener("change", this.onDomElementChangeCallback, false);
 		} else {
 			throw new Error("Conversational Form Error: No FileReader available for client.");
 		}
@@ -59,15 +60,15 @@ export class UploadFileUI extends Button {
 	public getFilesAsString(): string {
 		// value is for the chat response -->
 		var icon = document.createElement("span");
-		icon.innerHTML = Dictionary.get("icon-type-file") + this.fileName;
+		icon.innerHTML = this.cfReference.dictionary.get("icon-type-file") + this.fileName;
 		return icon.outerHTML;
 	}
 
-	private onDomElementChange(event: any) {
+	private onDomElementChange(event: Event) {
 		if (!CFGlobals.suppressLog) console.log("...onDomElementChange");
 
 		var reader: FileReader = new FileReader();
-		this._files = (<HTMLInputElement>this.referenceTag.domElement).files;
+		this._files = (<HTMLInputElement>this.referenceTag?.domElement).files ?? new FileList();
 
 		reader.onerror = (event: any) => {
 			if (!CFGlobals.suppressLog) console.log("onerror", event);
@@ -87,7 +88,7 @@ export class UploadFileUI extends Button {
 			if (fileSize > this.maxFileSize) {
 				reader.abort();
 				const dto: FlowDTO = {
-					errorText: Dictionary.get("input-placeholder-file-size-error")
+					errorText: this.cfReference.dictionary.get("input-placeholder-file-size-error")
 				};
 
 				CFGlobals.illustrateFlow(this, "dispatch", FlowEvents.USER_INPUT_INVALID, dto)
@@ -141,24 +142,26 @@ export class UploadFileUI extends Button {
 
 	public triggerFileSelect() {
 		// trigger file prompt
-		this.referenceTag.domElement.click();
+		this.referenceTag?.domElement.click();
 	}
 
 	// override
 
 	public dealloc() {
 		clearTimeout(this.submitTimer);
-		this.progressBar = null;
+
 		if (this.onDomElementChangeCallback) {
-			this.referenceTag.domElement.removeEventListener("change", this.onDomElementChangeCallback, false);
-			this.onDomElementChangeCallback = null;
+			this.referenceTag?.domElement.removeEventListener("change", this.onDomElementChangeCallback, false);
+			this.onDomElementChangeCallback = undefined;
 		}
 
 		super.dealloc();
 	}
 
 	public getTemplate(): string {
-		const isChecked: boolean = this.referenceTag.value == "1" || this.referenceTag.domElement.hasAttribute("checked");
+		const isChecked: boolean = (this.referenceTag?.value == "1" || this.referenceTag?.domElement.hasAttribute("checked"))
+			?? false
+
 		return `<cf-upload-file-ui>
 				<cf-upload-file-text></cf-upload-file-text>
 				<cf-upload-file-progress>

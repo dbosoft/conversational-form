@@ -1,22 +1,21 @@
 import { Helpers, TouchVector2d } from "../logic/Helpers";
 import { IEventTarget } from "../logic/IEventTarget";
 
-export interface IScrollControllerOptions {
+export type ScrollControllerOptions = {
 	interactionListener: HTMLElement;
 	eventTarget: IEventTarget;
 	listToScroll: HTMLElement;
 	listNavButtons: HTMLCollectionOf<Element>;
-
+	acceleration: number;
 }
 export class ScrollController {
-	public static acceleration: number = 0.1;
-
 	private eventTarget: IEventTarget;
 	private interactionListener: HTMLElement;
 	private listToScroll: HTMLElement;
 	private listWidth: number = 0;
 	private prevButton: Element;
 	private nextButton: Element;
+	private acceleration: number;
 
 	private rAF?: number;
 	private visibleAreaWidth: number = 0;
@@ -40,12 +39,13 @@ export class ScrollController {
 	private inputAccerlation: number = 0;
 	private inputAccerlationTarget: number = 0;
 
-	constructor(options: IScrollControllerOptions) {
+	constructor(options: ScrollControllerOptions) {
 		this.interactionListener = options.interactionListener;
 		this.eventTarget = options.eventTarget;
 		this.listToScroll = options.listToScroll;
 		this.prevButton = options.listNavButtons[0];
 		this.nextButton = options.listNavButtons[1];
+		this.acceleration = options.acceleration;
 
 		this.onListNavButtonsClickCallback = this.onListNavButtonsClick.bind(this);
 		this.prevButton.addEventListener("click", this.onListNavButtonsClickCallback, false);
@@ -109,7 +109,10 @@ export class ScrollController {
 		this.startX += (this.startXTarget - this.startX) * 0.2;
 
 		// animate accerlaration
-		this.inputAccerlation += (this.inputAccerlationTarget - this.inputAccerlation) * (this.interacting ? Math.min(ScrollController.acceleration + 0.1, 1) : ScrollController.acceleration);
+		this.inputAccerlation += (this.inputAccerlationTarget - this.inputAccerlation) * (this.interacting
+			? Math.min(this.acceleration + 0.1, 1)
+			: this.acceleration);
+
 		const accDamping: number = 0.25;
 		this.inputAccerlationTarget *= accDamping;
 
@@ -125,10 +128,10 @@ export class ScrollController {
 
 		// bounce back when over
 		if (this.xTarget > 0)
-			this.xTarget += (0 - this.xTarget) * Helpers.lerp(ScrollController.acceleration, 0.3, 0.8);
+			this.xTarget += (0 - this.xTarget) * Helpers.lerp(this.acceleration, 0.3, 0.8);
 
 		if (this.xTarget < this.max)
-			this.xTarget += (this.max - this.xTarget) * Helpers.lerp(ScrollController.acceleration, 0.3, 0.8);
+			this.xTarget += (this.max - this.xTarget) * Helpers.lerp(this.acceleration, 0.3, 0.8);
 
 		this.x += (this.xTarget - this.x) * 0.4;
 
