@@ -60,7 +60,7 @@ export class UploadFileUI extends Button {
 	public getFilesAsString(): string {
 		// value is for the chat response -->
 		var icon = document.createElement("span");
-		icon.innerHTML = Dictionary.get("icon-type-file") + this.fileName;
+		icon.innerHTML = this.cfReference.dictionary.get("icon-type-file") + this.fileName;
 		return icon.outerHTML;
 	}
 
@@ -88,7 +88,7 @@ export class UploadFileUI extends Button {
 			if (fileSize > this.maxFileSize) {
 				reader.abort();
 				const dto: FlowDTO = {
-					errorText: Dictionary.get("input-placeholder-file-size-error")
+					errorText: this.cfReference.dictionary.get("input-placeholder-file-size-error")
 				};
 
 				CFGlobals.illustrateFlow(this, "dispatch", FlowEvents.USER_INPUT_INVALID, dto)

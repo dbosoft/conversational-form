@@ -339,7 +339,9 @@ export class ControlElements {
 			}
 
 			// set feedback text for filter..
-			this.infoElement.innerHTML = itemsVisible.length == 0 ? Dictionary.get("input-no-filter").split("{input-value}").join(value) : "";
+			this.infoElement.innerHTML = itemsVisible.length == 0
+				? this.cfReference.dictionary.get("input-no-filter").split("{input-value}").join(value)
+				: "";
 			if (itemsVisible.length == 0) {
 				this.infoElement.classList.add("show");
 			} else {
@@ -562,7 +564,7 @@ export class ControlElements {
 					}
 
 
-					dto.text = Dictionary.parseAndGetMultiValueString(values);
+					dto.text = this.cfReference.dictionary.parseAndGetMultiValueString(values);
 
 					break;
 
@@ -594,7 +596,7 @@ export class ControlElements {
 					// after value is created then set to all elements
 					dto.controlElements = element.elements;
 
-					dto.text = Dictionary.parseAndGetMultiValueString(values);
+					dto.text = this.cfReference.dictionary.parseAndGetMultiValueString(values);
 
 					break;
 

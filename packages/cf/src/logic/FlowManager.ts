@@ -52,6 +52,10 @@ export class FlowManager implements IFlowManager {
 		return this.tags[this.step];
 	}
 
+	public get cf(): IConversationalForm {
+		return this.cfReference;
+	}
+
 	constructor(options: FlowManagerOptions) {
 		this.cfReference = options.cfReference;
 		this.eventTarget = options.eventTarget;

@@ -269,10 +269,12 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 			if (this._currentTag.inputPlaceholder) {
 				this.inputElement.setAttribute("placeholder", this._currentTag.inputPlaceholder);
 			} else {
-				this.inputElement.setAttribute("placeholder", this._currentTag.type == "group" ? Dictionary.get("group-placeholder") : Dictionary.get("input-placeholder"));
+				this.inputElement.setAttribute("placeholder", this._currentTag.type == "group"
+					? this.cfReference.dictionary.get("group-placeholder")
+					: this.cfReference.dictionary.get("input-placeholder"));
 			}
 		} else {
-			this.inputElement.setAttribute("placeholder", Dictionary.get("group-placeholder"));
+			this.inputElement.setAttribute("placeholder", this.cfReference.dictionary.get("group-placeholder"));
 		}
 	}
 

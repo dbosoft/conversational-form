@@ -1,6 +1,7 @@
 import { CFGlobals } from "../CFGlobal";
 import { Dictionary } from "../data/Dictionary";
 import { FlowDTO } from "../form-tags/ITag";
+import { IConversationalForm } from "../interfaces/IConversationalForm";
 import { IUserInput } from "../interfaces/IUserInput";
 import { UserInputEvents } from "../ui/inputs/UserInputEvents";
 import { UserInputSubmitButton } from "../ui/inputs/UserInputSubmitButton";
@@ -12,6 +13,7 @@ export interface IMicrophoneBridgeOptions {
 	button: UserInputSubmitButton;
 	microphoneObj: IUserInput;
 	eventTarget: IEventTarget;
+	cfReference: IConversationalForm;
 }
 
 export const MicrophoneBridgeEvent = {
@@ -35,6 +37,7 @@ export class MicrophoneBridge {
 	private microphoneObj: IUserInput;
 	private eventTarget: IEventTarget;
 	private flowUpdateCallback?: () => void;
+	private cfReference: IConversationalForm;
 
 	private set hasUserMedia(value: boolean) {
 		this._hasUserMedia = value;
@@ -55,6 +58,7 @@ export class MicrophoneBridge {
 		this.el = options.el;
 		this.button = options.button;
 		this.eventTarget = options.eventTarget;
+		this.cfReference = options.cfReference;
 
 		// data object
 		this.microphoneObj = options.microphoneObj;
@@ -207,7 +211,7 @@ export class MicrophoneBridge {
 				// save response so it's available in getFlowDTO
 				this.currentTextResponse = (<any>result).toString();
 				if (!this.currentTextResponse || this.currentTextResponse == "") {
-					this.showError(Dictionary.get("user-audio-reponse-invalid"));
+					this.showError(this.cfReference.dictionary.get("user-audio-reponse-invalid"));
 					// invalid input, so call API again
 					this.callInput();
 					return;
@@ -236,7 +240,7 @@ export class MicrophoneBridge {
 				if (this.isErrorTerminal(error)) {
 					// terminal error, fallback to 
 					this.eventTarget.dispatchEvent(new CustomEvent(MicrophoneBridgeEvent.TERMNIAL_ERROR, {
-						detail: Dictionary.get("microphone-terminal-error")
+						detail: this.cfReference.dictionary.get("microphone-terminal-error")
 					}));
 
 					if (!CFGlobals.suppressLog) console.log("Conversational Form: Terminal error: ", error);
@@ -255,7 +259,7 @@ export class MicrophoneBridge {
 						this.showError(error);
 					} else {
 						this.eventTarget.dispatchEvent(new CustomEvent(MicrophoneBridgeEvent.TERMNIAL_ERROR, {
-							detail: Dictionary.get("microphone-terminal-error")
+							detail: this.cfReference.dictionary.get("microphone-terminal-error")
 						}));
 
 						if (!CFGlobals.suppressLog) console.log("Conversational Form: Terminal error: ", error);

@@ -28,8 +28,6 @@ export class ChatList extends BasicElement implements IChatList {
 	constructor(options: IBasicElementOptions) {
 		super(options);
 
-		ChatResponse.list = this;
-
 		this.responses = [];
 
 		// flow update
@@ -248,9 +246,9 @@ export class ChatList extends BasicElement implements IChatList {
 
 		if (!this.flowDTOFromUserInputUpdate.text && dto.tag) {
 			if (dto.tag.type == "group") {
-				this.flowDTOFromUserInputUpdate.text = Dictionary.get("user-reponse-missing-group");
+				this.flowDTOFromUserInputUpdate.text = this.cfReference.dictionary.get("user-reponse-missing-group");
 			} else if (dto.tag.type != "password") {
-				this.flowDTOFromUserInputUpdate.text = Dictionary.get("user-reponse-missing");
+				this.flowDTOFromUserInputUpdate.text = this.cfReference.dictionary.get("user-reponse-missing");
 			}
 		}
 
@@ -266,9 +264,13 @@ export class ChatList extends BasicElement implements IChatList {
 	}
 
 	public updateThumbnail(robot: boolean, img: string) {
-		Dictionary.set(robot ? "robot-image" : "user-image", robot ? "robot" : "human", img);
+		this.cfReference.dictionary.set(robot ? "robot-image" : "user-image", robot ? "robot" : "human", img);
 
-		const newImage: string = robot ? Dictionary.getRobotResponse("robot-image") : Dictionary.get("user-image");
+		const newImage: string = robot
+			? this.cfReference.dictionary.getRobotResponse("robot-image")
+			: this.cfReference.dictionary.get("user-image");
+
+
 		for (let i = 0; i < this.responses.length; i++) {
 			let element: ChatResponse = <ChatResponse>this.responses[i];
 			if (robot && element.isRobotResponse) {
@@ -290,7 +292,9 @@ export class ChatList extends BasicElement implements IChatList {
 			eventTarget: this.eventTarget,
 			isRobotResponse: isRobotResponse,
 			response: value,
-			image: isRobotResponse ? Dictionary.getRobotResponse("robot-image") : Dictionary.get("user-image"),
+			image: isRobotResponse
+				? this.cfReference.dictionary.getRobotResponse("robot-image")
+				: this.cfReference.dictionary.get("user-image"),
 			container: scrollable
 		});
 

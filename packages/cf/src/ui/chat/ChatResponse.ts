@@ -13,15 +13,14 @@ export const ChatResponseEvents = {
 
 // class
 export class ChatResponse extends BasicElement implements IChatResponse {
-	public static list: IChatList;
 	private static THINKING_MARKUP: string = "<p class='show'><thinking><span>.</span><span>.</span><span>.</span></thinking></p>";
 
 	public isRobotResponse: boolean;
-
 	public response?: string;
 	public originalResponse?: string; // keep track of original response with id pipings
 	public parsedResponse?: string;
 
+	private chatList: IChatList;
 	private textEl?: Element;
 	private image?: string;
 	private container: HTMLElement;
@@ -115,6 +114,7 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 
 	constructor(options: IChatResponseOptions) {
 		super(options);
+		this.chatList = options.list;
 		this.container = options.container;
 		this._tag = options.tag;
 		this.isRobotResponse = options.isRobotResponse;
@@ -217,7 +217,7 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 		if (this.isRobotResponse) {
 			// Piping, look through IDs, and map values to dynamics
 			//TODO: to resolve circular references, chat response and chatlist have to be splitted further
-			const reponses: Array<ChatResponse> = ChatResponse.list.getResponses() as ChatResponse[];
+			const reponses: Array<ChatResponse> = this.chatList.getResponses() as ChatResponse[];
 			for (var i = 0; i < reponses.length; i++) {
 				var response: ChatResponse = reponses[i];
 				if (response !== this) {
