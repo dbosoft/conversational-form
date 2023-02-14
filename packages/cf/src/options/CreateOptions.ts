@@ -2,20 +2,15 @@ import { IDictionaryOptions } from "../data/Dictionary";
 import { FlowDTO, IDomTag, ITagGroup } from "../form-tags/ITag";
 import { IUserInput } from "../interfaces/IUserInput";
 import { IEventTarget } from "../logic/IEventTarget";
-import { FormOptions } from "./IConversationalFormSettings";
+import { FormOptions } from "./FormOptions";
 
 
 export type CreateOptions = FormOptions & {
-    // HTMLFormElement
-    form: HTMLFormElement;
-
-    // context (HTMLElement) of where to append the ConversationalForm (see also cf-context attribute)
-    context: HTMLElement;
 
     appearance?: {
 
         // overwrite the default user words
-        user: {
+        user?: {
             // base64 || image url // overwrite robot image, without overwritting the robot dictionary
             image?: string;
 

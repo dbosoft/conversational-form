@@ -72,7 +72,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		this.inputElement.addEventListener('focus', this.onInputFocusCallback, false);
 		this.inputElement.addEventListener('blur', this.onInputBlurCallback, false);
 
-		if (!this.cfReference.options.appearance?.animations) {
+		if (this.cfReference.options.appearance?.animations?.enabled !== true) {
 			this.inputElement.setAttribute('no-animations', '');
 		}
 
@@ -445,7 +445,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 			this.inputElement.setAttribute('rows', (<InputTag>this._currentTag).rows.toString());
 		}
 
-		if (this.cfReference.options.appearance.hideUserInputOnNoneTextInput === true) {
+		if (this.cfReference.options.appearance?.hideUserInputOnNoneTextInput === true) {
 			// toggle userinput hide
 			if (this.controlElements.active) {
 				this.el.classList.add("hide-input");
@@ -515,7 +515,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 			this.shiftIsDown = true;
 
 		// If submit is prevented by option 'preventSubmitOnEnter'
-		if (this.cfReference.options.behaviour.noSubmitOnEnter === true && this.inputElement.hasAttribute('rows')
+		if (this.cfReference.options.behaviour?.noSubmitOnEnter === true && this.inputElement.hasAttribute('rows')
 			&& parseInt(this.inputElement.getAttribute('rows') ?? "") > 1) {
 			return;
 		}
@@ -528,7 +528,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 
 	private isControlElementsActiveAndUserInputHidden(): boolean {
 		return this.controlElements && this.controlElements.active
-			&& this.cfReference.options.appearance.hideUserInputOnNoneTextInput === true
+			&& this.cfReference.options.appearance?.hideUserInputOnNoneTextInput === true
 	}
 
 	private onKeyUp(event: Event) {
@@ -583,7 +583,7 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 
 		if ((keyEvent.keyCode == Dictionary.keyCodes["enter"] && !keyEvent.shiftKey) || keyEvent.keyCode == Dictionary.keyCodes["space"]) {
 			if (keyEvent.keyCode == Dictionary.keyCodes["enter"] && this.active) {
-				if (this.cfReference.options.behaviour.noSubmitOnEnter === true) return;
+				if (this.cfReference.options.behaviour?.noSubmitOnEnter === true) return;
 				event.preventDefault();
 				this.onEnterOrSubmitButtonSubmit();
 			} else {
@@ -661,15 +661,14 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 	}
 
 	public setFocusOnInput() {
-		if (!this.cfReference.options.behaviour.noAutoFocus && !this.el.classList.contains("hide-input")) {
+		if (!this.cfReference.options.behaviour?.noAutoFocus && !this.el.classList.contains("hide-input")) {
 			this.inputElement.focus();
 		}
 	}
 
 	protected onEnterOrSubmitButtonSubmit(event: CustomEvent | undefined = undefined) {
 		const isControlElementsActiveAndUserInputHidden: boolean = this.controlElements.active
-
-			&& this.cfReference.options.appearance.hideUserInputOnNoneTextInput;
+			&& (this.cfReference.options.appearance?.hideUserInputOnNoneTextInput ?? false);
 		if ((this.active || isControlElementsActiveAndUserInputHidden) && this.controlElements.highlighted) {
 			// active input field and focus on control elements happens when a control element is highlighted
 			this.controlElements.clickOnHighlighted();

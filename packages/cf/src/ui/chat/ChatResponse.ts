@@ -1,3 +1,4 @@
+import { defaultOptions } from "../..";
 import { CFGlobals } from "../../CFGlobal";
 import { ITag, FlowDTO } from "../../form-tags/ITag";
 import { Helpers } from "../../logic/Helpers";
@@ -17,26 +18,26 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 
 	public isRobotResponse: boolean;
 
-	public response: string;
-	public originalResponse: string; // keep track of original response with id pipings
-	public parsedResponse: string;
+	public response?: string;
+	public originalResponse?: string; // keep track of original response with id pipings
+	public parsedResponse?: string;
 
-	private textEl: Element;
-	private image: string;
+	private textEl?: Element;
+	private image?: string;
 	private container: HTMLElement;
-	private _tag: ITag;
+	private _tag?: ITag;
 	private readyTimer: any;
-	private responseLink: ChatResponse; // robot reference from use
-	private onReadyCallback: () => void;
+	private responseLink?: ChatResponse; // robot reference from use
+	private onReadyCallback?: () => void;
 
-	private onClickCallback: () => void;
+	private onClickCallback?: (event: Event) => void;
 
-	public get tag(): ITag {
+	public get tag(): ITag | undefined {
 		return this._tag;
 	}
 
 	public get added(): boolean {
-		return !!this.el || !!this.el.parentNode || !!this.el.parentNode.parentNode;
+		return (this.el && this.el.parentNode && this.el.parentNode.parentNode) != undefined;
 	}
 
 	public get disabled(): boolean {
@@ -58,9 +59,13 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 	}
 
 	private animateIn() {
-		const outer: HTMLElement = document.querySelector('scrollable');
-		const inner: HTMLElement = document.querySelector('.scrollableInner');
-		if (this.hasFlexBug()) inner.classList.remove('scroll');
+		const outer = document.querySelector('scrollable') as HTMLElement;
+		const inner = document.querySelector('.scrollableInner');
+
+		if (!outer || !inner)
+			return;
+
+		if (this.hasFlexBug()) inner?.classList.remove('scroll');
 
 		requestAnimationFrame(() => {
 			var height = this.el.scrollHeight;
@@ -104,7 +109,7 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 		var html = this.response;
 		// use browsers native way of stripping
 		var div = document.createElement("div");
-		div.innerHTML = html;
+		div.innerHTML = html ?? "";
 		return div.textContent || div.innerText || "";
 	}
 
@@ -112,13 +117,15 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 		super(options);
 		this.container = options.container;
 		this._tag = options.tag;
+		this.isRobotResponse = options.isRobotResponse;
+		this.response = options.response;
 	}
 
 	public whenReady(resolve: () => void) {
 		this.onReadyCallback = resolve;
 	}
 
-	public setValue(dto: FlowDTO = null) {
+	public setValue(dto?: FlowDTO) {
 
 		// if(!this.visible){
 		// 	this.visible = true;
@@ -143,7 +150,7 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 			if (dto && dto.controlElements && dto.controlElements[0]) {
 				switch (dto.controlElements[0].type) {
 					case "UploadFileUI":
-						this.textEl.classList.add("file-icon");
+						this.textEl?.classList.add("file-icon");
 						break;
 				}
 			}
@@ -232,12 +239,14 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 		// check if response contains an image as answer
 		const responseContains: boolean = innerResponse.indexOf("contains-image") != -1;
 		if (responseContains)
-			this.textEl.classList.add("contains-image");
+			this.textEl?.classList.add("contains-image");
 		// now set it
-		if (this.isRobotResponse) {
+		if (this.isRobotResponse && this.textEl) {
 			this.textEl.innerHTML = "";
 
-			let robotInitResponseTime: number = this.cfReference.options.appearance.robot.responseTime;
+			let robotInitResponseTime = this.cfReference.options.appearance?.robot?.responseTime
+				?? defaultOptions.appearance.robot.responseTime;
+
 			if (robotInitResponseTime != 0) {
 				this.setToThinking();
 			}
@@ -252,20 +261,27 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 				}
 				for (let i = 0; i < chainedResponses.length; i++) {
 					setTimeout(() => {
+
+						if (!this.textEl) return;
+
 						this.tryClearThinking();
 						const p = this.textEl.getElementsByTagName("p");
 						p[i].classList.add("show");
 						this.scrollTo();
 
 					}, chainedResponses.length > 1 && i > 0 ? robotInitResponseTime + ((i + 1) *
-						this.cfReference.options.appearance.robot.chainedResponseTime) : 0);
+						(this.cfReference.options.appearance?.robot?.chainedResponseTime
+							?? defaultOptions.appearance.robot.chainedResponseTime)) : 0);
 				}
 			} else {
 				for (let i = 0; i < chainedResponses.length; i++) {
 					const revealAfter = robotInitResponseTime + (i *
-						this.cfReference.options.appearance.robot.chainedResponseTime);
+						(this.cfReference.options.appearance?.robot?.chainedResponseTime ??
+							defaultOptions.appearance.robot.chainedResponseTime));
 					let str: string = <string>chainedResponses[i];
 					setTimeout(() => {
+						if (!this.textEl) return;
+
 						this.tryClearThinking();
 						this.textEl.innerHTML += "<p>" + str + "</p>";
 						const p = this.textEl.getElementsByTagName("p");
@@ -281,20 +297,27 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 					this.onReadyCallback();
 
 				// reset, as it can be called again
-				this.onReadyCallback = null;
+				this.onReadyCallback = undefined;
 
 				if (this._tag && this._tag.skipUserInput === true) {
 					setTimeout(() => {
-						this._tag.flowManager.nextStep()
+						if (!this._tag) return;
+
+						this._tag.flowManager?.nextStep()
 						this._tag.skipUserInput = false; // to avoid nextStep being fired again as this would make the flow jump too far when editing a response
-					}, this.cfReference.options.appearance.robot.chainedResponseTime);
+					}, this.cfReference.options.appearance?.robot?.chainedResponseTime ??
+					defaultOptions.appearance.robot.chainedResponseTime);
 				}
 
 			}, robotInitResponseTime + (chainedResponses.length *
-				this.cfReference.options.appearance.robot.chainedResponseTime));
+				(
+					this.cfReference.options.appearance?.robot?.chainedResponseTime
+					?? defaultOptions.appearance.robot.chainedResponseTime)));
 		} else {
 			// user response, act normal
 			this.tryClearThinking();
+
+			if (!this.textEl) return;
 
 			const hasImage = innerResponse.indexOf('<img') > -1;
 			const imageRegex = new RegExp('<img[^>]*?>', 'g');
@@ -318,7 +341,7 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 
 		// value set, so add element, if not added
 		if (
-			this.cfReference.options.appearance.robot
+			this.cfReference.options.appearance?.robot
 			&& this.cfReference.options.appearance.robot.responseTime === 0
 		) {
 			this.addSelf();
@@ -331,7 +354,9 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 		// bounce
 		this.textEl.removeAttribute("value-added");
 		setTimeout(() => {
-			this.textEl.setAttribute("value-added", "");
+			if (this.textEl)
+				this.textEl.setAttribute("value-added", "");
+
 			this.el.classList.add("peak-thumb");
 		}, 0);
 
@@ -367,22 +392,28 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 
 	private tryClearThinking() {
 		if (this.el.hasAttribute("thinking")) {
-			this.textEl.innerHTML = "";
+			if (this.textEl)
+				this.textEl.innerHTML = "";
+
 			this.el.removeAttribute("thinking");
 		}
 	}
 
 	private setToThinking() {
-		const canShowThinking: boolean = (this.isRobotResponse
-			&& this.cfReference.options.appearance.robot.responseTime !== 0)
-			|| (!this.isRobotResponse && this.cfReference.options.appearance.user.showThinking && !this._tag.skipUserInput);
+		const canShowThinking: boolean = ((this.isRobotResponse
+			&& this.cfReference.options.appearance?.robot?.responseTime !== 0)
+			|| (!this.isRobotResponse && this.cfReference.options.appearance?.user?.showThinking &&
+				!this._tag?.skipUserInput)) ?? false;
+
 		if (canShowThinking) {
-			this.textEl.innerHTML = ChatResponse.THINKING_MARKUP;
+			if (this.textEl)
+				this.textEl.innerHTML = ChatResponse.THINKING_MARKUP;
 			this.el.classList.remove("can-edit");
 			this.el.setAttribute("thinking", "");
 		}
 
-		if (this.cfReference.options.appearance.user.showThinking || this.cfReference.options.appearance.user.showThumb) {
+		if (this.cfReference.options.appearance?.user?.showThinking
+			|| this.cfReference.options.appearance?.user?.showThumb) {
 			this.addSelf();
 		}
 	}
@@ -402,7 +433,7 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 	* @name onClickCallback
 	* click handler for el
 	*/
-	private onClick(event: MouseEvent): void {
+	private onClick(event: Event): void {
 		this.setToThinking();
 
 		CFGlobals.illustrateFlow(this, "dispatch", ChatResponseEvents.USER_ANSWER_CLICKED, event);
@@ -421,7 +452,8 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 	protected onElementCreated() {
 		this.textEl = <Element>this.el.getElementsByTagName("text")[0];
 
-		this.updateThumbnail(this.image);
+		if (this.image)
+			this.updateThumbnail(this.image);
 
 		if (this.isRobotResponse || this.response != null) {
 			// Robot is pseudo thinking, can also be user -->
@@ -431,7 +463,7 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 			}, 0);
 			//ConversationalForm.animationsEnabled ? Helpers.lerp(Math.random(), 500, 900) : 0);
 		} else {
-			if (this.cfReference.options.appearance.user.showThumb) {
+			if (this.cfReference.options.appearance?.user?.showThumb === true) {
 				this.el.classList.add("peak-thumb");
 			}
 		}
@@ -439,12 +471,11 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 
 	public dealloc() {
 		clearTimeout(this.readyTimer);
-		this.container = null;
-		this.onReadyCallback = null;
+		this.onReadyCallback = undefined;
 
 		if (this.onClickCallback) {
 			this.el.removeEventListener(Helpers.getMouseEvent("click"), this.onClickCallback, false);
-			this.onClickCallback = null;
+			this.onClickCallback = undefined;
 		}
 
 		super.dealloc();

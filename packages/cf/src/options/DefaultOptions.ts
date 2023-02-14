@@ -1,10 +1,5 @@
-// default options interface for optional parameters for the UI of Conversational Form
 
-import { CreateOptions } from "..";
-import { FormOptions } from "../options/IConversationalFormSettings";
-
-
-export const defaultOptions: FormOptions = {
+export const defaultOptions = {
 
 	behaviour: {
 		suppressLog: true,
@@ -13,8 +8,9 @@ export const defaultOptions: FormOptions = {
 	},
 
 	appearance: {
-		scrollAcceleration: 0.5,
+		scrollAcceleration: 0.1,
 		animations: {
+			enabled: true,
 			delay: 250,
 		},
 

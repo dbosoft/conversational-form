@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import ConversationalForm from '@dbosoft/cf-next';
 import { useRef } from 'react';
+import data from '../formless-test-data.json';
 
 export default function Home() {
 
@@ -42,14 +43,21 @@ export default function Home() {
           </div>
           <div className=" flex flex-col items-center justify-center">
             <ConversationalForm
-              cf={{ formRef }}
+              cf={{
+                formRef,
+                appearance: {
+                  robot: {
+                    image: "/images/chatbot.svg"
+                  }
+                }
+              }}
               className="bg-[#2C2C2E] relative mt-6 text-center min-h-[300px] w-full lg:w-[600px]">
               <template id='optionButton'></template>
               <template id='1'></template>
             </ConversationalForm>
 
             <ConversationalForm
-              cf={{ formRef }}
+              cf={{ formTags: data }}
               className="bg-[#2C2C2E] relative mt-6 text-center min-h-[300px] w-full lg:w-[600px]">
               <template id='2'></template>
             </ConversationalForm>

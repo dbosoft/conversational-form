@@ -191,8 +191,7 @@ export class ControlElements {
 		if (!(<any>event.detail).currentResponse.isRobotResponse) {
 			this.animateInFromResponseTimer = setTimeout(() => {
 				this.animateElementsIn();
-			}, (typeof this.cfReference.options.appearance.animations !== "boolean") ?
-				this.cfReference.options.appearance.animations.delay ?? 0 : 0);
+			}, this.cfReference.options.appearance?.animations?.delay ?? 0);
 		}
 	}
 
@@ -470,7 +469,7 @@ export class ControlElements {
 
 		if (this.tableableRows[this.rowIndex] && this.tableableRows[this.rowIndex][this.columnIndex]) {
 			this.ignoreKeyboardInput = true;
-			if (!this.cfReference.options.behaviour.noAutoFocus) {
+			if (!!this.cfReference.options.behaviour?.noAutoFocus) {
 				this.tableableRows[this.rowIndex][this.columnIndex].focus = true;
 			}
 		} else {

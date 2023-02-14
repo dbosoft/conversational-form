@@ -182,7 +182,7 @@ export class ChatList extends BasicElement implements IChatList {
 		for (let i = 0; i < this.responses.length; i++) {
 			let element: ChatResponse = <ChatResponse>this.responses[i];
 			if (!element.isRobotResponse && element.tag == tagToChange) {
-				// update element thhat user wants to edit
+				// update element that user wants to edit
 				responseUserWantsToEdit = element;
 				break;
 			}
@@ -200,6 +200,7 @@ export class ChatList extends BasicElement implements IChatList {
 
 				// remove latest robot response, it should always be a robot response
 				this.responses.pop()?.dealloc();
+
 			}
 
 			this.currentUserResponse = responseUserWantsToEdit;
@@ -296,7 +297,7 @@ export class ChatList extends BasicElement implements IChatList {
 		this.responses.push(response);
 
 		this.currentResponse = response;
-
+		this.currentUserResponse = undefined;
 		this.onListUpdate(response);
 
 		return response;

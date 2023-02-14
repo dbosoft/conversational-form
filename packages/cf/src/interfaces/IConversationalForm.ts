@@ -1,4 +1,4 @@
-import { FormOptions } from "../options/IConversationalFormSettings";
+import { FormOptions } from "../options/FormOptions";
 
 
 export interface IConversationalForm {

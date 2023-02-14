@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { ConversationalComponentProps } from '@dbosoft/cf-react';
+import { CFProps } from '@dbosoft/cf-react';
 
-export type ConversationalFormProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-    cf: ConversationalComponentProps
+export type ConversationalFormProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> &
+{
+    cf: CFProps
 }
 
 export default function ConversationalForm({ cf: cfProps, ...contextProps }: ConversationalFormProps) {
@@ -18,7 +19,7 @@ export default function ConversationalForm({ cf: cfProps, ...contextProps }: Con
 
     return <><div ref={contextRef} {...contextProps}>{!isSSR &&
         <React.Suspense fallback={<div />}>
-            <ConversationFormCSR {...cfProps} />
+            <ConversationFormCSR contextRef={contextRef} {...cfProps} />
         </React.Suspense>}</div></>
 
 };

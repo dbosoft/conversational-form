@@ -12,7 +12,7 @@ import { IUserInput } from "./interfaces/IUserInput";
 import { EventDispatcher } from "./logic/EventDispatcher";
 import { FlowManager } from "./logic/FlowManager";
 import { IEventTarget } from "./logic/IEventTarget";
-import { FormOptions } from "./options/IConversationalFormSettings";
+import { FormOptions } from "./options/FormOptions";
 import { DataTag, TagsParser } from "./parsing/TagsParser";
 import { ChatList } from "./ui/chat/ChatList";
 import { ChatResponseEvents } from "./ui/chat/ChatResponse";
@@ -63,7 +63,10 @@ export class ConversationalForm implements IConversationalForm {
 	private userInput?: IUserInput;
 	private tagBuilder: ITagBuilder;
 
-	constructor({ form, context, ...optionalOptions }: CreateOptions) {
+	constructor({ form, context, ...optionalOptions }: {
+		form: HTMLFormElement,
+		context: HTMLElement,
+	} & CreateOptions) {
 
 		const {
 			tags,
@@ -76,16 +79,19 @@ export class ConversationalForm implements IConversationalForm {
 
 		// initialize form options form create options
 		this.options = {
-			behaviour: behaviour,
-			appearance: appearance
+			behaviour: { ...defaultOptions.behaviour, ...behaviour },
+			appearance: {
+				animations: { ...defaultOptions.appearance.animations, ...appearance?.animations },
+				user: { ...defaultOptions.appearance.user, ...appearance?.user },
+				robot: { ...defaultOptions.appearance.robot, ...appearance?.robot },
+			}
 		}
 
-		if ((typeof this.options.appearance.animations) === 'boolean' && this.options.appearance == true) {
-			this.options.appearance.animations = defaultOptions.appearance.animations;
-		}
 
+		this.isDevelopment = CFGlobals.illustrateAppFlow = !!document.getElementById("conversational-form-development");
 		CFGlobals.suppressLog = this.options.behaviour?.suppressLog
-			?? defaultOptions.behaviour.suppressLog ?? true;
+			?? defaultOptions.behaviour?.suppressLog ?? true;
+
 
 		if (!CFGlobals.suppressLog) console.log('Conversational Form > options:', this.options);
 
@@ -94,10 +100,7 @@ export class ConversationalForm implements IConversationalForm {
 
 		// set a general step validation callback
 		this.flowStepCallback = onFlowStep;
-		this.isDevelopment = CFGlobals.illustrateAppFlow = !!document.getElementById("conversational-form-development");
-		if (this.isDevelopment && typeof this.options.behaviour.suppressLog !== 'boolean') {
-			CFGlobals.suppressLog = false;
-		}
+
 
 		if (!form)
 			throw new Error("Conversational Form error, the formElement needs to be defined.");
@@ -108,10 +111,10 @@ export class ConversationalForm implements IConversationalForm {
 		this.submitCallback = onSubmit;
 
 		this.dictionary = new Dictionary({
-			data: appearance.user.dictionary,
-			robotData: appearance.robot.dictionary,
-			userImage: appearance.user.image ?? "",
-			robotImage: appearance.robot.image ?? ""
+			data: appearance?.user?.dictionary,
+			robotData: appearance?.robot?.dictionary,
+			userImage: appearance?.user?.image ?? "",
+			robotImage: appearance?.robot?.image ?? ""
 		});
 
 		if (!context)
@@ -187,7 +190,7 @@ export class ConversationalForm implements IConversationalForm {
 
 		this.addBrowserTypes(this.el);
 
-		if (appearance.animations === true)
+		if (this.options.appearance?.animations?.enabled === true)
 			this.el.classList.add("conversational-form--enable-animation");
 
 		// add conversational form to context
@@ -211,7 +214,7 @@ export class ConversationalForm implements IConversationalForm {
 			cfReference: this
 		});
 
-		if (appearance.showProgressBar === true) {
+		if (appearance?.showProgressBar === true) {
 			const progressBar = new ProgressBar({
 				cfReference: this,
 				eventTarget: this.eventTarget
@@ -494,39 +497,12 @@ export class ConversationalForm implements IConversationalForm {
 
 	}
 
-	/*
-	public static startTheConversation(data: ConversationalFormOptions | ConversationalFormlessOptions) {
-		let isFormless: boolean = !!(<any>data).formEl === false;
-		let formlessTags: any;
-		let constructorOptions: ConversationalFormOptions;
-
-		if (isFormless) {
-			if (typeof data === "string") {
-				// Formless init w. string
-				isFormless = true;
-				const json: any = JSON.parse(data)
-				constructorOptions = (<ConversationalFormlessOptions>json).options;
-				formlessTags = (<ConversationalFormlessOptions>json).tags;
-			} else {
-				// Formless init w. JSON object
-				constructorOptions = (<ConversationalFormlessOptions>data).options;
-				formlessTags = (<ConversationalFormlessOptions>data).tags;
-			}
-
-			// formless, so generate the pseudo tags
-
-			const formEl: HTMLFormElement = TagsParser.parseJSONIntoElements(formlessTags)
-			constructorOptions.formEl = formEl;
-		} else {
-			// keep it standard
-			constructorOptions = <ConversationalFormOptions>data;
-		}
-
-		return new ConversationalForm(constructorOptions);
-	}*/
-
+	public static generateForm(formlessTags: any[]): HTMLFormElement {
+		return TagsParser.parseJSONIntoElements(formlessTags);
+	}
 
 	private isDomTag(tag: ITag): tag is IDomTag {
 		return tag.type != "group";
 	}
 }
+

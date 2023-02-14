@@ -20,9 +20,9 @@ export type FormOptions = {
         // optional horizontal scroll acceleration value, 0-1
         scrollAcceleration?: number;
 
-        animations?: boolean | {
-            // the in-animation delay of control elements (checkbox, radio option), while user response is awaiting
-            delay?: number;
+        animations?: {
+            enabled: boolean;
+            delay?: number
         };
 
         // optional, hide UserInputField when radio, checkbox, select input is active
@@ -49,3 +49,4 @@ export type FormOptions = {
         }
     },
 }
+

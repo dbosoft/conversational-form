@@ -1,8 +1,8 @@
-import { ConversationalComponentProps, ConversationalComponent } from "@dbosoft/cf-react";
+import { CFWithContextRefProps, ConversationalForm } from "@dbosoft/cf-react";
 
-export default function ConversationalFormCSR(props: ConversationalComponentProps) {
+export default function ConversationalFormCSR(props: CFWithContextRefProps) {
 
     return <>
-        <ConversationalComponent {...props}></ConversationalComponent>
+        <ConversationalForm {...props}></ConversationalForm>
     </>
 } 
