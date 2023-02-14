@@ -246,7 +246,7 @@ export class ConversationalForm implements IConversationalForm {
 	*	value: string, value to be inserted
 	*/
 	public updateDictionaryValue(id: string, type: string, value: string) {
-		Dictionary.set(id, type, value);
+		this.dictionary.set(id, type, value);
 
 		// if(["robot-image", "user-image"].indexOf(id) != -1){
 		// 	this.chatList.updateThumbnail(id == "robot-image", value);

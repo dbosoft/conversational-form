@@ -23,7 +23,7 @@ export default function Home() {
           <div className="mx-auto mt-5 max-w-xl sm:flex sm:justify-center md:mt-8">
           </div>
           <div>
-            <form ref={formRef} id="cf-form" className='invisible' >
+            <form ref={formRef} id="cf-form" className='invisible h-0' >
 
               <input type="text" cf-questions="Hi there. What is your name?" name="name" cf-placeholder="Your name"
                 defaultValue="Filippa" />
@@ -41,7 +41,7 @@ export default function Home() {
 
             </form>
           </div>
-          <div className=" flex flex-col items-center justify-center">
+          <div className=" flex flex-col xl:flex-row items-center xl:space-x-10 justify-between">
             <ConversationalForm
               cf={{
                 formRef,
@@ -51,14 +51,14 @@ export default function Home() {
                   }
                 }
               }}
-              className="bg-[#2C2C2E] relative mt-6 text-center min-h-[300px] w-full lg:w-[600px]">
+              className="bg-[#2C2C2E] relative mt-6 text-center min-h-[400px] w-full lg:w-[600px]">
               <template id='optionButton'></template>
               <template id='1'></template>
             </ConversationalForm>
 
             <ConversationalForm
               cf={{ formTags: data }}
-              className="bg-[#2C2C2E] relative mt-6 text-center min-h-[300px] w-full lg:w-[600px]">
+              className="bg-[#2C2C2E] relative mt-6 text-center min-h-[400px] w-full lg:w-[600px]">
               <template id='2'></template>
             </ConversationalForm>
           </div>

@@ -107,7 +107,8 @@ export class UserTextInput extends UserInputElement implements IUserTextInput {
 		// this.eventTarget.addEventListener(ControlElementsEvents.ON_RESIZE, () => {}, false);
 
 		this.submitButton = new UserInputSubmitButton({
-			eventTarget: this.eventTarget
+			eventTarget: this.eventTarget,
+			cfReference: this.cfReference
 		});
 
 		this.el.querySelector('div')?.appendChild(this.submitButton.el);

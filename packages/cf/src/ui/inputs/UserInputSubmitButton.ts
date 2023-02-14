@@ -1,4 +1,5 @@
 import { FlowDTO } from "../../form-tags/ITag";
+import { IConversationalForm } from "../../interfaces/IConversationalForm";
 import { IUserInput } from "../../interfaces/IUserInput";
 import { FlowEvents } from "../../logic/FlowManager";
 import { IEventTarget } from "../../logic/IEventTarget";
@@ -6,6 +7,7 @@ import { MicrophoneBridge, MicrophoneBridgeEvent } from "../../logic/MicrophoneB
 
 export interface UserInputSubmitButtonOptions {
 	eventTarget: IEventTarget;
+	cfReference: IConversationalForm
 }
 
 export const UserInputSubmitButtonEvents = {
@@ -16,6 +18,7 @@ export const UserInputSubmitButtonEvents = {
 export class UserInputSubmitButton {
 	private onClickCallback?: (event: Event) => void;
 	private eventTarget: IEventTarget;
+	private cfReference: IConversationalForm;
 
 	private mic?: MicrophoneBridge;
 	private _active: boolean = true;
@@ -66,6 +69,7 @@ export class UserInputSubmitButton {
 
 	constructor(options: UserInputSubmitButtonOptions) {
 		this.eventTarget = options.eventTarget;
+		this.cfReference = options.cfReference;
 
 		var template: HTMLTemplateElement = document.createElement('template');
 		template.innerHTML = this.getTemplate();
@@ -92,7 +96,8 @@ export class UserInputSubmitButton {
 			el: mic,
 			button: this,
 			eventTarget: this.eventTarget,
-			microphoneObj: microphoneObj
+			microphoneObj: microphoneObj,
+			cfReference: this.cfReference,
 		});
 
 		this.el.appendChild(mic);
