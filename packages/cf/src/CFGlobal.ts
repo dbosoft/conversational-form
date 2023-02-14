@@ -1,9 +1,6 @@
 export class CFGlobals {
-    public static animationsEnabled: boolean = true;
     public static illustrateAppFlow: boolean = true;
     public static suppressLog: boolean = true;
-    public static showProgressBar: boolean = false;
-    public static preventSubmitOnEnter: boolean = false;
 
     // to illustrate the event flow of the app
     public static illustrateFlow(classRef: any, type: string, eventType: string, detail: any = null) {

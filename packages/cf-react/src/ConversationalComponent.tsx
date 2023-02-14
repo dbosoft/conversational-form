@@ -26,22 +26,6 @@ export type ConversationalComponentWithContextRefProps = ConversationalComponent
     contextRef?: RefObject<HTMLElement>
 }
 
-function hasContextRef(props: ConversationalComponentWithContextRefProps | ConversationalComponentWithContextProps)
-    : props is ConversationalComponentWithContextRefProps {
-    return (props as ConversationalComponentWithContextRefProps)?.contextRef !== undefined;
-}
-
-function hasContext(props: ConversationalComponentWithContextRefProps | ConversationalComponentWithContextProps)
-    : props is ConversationalComponentWithContextProps {
-    return (props as ConversationalComponentWithContextProps)?.context !== undefined;
-}
-
-function isFormless(props: FormlessProps | FormProps)
-    : props is FormlessProps & (ConversationalComponentWithContextProps | ConversationalComponentWithContextRefProps) {
-
-    return (props as FormlessProps)?.formTags !== undefined;
-}
-
 export function ConversationalComponent({
     onSubmit,
     ...props }
@@ -82,4 +66,20 @@ export function ConversationalComponent({
     }, []);
 
     return <div ref={localContextRef} {...contextProps} />
+}
+
+function hasContextRef(props: ConversationalComponentWithContextRefProps | ConversationalComponentWithContextProps)
+    : props is ConversationalComponentWithContextRefProps {
+    return (props as ConversationalComponentWithContextRefProps)?.contextRef !== undefined;
+}
+
+function hasContext(props: ConversationalComponentWithContextRefProps | ConversationalComponentWithContextProps)
+    : props is ConversationalComponentWithContextProps {
+    return (props as ConversationalComponentWithContextProps)?.context !== undefined;
+}
+
+function isFormless(props: FormlessProps | FormProps)
+    : props is FormlessProps & (ConversationalComponentWithContextProps | ConversationalComponentWithContextRefProps) {
+
+    return (props as FormlessProps)?.formTags !== undefined;
 }

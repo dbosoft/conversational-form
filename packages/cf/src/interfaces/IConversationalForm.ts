@@ -1,12 +1,9 @@
-import { IConversationalFormSettings } from "../options/IConversationalFormSettings";
-import { IUserInterfaceOptions } from "./IUserInterfaceOptions";
+import { FormOptions } from "../options/IConversationalFormSettings";
 
 
 export interface IConversationalForm {
     el: HTMLElement;
-    uiOptions: IUserInterfaceOptions;
-    options: IConversationalFormSettings;
-    preventSubmitOnEnter: boolean;
+    options: FormOptions;
 
     doSubmitForm(): void;
     removeStepFromChatList(index: number): void;

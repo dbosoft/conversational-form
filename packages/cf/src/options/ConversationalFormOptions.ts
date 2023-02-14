@@ -1,50 +1,50 @@
-import { FlowDTO, IDomTag, ITag, ITagGroup } from "../form-tags/ITag";
+import { IDictionaryOptions } from "../data/Dictionary";
+import { FlowDTO, IDomTag, ITagGroup } from "../form-tags/ITag";
 import { IUserInput } from "../interfaces/IUserInput";
-import { IUserInterfaceOptions } from "../interfaces/IUserInterfaceOptions";
-import { EventDispatcher } from "../logic/EventDispatcher";
-import { IConversationalFormSettings } from "./IConversationalFormSettings";
+import { IEventTarget } from "../logic/IEventTarget";
+import { FormOptions } from "./IConversationalFormSettings";
 
 
-export interface ConversationalFormOptions extends IConversationalFormSettings {
+export type CreateOptions = FormOptions & {
     // HTMLFormElement
-    formEl: HTMLFormElement;
+    form: HTMLFormElement;
 
     // context (HTMLElement) of where to append the ConversationalForm (see also cf-context attribute)
-    context?: HTMLElement;
+    context: HTMLElement;
 
-    // pass in custom tags (when prevent the auto-instantiation of ConversationalForm)
-    tags?: Array<IDomTag | ITagGroup>;
+    appearance?: {
 
-    // overwrite the default user Dictionary items
-    dictionaryData?: Object;
+        // overwrite the default user words
+        user: {
+            // base64 || image url // overwrite robot image, without overwritting the robot dictionary
+            image?: string;
 
-    // overwrite the default robot Dictionary items
-    dictionaryRobot?: Object;
+            dictionary?: IDictionaryOptions;
+        },
+
+        robot?: {
+            //base64 || image url // overwrite user image, without overwritting the user dictionary
+            image?: string;
+
+            // overwrite the default robot Dictionary items
+            dictionary?: IDictionaryOptions;
+        }
+
+    }
 
     // custom submit callback if button[type=submit] || form.submit() is not wanted..
-    submitCallback?: () => void | HTMLButtonElement;
-
+    onSubmit?: () => void | HTMLButtonElement;
 
     // allow for a global validation method, asyncronous, so a value can be validated through a server, call success || error
-    flowStepCallback?: (dto: FlowDTO, success: () => void, error: () => void) => void;
+    onFlowStep?: (dto: FlowDTO, success: () => void, error: () => void) => void;
 
-    // optional event dispatcher, has to be an instance of cf.EventDispatcher
-    eventDispatcher?: EventDispatcher;
+    // optional, pass in custom tags
+    tags?: Array<IDomTag | ITagGroup>;
 
-    // optional, set microphone nput, future, add other custom inputs, ex. VR
-    microphoneInput?: IUserInput;
+    // optional event dispatcher, has to be an instance of IEventTarget
+    eventDispatcher?: IEventTarget;
 
-    // optional, hide ÜserInputField when radio, checkbox, select input is active
-    hideUserInputOnNoneTextInput?: boolean;
+    // optional, set microphone input, or in future, add other custom inputs, e.g. VR
+    userInput?: IUserInput;
 
-    // optional, parameters for the User Interface of Conversational Form, set here to show thinking dots or not, set delay time in-between robot responses
-    userInterfaceOptions?: IUserInterfaceOptions;
-
-
-}
-
-// CUI formless options
-export interface ConversationalFormlessOptions {
-    options: any;
-    tags: any;
 }

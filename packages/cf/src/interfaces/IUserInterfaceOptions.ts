@@ -1,41 +1,33 @@
 // default options interface for optional parameters for the UI of Conversational Form
-export const UserInterfaceDefaultOptions: IUserInterfaceOptions = {
-	controlElementsInAnimationDelay: 250,
-	robot: {
-		robotResponseTime: 0,
-		chainedResponseTime: 500
-	},
-	user: {
-		showThinking: false,
-		showThumb: false
-	}
-}
 
-// general interface for user input, like the default UserTextInput
-export type IUserInterfaceOptions = {
-	// the in-animation delay of control elements (checkbox, radio option), while user response is awaiting
-	controlElementsInAnimationDelay?: number;
+import { CreateOptions } from "..";
+import { FormOptions } from "../options/IConversationalFormSettings";
 
-	// robot bobble
-	robot?: {
-		// show thinking dots for robot, defaults to 0
-		robotResponseTime?: number;
 
-		// the delay inbetween chained robot responses
-		chainedResponseTime?: number;
+export const defaultOptions: FormOptions = {
+
+	behaviour: {
+		suppressLog: true,
+		noAutoFocus: false,
+		noSubmitOnEnter: false
 	},
 
-	// user bobble
-	user?: {
-		// to show thinking state or not, defaults to false;
-		showThinking?: boolean
+	appearance: {
+		scrollAcceleration: 0.5,
+		animations: {
+			delay: 250,
+		},
 
-		// to show user thumbnail, defaults to false
-		showThumb?: boolean
-	}
+		robot: {
+			responseTime: 0,
+			chainedResponseTime: 500
+		},
+		user: {
+			showThinking: false,
+			showThumb: false
+		}
 
-	// text input
-	input?: {
+	},
 
-	}
 }
+

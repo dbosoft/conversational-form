@@ -1,3 +1,3 @@
-export interface IChatResponse{
-    
+export interface IChatResponse {
+
 }

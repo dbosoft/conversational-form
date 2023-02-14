@@ -1,6 +1,5 @@
 import { CFGlobals } from "../../CFGlobal";
 import { ITag, FlowDTO } from "../../form-tags/ITag";
-import { IUserInterfaceOptions } from "../../interfaces/IUserInterfaceOptions";
 import { Helpers } from "../../logic/Helpers";
 import { IChatResponseOptions } from "../../options/IChatResponseOptions";
 import { BasicElement } from "../BasicElement";
@@ -22,7 +21,6 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 	public originalResponse: string; // keep track of original response with id pipings
 	public parsedResponse: string;
 
-	private uiOptions: IUserInterfaceOptions;
 	private textEl: Element;
 	private image: string;
 	private container: HTMLElement;
@@ -113,7 +111,6 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 	constructor(options: IChatResponseOptions) {
 		super(options);
 		this.container = options.container;
-		this.uiOptions = options.cfReference.uiOptions;
 		this._tag = options.tag;
 	}
 
@@ -240,9 +237,7 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 		if (this.isRobotResponse) {
 			this.textEl.innerHTML = "";
 
-			if (!this.uiOptions) this.uiOptions = this.cfReference.uiOptions; // On edit uiOptions are empty, so this mitigates the problem. Not ideal.
-
-			let robotInitResponseTime: number = this.uiOptions.robot.robotResponseTime;
+			let robotInitResponseTime: number = this.cfReference.options.appearance.robot.responseTime;
 			if (robotInitResponseTime != 0) {
 				this.setToThinking();
 			}
@@ -262,11 +257,13 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 						p[i].classList.add("show");
 						this.scrollTo();
 
-					}, chainedResponses.length > 1 && i > 0 ? robotInitResponseTime + ((i + 1) * this.uiOptions.robot.chainedResponseTime) : 0);
+					}, chainedResponses.length > 1 && i > 0 ? robotInitResponseTime + ((i + 1) *
+						this.cfReference.options.appearance.robot.chainedResponseTime) : 0);
 				}
 			} else {
 				for (let i = 0; i < chainedResponses.length; i++) {
-					const revealAfter = robotInitResponseTime + (i * this.uiOptions.robot.chainedResponseTime);
+					const revealAfter = robotInitResponseTime + (i *
+						this.cfReference.options.appearance.robot.chainedResponseTime);
 					let str: string = <string>chainedResponses[i];
 					setTimeout(() => {
 						this.tryClearThinking();
@@ -290,10 +287,11 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 					setTimeout(() => {
 						this._tag.flowManager.nextStep()
 						this._tag.skipUserInput = false; // to avoid nextStep being fired again as this would make the flow jump too far when editing a response
-					}, this.uiOptions.robot.chainedResponseTime);
+					}, this.cfReference.options.appearance.robot.chainedResponseTime);
 				}
 
-			}, robotInitResponseTime + (chainedResponses.length * this.uiOptions.robot.chainedResponseTime));
+			}, robotInitResponseTime + (chainedResponses.length *
+				this.cfReference.options.appearance.robot.chainedResponseTime));
 		} else {
 			// user response, act normal
 			this.tryClearThinking();
@@ -320,8 +318,8 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 
 		// value set, so add element, if not added
 		if (
-			this.uiOptions.robot
-			&& this.uiOptions.robot.robotResponseTime === 0
+			this.cfReference.options.appearance.robot
+			&& this.cfReference.options.appearance.robot.responseTime === 0
 		) {
 			this.addSelf();
 		} else {
@@ -375,14 +373,16 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 	}
 
 	private setToThinking() {
-		const canShowThinking: boolean = (this.isRobotResponse && this.uiOptions.robot.robotResponseTime !== 0) || (!this.isRobotResponse && this.cfReference.uiOptions.user.showThinking && !this._tag.skipUserInput);
+		const canShowThinking: boolean = (this.isRobotResponse
+			&& this.cfReference.options.appearance.robot.responseTime !== 0)
+			|| (!this.isRobotResponse && this.cfReference.options.appearance.user.showThinking && !this._tag.skipUserInput);
 		if (canShowThinking) {
 			this.textEl.innerHTML = ChatResponse.THINKING_MARKUP;
 			this.el.classList.remove("can-edit");
 			this.el.setAttribute("thinking", "");
 		}
 
-		if (this.cfReference.uiOptions.user.showThinking || this.cfReference.uiOptions.user.showThumb) {
+		if (this.cfReference.options.appearance.user.showThinking || this.cfReference.options.appearance.user.showThumb) {
 			this.addSelf();
 		}
 	}
@@ -431,7 +431,7 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 			}, 0);
 			//ConversationalForm.animationsEnabled ? Helpers.lerp(Math.random(), 500, 900) : 0);
 		} else {
-			if (this.cfReference.uiOptions.user.showThumb) {
+			if (this.cfReference.options.appearance.user.showThumb) {
 				this.el.classList.add("peak-thumb");
 			}
 		}
@@ -440,7 +440,6 @@ export class ChatResponse extends BasicElement implements IChatResponse {
 	public dealloc() {
 		clearTimeout(this.readyTimer);
 		this.container = null;
-		this.uiOptions = null;
 		this.onReadyCallback = null;
 
 		if (this.onClickCallback) {

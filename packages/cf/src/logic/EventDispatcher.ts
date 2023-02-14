@@ -4,23 +4,8 @@ import { IEventTarget } from "./IEventTarget";
 export class EventDispatcher implements IEventTarget {
 	private target: DocumentFragment;
 
-	private _cf: IConversationalForm;
-	public get cf(): IConversationalForm {
-		return this._cf;
-	}
-
-	public set cf(value: IConversationalForm) {
-		this._cf = value;
-	}
-
-	constructor(cfRef: IConversationalForm) {
-		this._cf = cfRef;
-
+	constructor() {
 		this.target = document.createDocumentFragment();
-	}
-
-	private isCustomEvent(event: Event): event is CustomEvent {
-		return 'detail' in event;
 	}
 
 	public addEventListener(type: string, listener: (e: CustomEvent) => void, useCapture?: boolean): void {

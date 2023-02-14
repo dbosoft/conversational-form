@@ -1,31 +1,51 @@
-export interface IConversationalFormSettings {
-    // prevent auto appending of Conversational Form, append it yourself.
-    preventAutoAppend?: boolean;
+export type FormOptions = {
 
-    // start the form in your own time, {cf-instance}.start(), exclude cf-form from form tag, see examples: manual-start.html
-    preventAutoStart?: boolean;
+    behaviour?: {
 
-    // prevents the initial auto focus on UserInput
-    preventAutoFocus?: boolean;
+        // optional, Whenther to suppress console.log, default true
+        suppressLog?: boolean;
 
-    // optional horizontal scroll acceleration value, 0-1
-    scrollAcceleration?: number;
+        // prevents the initial auto focus on UserInput
+        noAutoFocus?: boolean;
 
-    // optional, Whenther to suppress console.log, default true
-    suppressLog?: boolean;
+        // Prevent submit on Enter keypress
+        noSubmitOnEnter?: boolean;
+    }
 
-    // Show progressbar
-    showProgressBar?: boolean;
+    appearance?: {
 
-    //base64 || image url // overwrite user image, without overwritting the user dictionary
-    userImage?: string;
+        // Show progressbar
+        showProgressBar?: boolean;
 
-    // base64 || image url // overwrite robot image, without overwritting the robot dictionary
-    robotImage?: string;
+        // optional horizontal scroll acceleration value, 0-1
+        scrollAcceleration?: number;
 
-    // Prevent submit on Enter keypress
-    preventSubmitOnEnter?: boolean;
+        animations?: boolean | {
+            // the in-animation delay of control elements (checkbox, radio option), while user response is awaiting
+            delay?: number;
+        };
 
-    animationsEnabled?: boolean;
+        // optional, hide UserInputField when radio, checkbox, select input is active
+        hideUserInputOnNoneTextInput?: boolean;
 
+        // robot bobble
+        robot?: {
+
+            // show thinking dots for robot, defaults to 0
+            responseTime?: number;
+
+            // the delay inbetween chained robot responses
+            chainedResponseTime?: number;
+        },
+
+        // user bobble
+        user?: {
+            // to show thinking state or not, defaults to false;
+            showThinking?: boolean
+
+            // to show user thumbnail, defaults to false
+            showThumb?: boolean
+
+        }
+    },
 }

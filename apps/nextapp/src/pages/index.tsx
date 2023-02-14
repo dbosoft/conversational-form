@@ -43,7 +43,16 @@ export default function Home() {
           <div className=" flex flex-col items-center justify-center">
             <ConversationalForm
               cf={{ formRef }}
-              className="bg-[#2C2C2E] relative mt-6 text-center min-h-[300px] w-full lg:w-[600px]" />
+              className="bg-[#2C2C2E] relative mt-6 text-center min-h-[300px] w-full lg:w-[600px]">
+              <template id='optionButton'></template>
+              <template id='1'></template>
+            </ConversationalForm>
+
+            <ConversationalForm
+              cf={{ formRef }}
+              className="bg-[#2C2C2E] relative mt-6 text-center min-h-[300px] w-full lg:w-[600px]">
+              <template id='2'></template>
+            </ConversationalForm>
           </div>
         </main>
       </div>

@@ -1,3 +1,4 @@
+import { defaultOptions } from "../..";
 import { CFGlobals } from "../../CFGlobal";
 import { Dictionary } from "../../data/Dictionary";
 import { FlowDTO, IDomTag, ITag } from "../../form-tags/ITag";
@@ -140,6 +141,8 @@ export class ControlElements {
 			listToScroll: this.list,
 			eventTarget: this.eventTarget,
 			listNavButtons: this.el.getElementsByTagName("cf-list-button"),
+			acceleration: this.cfReference.options.appearance?.scrollAcceleration
+				?? defaultOptions.appearance.scrollAcceleration
 		});
 	}
 
@@ -188,7 +191,8 @@ export class ControlElements {
 		if (!(<any>event.detail).currentResponse.isRobotResponse) {
 			this.animateInFromResponseTimer = setTimeout(() => {
 				this.animateElementsIn();
-			}, this.cfReference.uiOptions.controlElementsInAnimationDelay);
+			}, (typeof this.cfReference.options.appearance.animations !== "boolean") ?
+				this.cfReference.options.appearance.animations.delay ?? 0 : 0);
 		}
 	}
 
@@ -466,7 +470,7 @@ export class ControlElements {
 
 		if (this.tableableRows[this.rowIndex] && this.tableableRows[this.rowIndex][this.columnIndex]) {
 			this.ignoreKeyboardInput = true;
-			if (!this.cfReference.options.preventAutoFocus) {
+			if (!this.cfReference.options.behaviour.noAutoFocus) {
 				this.tableableRows[this.rowIndex][this.columnIndex].focus = true;
 			}
 		} else {
