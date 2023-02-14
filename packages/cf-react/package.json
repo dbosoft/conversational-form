@@ -1,4 +1,8 @@
 {
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "dbosoft",
   "name": "@dbosoft/cf-react",
   "version": "2.0.0-alpha.0",
   "license": "MIT",
