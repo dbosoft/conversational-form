@@ -1,8 +1,7 @@
-import { MutableRefObject, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { ConversationalForm as CF } from '@dbosoft/conversational-form';
 import { RefObject } from "react";
 import { CreateOptions } from '@dbosoft/conversational-form';
-import { IConversationalForm } from '@dbosoft/conversational-form/dist/interfaces/IConversationalForm';
 
 
 export type FormlessProps = {
@@ -13,9 +12,7 @@ export type FormProps = {
     formRef: RefObject<HTMLFormElement>
 }
 
-export type CFProps = (FormlessProps | FormProps) & CreateOptions & {
-    cfRef?: MutableRefObject<CF | null>
-}
+export type CFProps = (FormlessProps | FormProps) & CreateOptions;
 
 export type CFWithContextProps = CFProps & {
     context: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
@@ -26,11 +23,10 @@ export type CFWithContextRefProps = CFProps & {
 }
 
 export function ConversationalForm({
-    cfRef,
     ...props }
     : CFWithContextProps | CFWithContextRefProps) {
 
-    const cfRefLocal = cfRef ?? useRef<CF | null>(null);;
+    const cfRef = useRef<CF | null>(null);;
     const localContextRef = useRef<HTMLDivElement>(null);
 
     const contextProps = hasContext(props) ? { ...props.context } : {}
@@ -42,17 +38,15 @@ export function ConversationalForm({
 
         if (context == null || form == null) return;
 
-        cfRefLocal.current = new CF({
+        cfRef.current = new CF({
             ...props,
             context,
             form
         });
-
-        cfRefLocal.current.start();
+        cfRef.current.start();
 
         return function unMount() {
-            cfRefLocal?.current?.remove();
-            cfRefLocal.current = null;
+            cfRef?.current?.remove();
         };
 
         // eslint-disable-next-line react-hooks/exhaustive-deps

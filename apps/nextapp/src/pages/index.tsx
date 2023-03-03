@@ -2,7 +2,6 @@ import Head from 'next/head'
 import ConversationalForm from '@dbosoft/cf-next';
 import { useRef } from 'react';
 import data from '../formless-test-data.json';
-import { json } from 'stream/consumers';
 
 export default function Home() {
 
@@ -44,7 +43,6 @@ export default function Home() {
           </div>
           <div className=" flex flex-col xl:flex-row items-center xl:space-x-10 justify-between">
             <ConversationalForm
-              onSubmit={(d) => console.log("submitted: " + JSON.stringify(d))}
               cf={{
                 formRef,
                 appearance: {
