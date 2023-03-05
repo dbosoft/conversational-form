@@ -11,6 +11,7 @@
     "url": "https://github.com/dbosoft/conversational-form"
   },
   "homepage": "https://github.com/dbosoft/conversational-form",
+  "type": "module",
   "source": "src/index.ts",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",

@@ -4,19 +4,21 @@
   },
   "author": "dbosoft",
   "name": "@dbosoft/cf-react",
-  "version": "2.0.0-alpha.2",
+  "version": "2.0.0-alpha.6",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/dbosoft/conversational-form"
   },
   "homepage": "https://github.com/dbosoft/conversational-form",
+  "type": "module",
   "source": "src/index.ts",
   "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": "./dist"
-  },
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/*",
+    "src/*"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
