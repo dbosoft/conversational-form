@@ -1,0 +1,13 @@
+{
+  "extends": "tsconfig/nextjs.json",
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "src/markdoc/tags.js",
+    "src/markdoc/nodes.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

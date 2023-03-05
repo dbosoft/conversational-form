@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Dialog } from '@headlessui/react'
 
-import { Logomark } from '@/components/Logo'
-import { Navigation } from '@/components/Navigation'
+import { Logomark } from './Logo'
+import { Navigation } from './Navigation'
 
 function MenuIcon(props) {
   return (

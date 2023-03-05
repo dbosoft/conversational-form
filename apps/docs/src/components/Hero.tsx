@@ -3,10 +3,10 @@ import Image from 'next/image'
 import clsx from 'clsx'
 import Highlight, { defaultProps } from 'prism-react-renderer'
 
-import { Button } from '@/components/Button'
-import { HeroBackground } from '@/components/HeroBackground'
-import blurCyanImage from '@/images/blur-cyan.png'
-import blurIndigoImage from '@/images/blur-indigo.png'
+import { Button } from './Button'
+import { HeroBackground } from './HeroBackground'
+import blurCyanImage from '../images/blur-cyan.png'
+import blurIndigoImage from '../images/blur-indigo.png'
 
 const codeLanguage = 'javascript'
 const code = `export default {
@@ -49,11 +49,10 @@ export function Hero() {
             />
             <div className="relative">
               <p className="inline bg-gradient-to-r from-indigo-200 via-sky-400 to-indigo-200 bg-clip-text font-display text-5xl tracking-tight text-transparent">
-                Never miss the cache again.
+                Turn forms into conversations
               </p>
               <p className="mt-3 text-2xl tracking-tight text-slate-400">
-                Cache every single thing your app could ever do ahead of time,
-                so your code never even has to run at all.
+                With ConversationalForm you can easily turn your form content into conversations.
               </p>
               <div className="mt-8 flex gap-4 md:justify-center lg:justify-start">
                 <Button href="/">Get started</Button>

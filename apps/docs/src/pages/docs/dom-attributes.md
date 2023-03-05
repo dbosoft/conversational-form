@@ -2,13 +2,14 @@
 title: DOM attributes
 description: Quidem magni aut exercitationem maxime rerum eos.
 ---
-{% extends "../../layout.twig" %} {% set page\_title = 'DOM element attributes' %} {% set page\_slug = '/dom-element-attributes/' %} {% block page %}
 
 {{page\_title}}
 ===============
 
 Form-tag attributes
 -------------------
+
+## h2
 
 ### cf-context
 
@@ -95,21 +96,3 @@ cf-error
 Map error messages directly to a tag. The messages can be seperated by | to allow for more error messages. The app will shuffle between given messages.
 
     <input type="text" cf-error="Text is wrong wrong|Input is not right" />
-
-{% endblock %} {% block toc %}
-
-*   [{{page\_title}}](#dom-element-attributes)
-*   [Form-tag attributes](#form-attributes)
-    *   [cf-context](#cf-context)
-    *   [cf-prevent-autofocus](#cf-prevent-autofocus)
-    *   [cf-no-animation](#cf-no-animation)
-*   [Form-field attributes](#form-field-attributes)
-
-*   [cf-questions](#cf-questions)
-*   [cf-input-placeholder](#cf-input-placeholder)
-*   [{One way value-binding} with cf-questions](#one-way-binding)
-*   [cf-label](#cf-label)
-*   [cf-validation](#cf-validation)
-*   [cf-error](#cf-error)
-
-{% endblock %}

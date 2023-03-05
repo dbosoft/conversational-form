@@ -1,71 +1,12 @@
 ---
 title: Getting started
-pageTitle: CacheAdvance - Never miss the cache again.
-description: Cache every single thing your app could ever do ahead of time, so your code never even has to run at all.
+pageTitle: ConversationalForm - Turn your forms into conversations.
+description: With ConversationalForm you can easily turn your form content into conversations. It features conversational replacement of all input elements, reusable variables from previous questions and complete customization and control over the styling.
 ---
 
-Turning web forms into conversations. Conversational Form is an open-source concept by [SPACE10](https://space10.io/) to easily turn any form element on a web page into a conversational form interface. It features conversational replacement of all input elements, reusable variables from previous questions and complete customization and control over the styling.
+With ConversationalForm you can easily turn your form content into conversations. It features conversational replacement of all input elements, reusable variables from previous questions and complete customization and control over the styling.
 
-Include ConversationalForm in your page
----------------------------------------
-
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/space10-community/conversational-form@1.0.1/dist/conversational-form.min.js" crossorigin></script>
-
-ConversationalForm will automatically look through the DOM for a form element with the attibute cf-form, and auto-instantiate.
-
-    <form id="my-form-element" cf-form ...>
-
-**That's it! Your form is now conversational 👍**
-
-Self-instantiate with vanilla Javascript
-----------------------------------------
-
-Only parameter `formEl` is mandatory for the object you pass to the constructor. See full list of [ConversationalFormOptions](../options/).
-
-    new cf.ConversationalForm({
-        // HTMLFormElement
-        formEl/*: HTMLFormElement;*/
-    });
-
-React
------
-
-Vue
----
-
-Angular
--------
-
-Use with various ES6 module bundlers
-------------------------------------
-
-like [Webpack](https://github.com/webpack/webpack) and [Rollup](https://github.com/rollup/rollup)
-
-    import { ConversationalForm, EventDispatcher } from 'conversational-form';
-        var cfInstance = ConversationalForm.startTheConversation({
-        formEl: document.getElementById("form")
-    });
-
-Include Conversational Form in your project
--------------------------------------------
-
-# NPM
-
-    npm install conversational-form
-
-*   [Getting Started](#getting-started)
-*   [Include ConversationalForm in your page](#include-conversationalform-in-your-page)
-*   [Instantiate with jQuery](#instantiate-with-jquery)
-*   [Self-instantiate with vanilla Javascript](#self-instantiate-with-vanilla-javascript)
-*   [React](#react)
-*   [Vue](#vue)
-*   [Angular](#angular)
-*   [Use with various ES6 module bundlers](#use-with-various-es6-module-bundlers)
-*   [Include Conversational Form in your project](#include-conversational-form-in-your-project)
-    *   [NPM](#npm)
-
-
-Learn how to get CacheAdvance set up in your project in under thirty minutes or it's free. {% .lead %}
+Learn how to get ConversationalForm set up in your project. {% .lead %}
 
 {% quick-links %}
 
@@ -83,76 +24,149 @@ Possimus saepe veritatis sint nobis et quam eos. Architecto consequatur odit per
 
 ---
 
-## Quick start
 
-Sit commodi iste iure molestias qui amet voluptatem sed quaerat. Nostrum aut pariatur. Sint ipsa praesentium dolor error cumque velit tenetur.
+## Quickstart
 
 ### Installing dependencies
 
-Sit commodi iste iure molestias qui amet voluptatem sed quaerat. Nostrum aut pariatur. Sint ipsa praesentium dolor error cumque velit tenetur quaerat exercitationem. Consequatur et cum atque mollitia qui quia necessitatibus.
+Install package [conversational-form](https://www.npmjs.com/package/@dbosoft/conversational-form) from npm:
 
-```shell
-npm install @tailwindlabs/cache-advance
+```sh
+npm install @dbosoft/conversational-form
+
 ```
 
-Possimus saepe veritatis sint nobis et quam eos. Architecto consequatur odit perferendis fuga eveniet possimus rerum cumque. Ea deleniti voluptatum deserunt voluptatibus ut non iste. Provident nam asperiores vel laboriosam omnis ducimus enim nesciunt quaerat. Minus tempora cupiditate est quod.
-
-{% callout type="warning" title="Oh no! Something bad happened!" %}
-This is what a disclaimer message looks like. You might want to include inline `code` in it. Or maybe you’ll want to include a [link](/) in it. I don’t think we should get too carried away with other scenarios like lists or tables — that would be silly.
-{% /callout %}
-
-### Configuring the library
-
-Sit commodi iste iure molestias qui amet voluptatem sed quaerat. Nostrum aut pariatur. Sint ipsa praesentium dolor error cumque velit tenetur quaerat exercitationem. Consequatur et cum atque mollitia qui quia necessitatibus.
+If you’re using a JavaScript bundler (for instance webpack or Vite), you should be able to import it into your JavaScript modules:
 
 ```js
-// cache-advance.config.js
-export default {
-  strategy: 'predictive',
-  engine: {
-    cpus: 12,
-    backups: ['./storage/cache.wtf'],
-  },
-}
+import ConversationalForm from '@dbosoft/conversational-form';
+
 ```
 
-Possimus saepe veritatis sint nobis et quam eos. Architecto consequatur odit perferendis fuga eveniet possimus rerum cumque. Ea deleniti voluptatum deserunt voluptatibus ut non iste. Provident nam asperiores vel laboriosam omnis ducimus enim nesciunt quaerat. Minus tempora cupiditate est quod.
+You can also import from jsDeliver or UNPKG directly in an HTML page:
 
-{% callout title="You should know!" %}
-This is what a disclaimer message looks like. You might want to include inline `code` in it. Or maybe you’ll want to include a [link](/) in it. I don’t think we should get too carried away with other scenarios like lists or tables — that would be silly.
+```html
+<script type="module">
+    import ConversationalForm from 
+    'https://unpkg.com/@dbosoft/conversational-form@2/dist/index.js';
+    
+</script>
+
+```
+
+### Import styles
+
+When importing the library no styles are loaded by default, as we assume that you will customize the styles to your needs.  
+However, to help you getting started we deliver some default styles with the library. 
+
+You can either import these styles with a bundler (e. g. Webpack):
+
+```js
+import '@dbosoft/conversational-form/styles/conversational-form.css';
+
+```
+
+or directly into an HTML page:
+
+```html
+<link rel="stylesheet" 
+href="https://unpkg.com/@dbosoft/conversational-form@2  __
+   /styles/conversational-form.css"/>
+    
+```
+
+
+### Create a HTML form
+
+The conversational form is build from a standard HTML form that you can declare in plain html.  
+Please note the additional tags (cf-placeholder, cf-questions), you will learn later more about their meaning. 
+
+```html
+<form id="cf-form" style="visibility: hidden;">
+
+    <input 
+        type="text" 
+        cf-questions="Hi there&&What is your name?" 
+        name="name" 
+        cf-placeholder="Your name"
+        value="Filippa">
+
+    <input type="text" 
+        cf-questions="Awesome, {name}. 
+        Would you mind telling me where you live?" 
+        name="country"
+        value="United States" 
+        cf-placeholder="Country of residence">
+
+    <fieldset>
+        <label 
+            for="tmnj">
+            Thank you. Are you ready to 
+                learn more about Conversational Form?
+        </label>
+        <select 
+            cf-questions="Thank you. Are you ready 
+                to learn more about Conversational Form?" 
+            name="tmnj"
+            class="form-control">
+            <option>Yes</option>
+            <option>No</option>
+        </select>
+    </fieldset>
+
+    <input 
+        type="text" 
+        cf-questions="Perfect, let's get started." 
+        name="getstarted">
+
+</form>
+```
+
+{% callout type="note" title="Formless conversations" %}
+We also support declaring the conversational form without a html form (formless mode). 
 {% /callout %}
 
+### Embed the conversation
+
+In addition to the form you will need a element where the conversational-form will be placed on the page. 
+
+```html
+<div id="cf-context" style="position:relative">
+
+</div>
+```
+
+And finally you have to call the script that puts the things together: 
+
+```js
+<script type="module">
+    import ConversationalForm from 
+        'https://unpkg.com/@dbosoft/conversational-form@2/dist/index.js';
+
+    window.onload = function () {
+
+        const conversationalForm = new ConversationalForm({
+            form: document.getElementById("cf-form"),
+            context: document.getElementById("cf-context")
+            }
+        });
+        conversationalForm.start();
+
+    };
+</script>
+```
+
+
+**That's it! Your form is now conversational 👍**
+
+
+### Demo
+
+{% stackblitz projectId="dbosoft-cf-react-sample1" height=400 view="preview" /%}
+
 ---
 
-## Basic usage
-
-Praesentium laudantium magni. Consequatur reiciendis aliquid nihil iusto ut in et. Quisquam ut et aliquid occaecati. Culpa veniam aut et voluptates amet perspiciatis. Qui exercitationem in qui. Vel qui dignissimos sit quae distinctio.
-
-### Your first cache
-
-Minima vel non iste debitis. Consequatur repudiandae et quod accusamus sit molestias consequatur aperiam. Et sequi ipsa eum voluptatibus ipsam. Et quisquam ut.
-
-Qui quae esse aspernatur fugit possimus. Quam sed molestiae temporibus. Eum perferendis dignissimos provident ea et. Et repudiandae quasi accusamus consequatur dolore nobis. Quia reiciendis necessitatibus a blanditiis iste quia. Ut quis et amet praesentium sapiente.
-
-Atque eos laudantium. Optio odit aspernatur consequuntur corporis soluta quidem sunt aut doloribus. Laudantium assumenda commodi.
-
-### Clearing the cache
-
-Vel aut velit sit dolor aut suscipit at veritatis voluptas. Laudantium tempore praesentium. Qui ut voluptatem.
-
-Ea est autem fugiat velit esse a alias earum. Dolore non amet soluta eos libero est. Consequatur qui aliquam qui odit eligendi ut impedit illo dignissimos.
-
-Ut dolore qui aut nam. Natus temporibus nisi voluptatum labore est ex error vel officia. Vero repellendus ut. Suscipit voluptate et placeat. Eius quo corporis ab et consequatur quisquam. Nihil officia facere dolorem occaecati alias deleniti deleniti in.
-
-### Adding middleware
-
-Officia nobis tempora maiores id iusto magni reprehenderit velit. Quae dolores inventore molestiae perspiciatis aut. Quis sequi officia quasi rem officiis officiis. Nesciunt ut cupiditate. Sunt aliquid explicabo enim ipsa eum recusandae. Vitae sunt eligendi et non beatae minima aut.
-
-Harum perferendis aut qui quibusdam tempore laboriosam voluptatum qui sed. Amet error amet totam exercitationem aut corporis accusantium dolorum. Perspiciatis aut animi et. Sed unde error ut aut rerum.
-
-Ut quo libero aperiam mollitia est repudiandae quaerat corrupti explicabo. Voluptas accusantium sed et doloribus voluptatem fugiat a mollitia. Numquam est magnam dolorem asperiores fugiat. Soluta et fuga amet alias temporibus quasi velit. Laudantium voluptatum perspiciatis doloribus quasi facere. Eveniet deleniti veniam et quia veritatis minus veniam perspiciatis.
-
----
+## 
 
 ## Getting help
 

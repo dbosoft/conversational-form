@@ -3,13 +3,13 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
 
-import { Hero } from '@/components/Hero'
-import { Logo, Logomark } from '@/components/Logo'
-import { MobileNavigation } from '@/components/MobileNavigation'
-import { Navigation } from '@/components/Navigation'
-import { Prose } from '@/components/Prose'
-import { Search } from '@/components/Search'
-import { ThemeSelector } from '@/components/ThemeSelector'
+import { Hero } from './Hero'
+import { Logo, Logomark } from './Logo'
+import { MobileNavigation } from './MobileNavigation'
+import { Navigation } from './Navigation'
+import { Prose } from './Prose'
+import { Search } from './Search'
+import { ThemeSelector } from './ThemeSelector'
 
 const navigation = [
   {
@@ -17,12 +17,21 @@ const navigation = [
     links: [
       { title: 'Getting started', href: '/' },
       { title: 'Functionality', href: '/docs/functionality' },
+      { title: 'Appearance', href: '/docs/appearance' },
+    ],
+  },
+  {
+    title: 'Integrations',
+    links: [
+      { title: 'React & Next.js', href: '/docs/react' },
+      { title: 'Vue', href: '/docs/vue' },
+      { title: 'Angular', href: '/docs/angular' },
+
     ],
   },
   {
     title: 'Advanded Guides',
     links: [
-      { title: 'Appearance', href: '/docs/appearance' },
       { title: 'Formless', href: '/docs/formless' },
       { title: 'Events', href: '/docs/events' },
       { title: 'Voice', href: '/docs/voice' },
@@ -58,7 +67,7 @@ function Header({ navigation }) {
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
-      window.removeEventListener('scroll', onScroll, { passive: true })
+      window.removeEventListener('scroll', onScroll)
     }
   }, [])
 
@@ -129,7 +138,7 @@ function useTableOfContents(tableOfContents) {
     window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
     return () => {
-      window.removeEventListener('scroll', onScroll, { passive: true })
+      window.removeEventListener('scroll', onScroll)
     }
   }, [getHeadings, tableOfContents])
 

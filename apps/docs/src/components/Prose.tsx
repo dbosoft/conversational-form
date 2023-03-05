@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 
-export function Prose({ as: Component = 'div', className, ...props }) {
+export function Prose({ as: Component = 'div', className, ...props }: any) {
   return (
     <Component
       className={clsx(

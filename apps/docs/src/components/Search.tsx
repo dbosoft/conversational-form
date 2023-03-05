@@ -24,7 +24,7 @@ function SearchIcon(props) {
 
 export function Search() {
   let [isOpen, setIsOpen] = useState(false)
-  let [modifierKey, setModifierKey] = useState()
+  let [modifierKey, setModifierKey] = useState<string>()
 
   const onOpen = useCallback(() => {
     setIsOpen(true)
